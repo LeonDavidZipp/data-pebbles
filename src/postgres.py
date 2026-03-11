@@ -17,7 +17,7 @@ class Base(DeclarativeBase):
 	pass
 
 
-class SourceMetadata(Base):
+class BronzeSourceMetadata(Base):
 	"""Source metadata database table model."""
 
 	__tablename__ = "source_metadata"
@@ -37,7 +37,7 @@ class SourceMetadata(Base):
 	)
 
 
-class SourceMetadataRead(BaseModel):
+class BronzeSourceMetadataRead(BaseModel):
 	id: int
 	name: str
 	s3_bucket: str
@@ -88,26 +88,26 @@ class BronzeSourceMetadataInteractor:
 	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
 		self.session_maker = session_maker
 
-	async def create(self, name: str, s3_bucket: str) -> SourceMetadataRead:
+	async def create(self, name: str, s3_bucket: str) -> BronzeSourceMetadataRead:
 		async with self.session_maker() as db:
-			source = SourceMetadata(name=name, s3_bucket=s3_bucket)
+			source = BronzeSourceMetadata(name=name, s3_bucket=s3_bucket)
 			db.add(source)
 			await db.commit()
 			await db.refresh(source)
-			return SourceMetadataRead.model_validate(source)
+			return BronzeSourceMetadataRead.model_validate(source)
 
-	async def get(self, id: int) -> SourceMetadataRead | None:
+	async def get(self, id: int) -> BronzeSourceMetadataRead | None:
 		async with self.session_maker() as db:
-			source = await db.get(SourceMetadata, id)
+			source = await db.get(BronzeSourceMetadata, id)
 			if source is None:
 				return None
-			return SourceMetadataRead.model_validate(source)
+			return BronzeSourceMetadataRead.model_validate(source)
 
 	async def update(
 		self, id: int, name: str | None = None, s3_bucket: str | None = None
-	) -> SourceMetadataRead | None:
+	) -> BronzeSourceMetadataRead | None:
 		async with self.session_maker() as db:
-			source = await db.get(SourceMetadata, id)
+			source = await db.get(BronzeSourceMetadata, id)
 			if source is None:
 				return None
 			if name is not None:
@@ -116,12 +116,12 @@ class BronzeSourceMetadataInteractor:
 				source.s3_bucket = s3_bucket
 			await db.commit()
 			await db.refresh(source)
-			return SourceMetadataRead.model_validate(source)
+			return BronzeSourceMetadataRead.model_validate(source)
 
 	async def delete(self, id: int) -> int:
 		async with self.session_maker() as db:
 			result: CursorResult = await db.execute(  # type: ignore
-				delete(SourceMetadata).where(SourceMetadata.id == id)
+				delete(BronzeSourceMetadata).where(BronzeSourceMetadata.id == id)
 			)
 			await db.commit()
 			return result.rowcount
