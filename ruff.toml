@@ -1,0 +1,18 @@
+indent-width = 4
+line-length = 88
+fix = false
+respect-gitignore = false
+show-fixes = true
+exclude = [
+	"submodules",
+	".venv"
+]
+
+[lint]
+select = ["E", "F", "I", "Q", "F401"]
+
+[format]
+quote-style = "double"
+indent-style = "tab"
+docstring-code-format = true
+docstring-code-line-length = 88
