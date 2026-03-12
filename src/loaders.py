@@ -23,10 +23,9 @@ class DeltaLoader:
 
 	def get(self, table: str, version: int | None = None) -> pl.DataFrame:
 		path = f"{self.base_path}/{table}"
-		storage_options = self.storage_options
-		if version is not None and storage_options is not None:
-			storage_options["version"] = version
-		return pl.read_delta(path, storage_options=storage_options)  # type: ignore
+		return pl.read_delta(
+			path, version=version, storage_options=self.storage_options
+		)
 
 	def upload(
 		self,
