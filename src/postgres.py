@@ -105,10 +105,6 @@ class SilverSourceMetadata(Base):
 
 	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 	name: Mapped[str] = mapped_column(String, nullable=False)
-	from_source_id: Mapped[int] = mapped_column(
-		ForeignKey("bronze.source_metadata.id", ondelete="CASCADE"),
-		nullable=False,
-	)
 	created_at: Mapped[datetime] = mapped_column(
 		DateTime(timezone=True),
 		insert_default=lambda: datetime.now(timezone.utc),
@@ -474,6 +470,92 @@ class BronzeSourceVersionInteractor:
 					BronzeSourceVersion.source_id == source_id,
 					BronzeSourceVersion.version == version,
 				)
+			)
+			await db.commit()
+			return result.rowcount
+
+
+class SilverSourceMetadataInteractor:
+	"""Async interactor for silver source metadata operations."""
+
+	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
+		self.session_maker = session_maker
+
+	async def create(self, name: str, from_source_id: int) -> SilverSourceMetadataRead:
+		async with self.session_maker() as db:
+			source = SilverSourceMetadata(name=name, from_source_id=from_source_id)
+			db.add(source)
+			await db.commit()
+			await db.refresh(source)
+			return SilverSourceMetadataRead.model_validate(source)
+
+	async def get(self, id: int) -> SilverSourceMetadataRead | None:
+		async with self.session_maker() as db:
+			source = await db.get(SilverSourceMetadata, id)
+			if source is None:
+				return None
+			return SilverSourceMetadataRead.model_validate(source)
+
+	async def update(
+		self, id: int, name: str | None = None
+	) -> SilverSourceMetadataRead | None:
+		async with self.session_maker() as db:
+			source = await db.get(SilverSourceMetadata, id)
+			if source is None:
+				return None
+			if name is not None:
+				source.name = name
+			await db.commit()
+			await db.refresh(source)
+			return SilverSourceMetadataRead.model_validate(source)
+
+	async def delete(self, id: int) -> int:
+		async with self.session_maker() as db:
+			result: CursorResult = await db.execute(  # type: ignore
+				delete(SilverSourceMetadata).where(SilverSourceMetadata.id == id)
+			)
+			await db.commit()
+			return result.rowcount
+
+
+class GoldSourceMetadataInteractor:
+	"""Async interactor for gold source metadata operations."""
+
+	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
+		self.session_maker = session_maker
+
+	async def create(self, name: str) -> GoldSourceMetadataRead:
+		async with self.session_maker() as db:
+			source = GoldSourceMetadata(name=name)
+			db.add(source)
+			await db.commit()
+			await db.refresh(source)
+			return GoldSourceMetadataRead.model_validate(source)
+
+	async def get(self, id: int) -> GoldSourceMetadataRead | None:
+		async with self.session_maker() as db:
+			source = await db.get(GoldSourceMetadata, id)
+			if source is None:
+				return None
+			return GoldSourceMetadataRead.model_validate(source)
+
+	async def update(
+		self, id: int, name: str | None = None
+	) -> GoldSourceMetadataRead | None:
+		async with self.session_maker() as db:
+			source = await db.get(GoldSourceMetadata, id)
+			if source is None:
+				return None
+			if name is not None:
+				source.name = name
+			await db.commit()
+			await db.refresh(source)
+			return GoldSourceMetadataRead.model_validate(source)
+
+	async def delete(self, id: int) -> int:
+		async with self.session_maker() as db:
+			result: CursorResult = await db.execute(  # type: ignore
+				delete(GoldSourceMetadata).where(GoldSourceMetadata.id == id)
 			)
 			await db.commit()
 			return result.rowcount
