@@ -104,6 +104,14 @@ class BronzeSourceMetadataInteractor:
 		self.session_maker = session_maker
 
 	async def create(self, name: str) -> BronzeSourceMetadataRead:
+		"""Create a new bronze source metadata entry.
+
+		Args:
+			name (str): Name of the source.
+
+		Returns:
+			BronzeSourceMetadataRead: The created source metadata.
+		"""
 		async with self.session_maker() as db:
 			source = BronzeSourceMetadata(name=name)
 			db.add(source)
@@ -112,6 +120,14 @@ class BronzeSourceMetadataInteractor:
 			return BronzeSourceMetadataRead.model_validate(source)
 
 	async def get(self, id: int) -> BronzeSourceMetadataRead | None:
+		"""Get a bronze source metadata entry by ID.
+
+		Args:
+			id (int): ID of the source.
+
+		Returns:
+			BronzeSourceMetadataRead | None: The source metadata if found, else None.
+		"""
 		async with self.session_maker() as db:
 			source = await db.get(BronzeSourceMetadata, id)
 			if source is None:
@@ -121,6 +137,16 @@ class BronzeSourceMetadataInteractor:
 	async def update(
 		self, id: int, name: str | None = None
 	) -> BronzeSourceMetadataRead | None:
+		"""Update a bronze source metadata entry.
+
+		Args:
+			id (int): ID of the source.
+			name (str | None): New name for the source.
+
+		Returns:
+			BronzeSourceMetadataRead | None: The updated source metadata if found,
+				else None.
+		"""
 		async with self.session_maker() as db:
 			source = await db.get(BronzeSourceMetadata, id)
 			if source is None:
@@ -132,6 +158,14 @@ class BronzeSourceMetadataInteractor:
 			return BronzeSourceMetadataRead.model_validate(source)
 
 	async def delete(self, id: int) -> int:
+		"""Delete a bronze source metadata entry.
+
+		Args:
+			id (int): ID of the source.
+
+		Returns:
+			int: The number of rows deleted.
+		"""
 		async with self.session_maker() as db:
 			result: CursorResult = await db.execute(  # type: ignore
 				delete(BronzeSourceMetadata).where(BronzeSourceMetadata.id == id)
@@ -233,6 +267,16 @@ class BronzeSourceVersionInteractor:
 	async def get_by_source(
 		self, source_id: int, limit: int | None = None
 	) -> list[BronzeSourceVersionRead]:
+		"""Get all versions for a bronze source.
+
+		Args:
+			source_id (int): ID of the source.
+			limit (int | None): Maximum number of versions to return. If None,
+				returns all.
+
+		Returns:
+			list[BronzeSourceVersionRead]: List of version entries.
+		"""
 		async with self.session_maker() as db:
 			if limit is None:
 				result = await db.execute(
@@ -329,6 +373,14 @@ class BronzeSourceVersionInteractor:
 			return 1
 
 	async def delete(self, id: int) -> int:
+		"""Delete a bronze source version by ID.
+
+		Args:
+			id (int): ID of the bronze source version.
+
+		Returns:
+			int: The number of rows deleted.
+		"""
 		async with self.session_maker() as db:
 			result: CursorResult = await db.execute(  # type: ignore
 				delete(BronzeSourceVersion).where(BronzeSourceVersion.id == id)
@@ -337,6 +389,15 @@ class BronzeSourceVersionInteractor:
 			return result.rowcount
 
 	async def delete_version_by_source(self, source_id: int, version: int) -> int:
+		"""Delete a specific version of a bronze source.
+
+		Args:
+			source_id (int): ID of the source.
+			version (int): Version number to delete.
+
+		Returns:
+			int: The number of rows deleted.
+		"""
 		async with self.session_maker() as db:
 			result: CursorResult = await db.execute(  # type: ignore
 				delete(BronzeSourceVersion).where(
@@ -418,6 +479,15 @@ class SilverSourceMetadataInteractor:
 		self.session_maker = session_maker
 
 	async def create(self, name: str, from_source_id: int) -> SilverSourceMetadataRead:
+		"""Create a new silver source metadata entry.
+
+		Args:
+			name (str): Name of the source.
+			from_source_id (int): ID of the bronze source this derives from.
+
+		Returns:
+			SilverSourceMetadataRead: The created source metadata.
+		"""
 		async with self.session_maker() as db:
 			source = SilverSourceMetadata(name=name, from_source_id=from_source_id)
 			db.add(source)
@@ -426,6 +496,14 @@ class SilverSourceMetadataInteractor:
 			return SilverSourceMetadataRead.model_validate(source)
 
 	async def get(self, id: int) -> SilverSourceMetadataRead | None:
+		"""Get a silver source metadata entry by ID.
+
+		Args:
+			id (int): ID of the source.
+
+		Returns:
+			SilverSourceMetadataRead | None: The source metadata if found, else None.
+		"""
 		async with self.session_maker() as db:
 			source = await db.get(SilverSourceMetadata, id)
 			if source is None:
@@ -435,6 +513,16 @@ class SilverSourceMetadataInteractor:
 	async def update(
 		self, id: int, name: str | None = None
 	) -> SilverSourceMetadataRead | None:
+		"""Update a silver source metadata entry.
+
+		Args:
+			id (int): ID of the source.
+			name (str | None): New name for the source.
+
+		Returns:
+			SilverSourceMetadataRead | None: The updated source metadata if found,
+				else None.
+		"""
 		async with self.session_maker() as db:
 			source = await db.get(SilverSourceMetadata, id)
 			if source is None:
@@ -446,9 +534,124 @@ class SilverSourceMetadataInteractor:
 			return SilverSourceMetadataRead.model_validate(source)
 
 	async def delete(self, id: int) -> int:
+		"""Delete a silver source metadata entry.
+
+		Args:
+			id (int): ID of the source.
+
+		Returns:
+			int: The number of rows deleted.
+		"""
 		async with self.session_maker() as db:
 			result: CursorResult = await db.execute(  # type: ignore
 				delete(SilverSourceMetadata).where(SilverSourceMetadata.id == id)
+			)
+			await db.commit()
+			return result.rowcount
+
+
+class SilverVersionLineageInteractor:
+	"""Async interactor for silver version lineage operations."""
+
+	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
+		self.session_maker = session_maker
+
+	async def create(
+		self, source_id: int, delta_version: int, from_source_id: int
+	) -> SilverVersionLineageRead:
+		"""Create a new silver version lineage entry.
+
+		Args:
+			source_id (int): Silver source metadata ID.
+			delta_version (int): Silver Delta Lake version.
+			from_source_id (int): Bronze source version ID this derives from.
+
+		Returns:
+			SilverVersionLineageRead: The created lineage entry.
+		"""
+		async with self.session_maker() as db:
+			entry = SilverVersionLineage(
+				source_id=source_id,
+				delta_version=delta_version,
+				from_source_id=from_source_id,
+			)
+			db.add(entry)
+			await db.commit()
+			await db.refresh(entry)
+			return SilverVersionLineageRead.model_validate(entry)
+
+	async def get(self, id: int) -> SilverVersionLineageRead | None:
+		"""Get a silver version lineage entry by ID.
+
+		Args:
+			id (int): ID of the lineage entry.
+
+		Returns:
+			SilverVersionLineageRead | None: The lineage entry if found, else None.
+		"""
+		async with self.session_maker() as db:
+			entry = await db.get(SilverVersionLineage, id)
+			if entry is None:
+				return None
+			return SilverVersionLineageRead.model_validate(entry)
+
+	async def get_by_source(self, source_id: int) -> list[SilverVersionLineageRead]:
+		"""Get all lineage entries for a silver source.
+
+		Args:
+			source_id (int): Silver source metadata ID.
+
+		Returns:
+			list[SilverVersionLineageRead]: List of lineage entries ordered by delta
+				version.
+		"""
+		async with self.session_maker() as db:
+			result = await db.execute(
+				select(SilverVersionLineage)
+				.where(SilverVersionLineage.source_id == source_id)
+				.order_by(SilverVersionLineage.delta_version)
+			)
+			return [
+				SilverVersionLineageRead.model_validate(v)
+				for v in result.scalars().all()
+			]
+
+	async def get_by_delta_version(
+		self, source_id: int, delta_version: int
+	) -> SilverVersionLineageRead | None:
+		"""Get the lineage entry for a specific silver delta version.
+
+		Args:
+			source_id (int): Silver source metadata ID.
+			delta_version (int): Delta Lake version number.
+
+		Returns:
+			SilverVersionLineageRead | None: The lineage entry if found, else None.
+		"""
+		async with self.session_maker() as db:
+			result = await db.execute(
+				select(SilverVersionLineage).where(
+					SilverVersionLineage.source_id == source_id,
+					SilverVersionLineage.delta_version == delta_version,
+				)
+			)
+			entry = result.scalars().first()
+			if entry is None:
+				return None
+			return SilverVersionLineageRead.model_validate(entry)
+
+	async def delete(self, id: int) -> int:
+		"""Delete a silver version lineage entry.
+
+		Args:
+			id (int): ID of the lineage entry.
+
+		Returns:
+			int: The number of rows deleted.
+		"""
+		async with self.session_maker() as db:
+			result: CursorResult = await db.execute(  # type: ignore
+				delete(SilverVersionLineage).where(SilverVersionLineage.id == id)
 			)
 			await db.commit()
 			return result.rowcount
@@ -525,6 +728,14 @@ class GoldSourceMetadataInteractor:
 		self.session_maker = session_maker
 
 	async def create(self, name: str) -> GoldSourceMetadataRead:
+		"""Create a new gold source metadata entry.
+
+		Args:
+			name (str): Name of the source.
+
+		Returns:
+			GoldSourceMetadataRead: The created source metadata.
+		"""
 		async with self.session_maker() as db:
 			source = GoldSourceMetadata(name=name)
 			db.add(source)
@@ -533,6 +744,14 @@ class GoldSourceMetadataInteractor:
 			return GoldSourceMetadataRead.model_validate(source)
 
 	async def get(self, id: int) -> GoldSourceMetadataRead | None:
+		"""Get a gold source metadata entry by ID.
+
+		Args:
+			id (int): ID of the source.
+
+		Returns:
+			GoldSourceMetadataRead | None: The source metadata if found, else None.
+		"""
 		async with self.session_maker() as db:
 			source = await db.get(GoldSourceMetadata, id)
 			if source is None:
@@ -542,6 +761,16 @@ class GoldSourceMetadataInteractor:
 	async def update(
 		self, id: int, name: str | None = None
 	) -> GoldSourceMetadataRead | None:
+		"""Update a gold source metadata entry.
+
+		Args:
+			id (int): ID of the source.
+			name (str | None): New name for the source.
+
+		Returns:
+			GoldSourceMetadataRead | None: The updated source metadata if found,
+				else None.
+		"""
 		async with self.session_maker() as db:
 			source = await db.get(GoldSourceMetadata, id)
 			if source is None:
@@ -553,9 +782,162 @@ class GoldSourceMetadataInteractor:
 			return GoldSourceMetadataRead.model_validate(source)
 
 	async def delete(self, id: int) -> int:
+		"""Delete a gold source metadata entry.
+
+		Args:
+			id (int): ID of the source.
+
+		Returns:
+			int: The number of rows deleted.
+		"""
 		async with self.session_maker() as db:
 			result: CursorResult = await db.execute(  # type: ignore
 				delete(GoldSourceMetadata).where(GoldSourceMetadata.id == id)
+			)
+			await db.commit()
+			return result.rowcount
+
+
+class GoldVersionLineageInteractor:
+	"""Async interactor for gold version lineage operations."""
+
+	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
+		self.session_maker = session_maker
+
+	async def create(
+		self,
+		source_id: int,
+		delta_version: int,
+		from_source_id: int,
+		from_delta_version: int,
+	) -> GoldVersionLineageRead:
+		"""Create a new gold version lineage entry.
+
+		Args:
+			source_id (int): Gold source metadata ID.
+			delta_version (int): Gold Delta Lake version.
+			from_source_id (int): Silver source metadata ID this derives from.
+			from_delta_version (int): Silver Delta Lake version used.
+
+		Returns:
+			GoldVersionLineageRead: The created lineage entry.
+		"""
+		async with self.session_maker() as db:
+			entry = GoldVersionLineage(
+				source_id=source_id,
+				delta_version=delta_version,
+				from_source_id=from_source_id,
+				from_delta_version=from_delta_version,
+			)
+			db.add(entry)
+			await db.commit()
+			await db.refresh(entry)
+			return GoldVersionLineageRead.model_validate(entry)
+
+	async def create_many(
+		self,
+		source_id: int,
+		delta_version: int,
+		sources: list[tuple[int, int]],
+	) -> list[GoldVersionLineageRead]:
+		"""Create multiple lineage entries for a single gold delta version.
+
+		Args:
+			source_id (int): Gold source metadata ID.
+			delta_version (int): Gold Delta Lake version.
+			sources (list[tuple[int, int]]): List of
+				(silver_source_id, silver_delta_version) tuples.
+
+		Returns:
+			list[GoldVersionLineageRead]: The created lineage entries.
+		"""
+		async with self.session_maker() as db:
+			entries = [
+				GoldVersionLineage(
+					source_id=source_id,
+					delta_version=delta_version,
+					from_source_id=from_id,
+					from_delta_version=from_dv,
+				)
+				for from_id, from_dv in sources
+			]
+			db.add_all(entries)
+			await db.commit()
+			for entry in entries:
+				await db.refresh(entry)
+			return [GoldVersionLineageRead.model_validate(e) for e in entries]
+
+	async def get(self, id: int) -> GoldVersionLineageRead | None:
+		"""Get a gold version lineage entry by ID.
+
+		Args:
+			id (int): ID of the lineage entry.
+
+		Returns:
+			GoldVersionLineageRead | None: The lineage entry if found, else None.
+		"""
+		async with self.session_maker() as db:
+			entry = await db.get(GoldVersionLineage, id)
+			if entry is None:
+				return None
+			return GoldVersionLineageRead.model_validate(entry)
+
+	async def get_by_source(self, source_id: int) -> list[GoldVersionLineageRead]:
+		"""Get all lineage entries for a gold source.
+
+		Args:
+			source_id (int): Gold source metadata ID.
+
+		Returns:
+			list[GoldVersionLineageRead]: List of lineage entries ordered by delta
+				version.
+		"""
+		async with self.session_maker() as db:
+			result = await db.execute(
+				select(GoldVersionLineage)
+				.where(GoldVersionLineage.source_id == source_id)
+				.order_by(GoldVersionLineage.delta_version)
+			)
+			return [
+				GoldVersionLineageRead.model_validate(v) for v in result.scalars().all()
+			]
+
+	async def get_by_delta_version(
+		self, source_id: int, delta_version: int
+	) -> list[GoldVersionLineageRead]:
+		"""Get all lineage entries for a specific gold delta version.
+
+		Args:
+			source_id (int): Gold source metadata ID.
+			delta_version (int): Delta Lake version number.
+
+		Returns:
+			list[GoldVersionLineageRead]: List of lineage entries. Multiple entries
+				possible since a gold version can derive from multiple silver sources.
+		"""
+		async with self.session_maker() as db:
+			result = await db.execute(
+				select(GoldVersionLineage).where(
+					GoldVersionLineage.source_id == source_id,
+					GoldVersionLineage.delta_version == delta_version,
+				)
+			)
+			return [
+				GoldVersionLineageRead.model_validate(v) for v in result.scalars().all()
+			]
+
+	async def delete(self, id: int) -> int:
+		"""Delete a gold version lineage entry.
+
+		Args:
+			id (int): ID of the lineage entry.
+
+		Returns:
+			int: The number of rows deleted.
+		"""
+		async with self.session_maker() as db:
+			result: CursorResult = await db.execute(  # type: ignore
+				delete(GoldVersionLineage).where(GoldVersionLineage.id == id)
 			)
 			await db.commit()
 			return result.rowcount
