@@ -38,7 +38,6 @@ CREATE SCHEMA IF NOT EXISTS silver;
 CREATE TABLE IF NOT EXISTS silver.source_metadata (
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    from_source_id BIGINT NOT NULL REFERENCES bronze.source_metadata (id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
