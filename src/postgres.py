@@ -152,11 +152,12 @@ class BronzeSourceVersionInteractor:
 		Create a new bronze source version entry.
 
 		Args:
-			source_id: ID of the source.
-			s3_key: S3 key where the file is stored.
+			source_id (int): ID of the source.
+			s3_key (str): S3 key where the file is stored.
+			set_as_active (bool): Whether to set the new version as active.
 
 		Returns:
-			The number of rows affected by the create operation.
+			int: The number of rows affected by the create operation.
 		"""
 		async with self.session_maker() as db:
 			status = VersionStatus.ACTIVE if set_as_active else VersionStatus.ARCHIVED
@@ -173,7 +174,6 @@ class BronzeSourceVersionInteractor:
 			)
 			db.add(entry)
 			await db.commit()
-			await db.refresh(entry)
 			return 1
 
 	async def activate_version(self, source_id: int, version: int) -> int:
@@ -182,11 +182,11 @@ class BronzeSourceVersionInteractor:
 		version.
 
 		Args:
-			source_id: ID of the source.
-			version: Version number to activate.
+			source_id (int): ID of the source.
+			version (int): Version number to activate.
 
 		Returns:
-			The number of rows affected by the activation operation.
+			int: The number of rows affected by the activation operation.
 		"""
 		async with self.session_maker() as db:
 			await db.execute(
@@ -217,10 +217,11 @@ class BronzeSourceVersionInteractor:
 		Get a bronze source version by ID.
 
 		Args:
-			id: ID of the bronze source version.
+			id (int): ID of the bronze source version.
 
 		Returns:
-			BronzeSourceVersionRead object if found, else None.
+			BronzeSourceVersionRead | None: BronzeSourceVersionRead object if found,
+			else None.
 		"""
 		async with self.session_maker() as db:
 			entry = await db.get(BronzeSourceVersion, id)
@@ -254,14 +255,17 @@ class BronzeSourceVersionInteractor:
 		self, source_id: int, version: int | None = None
 	) -> BronzeSourceVersionRead | None:
 		"""
-		Get a specific version of a bronze source, or the latest version if no version is specified.
+		Get a specific version of a bronze source, or the latest version if no version
+		is specified.
 
 		Args:
-			source_id: ID of the source.
-			version: Version number to retrieve. If None, retrieves the latest version.
+			source_id (int): ID of the source.
+			version (int | None): Version number to retrieve. If None, retrieves the
+				latest version.
 
 		Returns:
-			BronzeSourceVersionRead object if found, else None.
+			BronzeSourceVersionRead | None: BronzeSourceVersionRead object if found,
+				else None.
 		"""
 		if version is None:
 			return await self.get_latest_by_source(source_id)
@@ -285,10 +289,11 @@ class BronzeSourceVersionInteractor:
 		Get the latest version of a bronze source.
 
 		Args:
-			source_id: ID of the source.
+			source_id (int): ID of the source.
 
 		Returns:
-			BronzeSourceVersionRead object for the latest version if found, else None.
+			BronzeSourceVersionRead | None: BronzeSourceVersionRead object for the
+				latest version if found, else None.
 		"""
 		async with self.session_maker() as db:
 			result = await db.execute(
@@ -307,11 +312,11 @@ class BronzeSourceVersionInteractor:
 		Update a bronze source version entry.
 
 		Args:
-			id: ID of the bronze source version.
-			s3_key: New S3 key for the bronze source version.
+			id (int): ID of the bronze source version.
+			s3_key (str | None): New S3 key for the bronze source version.
 
 		Returns:
-			The number of rows affected by the update operation.
+			int: The number of rows affected by the update operation.
 		"""
 		async with self.session_maker() as db:
 			entry = await db.get(BronzeSourceVersion, id)
@@ -320,7 +325,6 @@ class BronzeSourceVersionInteractor:
 			if s3_key is not None:
 				entry.s3_key = s3_key
 			await db.commit()
-			await db.refresh(entry)
 			return 1
 
 	async def delete(self, id: int) -> int:
