@@ -97,133 +97,6 @@ class BronzeSourceVersionRead(BaseModel):
 	model_config = {"from_attributes": True}
 
 
-class SilverSourceMetadata(Base):
-	"""Silver source metadata database table model."""
-
-	__tablename__ = "source_metadata"
-	__table_args__ = {"schema": "silver"}
-
-	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	name: Mapped[str] = mapped_column(String, nullable=False)
-	created_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-	)
-	updated_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-		onupdate=datetime.now(timezone.utc),
-	)
-
-
-class SilverSourceMetadataRead(BaseModel):
-	id: int
-	name: str
-	from_source_id: int
-	created_at: datetime
-	updated_at: datetime
-
-	model_config = {"from_attributes": True}
-
-
-class SilverVersionLineage(Base):
-	"""Silver version lineage database table model."""
-
-	__tablename__ = "version_lineage"
-	__table_args__ = {"schema": "silver"}
-
-	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	source_id: Mapped[int] = mapped_column(
-		ForeignKey("silver.source_metadata.id", ondelete="CASCADE"),
-		index=True,
-		nullable=False,
-	)
-	delta_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
-	from_source_id: Mapped[int] = mapped_column(
-		ForeignKey("bronze.source_versions.id", ondelete="RESTRICT"),
-		index=True,
-		nullable=False,
-	)
-	created_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-	)
-
-
-class SilverVersionLineageRead(BaseModel):
-	id: int
-	source_id: int
-	delta_version: int
-	from_source_id: int
-	created_at: datetime
-
-	model_config = {"from_attributes": True}
-
-
-class GoldSourceMetadata(Base):
-	"""Gold source metadata database table model."""
-
-	__tablename__ = "source_metadata"
-	__table_args__ = {"schema": "gold"}
-
-	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	name: Mapped[str] = mapped_column(String, nullable=False)
-	created_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-	)
-	updated_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-		onupdate=datetime.now(timezone.utc),
-	)
-
-
-class GoldSourceMetadataRead(BaseModel):
-	id: int
-	name: str
-	created_at: datetime
-	updated_at: datetime
-
-	model_config = {"from_attributes": True}
-
-
-class GoldVersionLineage(Base):
-	"""Gold version lineage database table model."""
-
-	__tablename__ = "version_lineage"
-	__table_args__ = {"schema": "gold"}
-
-	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	source_id: Mapped[int] = mapped_column(
-		ForeignKey("gold.source_metadata.id", ondelete="CASCADE"),
-		index=True,
-		nullable=False,
-	)
-	delta_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
-	from_source_id: Mapped[int] = mapped_column(
-		ForeignKey("silver.source_metadata.id", ondelete="RESTRICT"),
-		index=True,
-		nullable=False,
-	)
-	from_delta_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
-	created_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-	)
-
-
-class GoldVersionLineageRead(BaseModel):
-	id: int
-	source_id: int
-	delta_version: int
-	from_source_id: int
-	from_delta_version: int
-	created_at: datetime
-
-	model_config = {"from_attributes": True}
-
-
 class BronzeSourceMetadataInteractor:
 	"""Async interactor for source metadata operations."""
 
@@ -475,6 +348,69 @@ class BronzeSourceVersionInteractor:
 			return result.rowcount
 
 
+class SilverSourceMetadata(Base):
+	"""Silver source metadata database table model."""
+
+	__tablename__ = "source_metadata"
+	__table_args__ = {"schema": "silver"}
+
+	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+	name: Mapped[str] = mapped_column(String, nullable=False)
+	created_at: Mapped[datetime] = mapped_column(
+		DateTime(timezone=True),
+		insert_default=lambda: datetime.now(timezone.utc),
+	)
+	updated_at: Mapped[datetime] = mapped_column(
+		DateTime(timezone=True),
+		insert_default=lambda: datetime.now(timezone.utc),
+		onupdate=datetime.now(timezone.utc),
+	)
+
+
+class SilverSourceMetadataRead(BaseModel):
+	id: int
+	name: str
+	from_source_id: int
+	created_at: datetime
+	updated_at: datetime
+
+	model_config = {"from_attributes": True}
+
+
+class SilverVersionLineage(Base):
+	"""Silver version lineage database table model."""
+
+	__tablename__ = "version_lineage"
+	__table_args__ = {"schema": "silver"}
+
+	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+	source_id: Mapped[int] = mapped_column(
+		ForeignKey("silver.source_metadata.id", ondelete="CASCADE"),
+		index=True,
+		nullable=False,
+	)
+	delta_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
+	from_source_id: Mapped[int] = mapped_column(
+		ForeignKey("bronze.source_versions.id", ondelete="RESTRICT"),
+		index=True,
+		nullable=False,
+	)
+	created_at: Mapped[datetime] = mapped_column(
+		DateTime(timezone=True),
+		insert_default=lambda: datetime.now(timezone.utc),
+	)
+
+
+class SilverVersionLineageRead(BaseModel):
+	id: int
+	source_id: int
+	delta_version: int
+	from_source_id: int
+	created_at: datetime
+
+	model_config = {"from_attributes": True}
+
+
 class SilverSourceMetadataInteractor:
 	"""Async interactor for silver source metadata operations."""
 
@@ -516,6 +452,70 @@ class SilverSourceMetadataInteractor:
 			)
 			await db.commit()
 			return result.rowcount
+
+
+class GoldSourceMetadata(Base):
+	"""Gold source metadata database table model."""
+
+	__tablename__ = "source_metadata"
+	__table_args__ = {"schema": "gold"}
+
+	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+	name: Mapped[str] = mapped_column(String, nullable=False)
+	created_at: Mapped[datetime] = mapped_column(
+		DateTime(timezone=True),
+		insert_default=lambda: datetime.now(timezone.utc),
+	)
+	updated_at: Mapped[datetime] = mapped_column(
+		DateTime(timezone=True),
+		insert_default=lambda: datetime.now(timezone.utc),
+		onupdate=datetime.now(timezone.utc),
+	)
+
+
+class GoldSourceMetadataRead(BaseModel):
+	id: int
+	name: str
+	created_at: datetime
+	updated_at: datetime
+
+	model_config = {"from_attributes": True}
+
+
+class GoldVersionLineage(Base):
+	"""Gold version lineage database table model."""
+
+	__tablename__ = "version_lineage"
+	__table_args__ = {"schema": "gold"}
+
+	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+	source_id: Mapped[int] = mapped_column(
+		ForeignKey("gold.source_metadata.id", ondelete="CASCADE"),
+		index=True,
+		nullable=False,
+	)
+	delta_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
+	from_source_id: Mapped[int] = mapped_column(
+		ForeignKey("silver.source_metadata.id", ondelete="RESTRICT"),
+		index=True,
+		nullable=False,
+	)
+	from_delta_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
+	created_at: Mapped[datetime] = mapped_column(
+		DateTime(timezone=True),
+		insert_default=lambda: datetime.now(timezone.utc),
+	)
+
+
+class GoldVersionLineageRead(BaseModel):
+	id: int
+	source_id: int
+	delta_version: int
+	from_source_id: int
+	from_delta_version: int
+	created_at: datetime
+
+	model_config = {"from_attributes": True}
 
 
 class GoldSourceMetadataInteractor:
