@@ -13,6 +13,7 @@ dependencies = [
     "deltalake>=1.4.2",
     "fastapi[standard]>=0.135.1",
     "mlflow>=3.10.1",
+    "pathlib>=1.0.1",
     "polars>=1.38.1",
     "sqlalchemy>=2.0.48",
 ]
