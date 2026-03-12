@@ -147,7 +147,17 @@ class BronzeSourceVersionInteractor:
 
 	async def create(
 		self, source_id: int, s3_key: str, set_as_active: bool = False
-	) -> BronzeSourceVersionRead:
+	) -> int:
+		"""
+		Create a new bronze source version entry.
+
+		Args:
+			source_id: ID of the source.
+			s3_key: S3 key where the file is stored.
+
+		Returns:
+			The number of rows affected by the create operation.
+		"""
 		async with self.session_maker() as db:
 			status = VersionStatus.ACTIVE if set_as_active else VersionStatus.ARCHIVED
 			next_version = (
@@ -164,11 +174,9 @@ class BronzeSourceVersionInteractor:
 			db.add(entry)
 			await db.commit()
 			await db.refresh(entry)
-			return BronzeSourceVersionRead.model_validate(entry)
+			return 1
 
-	async def activate_version(
-		self, source_id: int, version: int
-	) -> BronzeSourceVersionRead | None:
+	async def activate_version(self, source_id: int, version: int) -> int:
 		"""
 		Activate a specific version for a source, archiving any currently active
 		version.
@@ -178,8 +186,7 @@ class BronzeSourceVersionInteractor:
 			version: Version number to activate.
 
 		Returns:
-			The activated BronzeSourceVersionRead object, or None if the specified
-				version does not exist.
+			The number of rows affected by the activation operation.
 		"""
 		async with self.session_maker() as db:
 			await db.execute(
@@ -201,11 +208,20 @@ class BronzeSourceVersionInteractor:
 			)
 			entry = result.scalars().first()
 			if entry is None:
-				return None
+				return 0
 			await db.commit()
-			return BronzeSourceVersionRead.model_validate(entry)
+			return 1
 
 	async def get(self, id: int) -> BronzeSourceVersionRead | None:
+		"""
+		Get a bronze source version by ID.
+
+		Args:
+			id: ID of the bronze source version.
+
+		Returns:
+			BronzeSourceVersionRead object if found, else None.
+		"""
 		async with self.session_maker() as db:
 			entry = await db.get(BronzeSourceVersion, id)
 			if entry is None:
@@ -237,6 +253,16 @@ class BronzeSourceVersionInteractor:
 	async def get_version_by_source(
 		self, source_id: int, version: int | None = None
 	) -> BronzeSourceVersionRead | None:
+		"""
+		Get a specific version of a bronze source, or the latest version if no version is specified.
+
+		Args:
+			source_id: ID of the source.
+			version: Version number to retrieve. If None, retrieves the latest version.
+
+		Returns:
+			BronzeSourceVersionRead object if found, else None.
+		"""
 		if version is None:
 			return await self.get_latest_by_source(source_id)
 
@@ -255,6 +281,15 @@ class BronzeSourceVersionInteractor:
 	async def get_latest_by_source(
 		self, source_id: int
 	) -> BronzeSourceVersionRead | None:
+		"""
+		Get the latest version of a bronze source.
+
+		Args:
+			source_id: ID of the source.
+
+		Returns:
+			BronzeSourceVersionRead object for the latest version if found, else None.
+		"""
 		async with self.session_maker() as db:
 			result = await db.execute(
 				select(BronzeSourceVersion)
@@ -267,23 +302,42 @@ class BronzeSourceVersionInteractor:
 				return None
 			return BronzeSourceVersionRead.model_validate(entry)
 
-	async def update(
-		self, id: int, s3_key: str | None = None
-	) -> BronzeSourceVersionRead | None:
+	async def update(self, id: int, s3_key: str | None = None) -> int:
+		"""
+		Update a bronze source version entry.
+
+		Args:
+			id: ID of the bronze source version.
+			s3_key: New S3 key for the bronze source version.
+
+		Returns:
+			The number of rows affected by the update operation.
+		"""
 		async with self.session_maker() as db:
 			entry = await db.get(BronzeSourceVersion, id)
 			if entry is None:
-				return None
+				return 0
 			if s3_key is not None:
 				entry.s3_key = s3_key
 			await db.commit()
 			await db.refresh(entry)
-			return BronzeSourceVersionRead.model_validate(entry)
+			return 1
 
 	async def delete(self, id: int) -> int:
 		async with self.session_maker() as db:
 			result: CursorResult = await db.execute(  # type: ignore
 				delete(BronzeSourceVersion).where(BronzeSourceVersion.id == id)
+			)
+			await db.commit()
+			return result.rowcount
+
+	async def delete_version_by_source(self, source_id: int, version: int) -> int:
+		async with self.session_maker() as db:
+			result: CursorResult = await db.execute(  # type: ignore
+				delete(BronzeSourceVersion).where(
+					BronzeSourceVersion.source_id == source_id,
+					BronzeSourceVersion.version == version,
+				)
 			)
 			await db.commit()
 			return result.rowcount
