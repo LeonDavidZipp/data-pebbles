@@ -7,6 +7,7 @@ from sqlalchemy import (
 	ForeignKey,
 	String,
 	delete,
+	func,
 	select,
 )
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -133,12 +134,15 @@ class BronzeSourceVersionInteractor:
 	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
 		self.session_maker = session_maker
 
-	async def create(
-		self, source_id: int, version: int, s3_key: str
-	) -> BronzeSourceVersionRead:
+	async def create(self, source_id: int, s3_key: str) -> BronzeSourceVersionRead:
 		async with self.session_maker() as db:
+			next_version = (
+				select(func.coalesce(func.max(BronzeSourceVersion.version), 0) + 1)
+				.where(BronzeSourceVersion.source_id == source_id)
+				.scalar_subquery()
+			)
 			entry = BronzeSourceVersion(
-				source_id=source_id, version=version, s3_key=s3_key
+				source_id=source_id, version=next_version, s3_key=s3_key
 			)
 			db.add(entry)
 			await db.commit()
@@ -152,19 +156,49 @@ class BronzeSourceVersionInteractor:
 				return None
 			return BronzeSourceVersionRead.model_validate(entry)
 
-	async def get_by_source(self, source_id: int) -> list[BronzeSourceVersionRead]:
+	async def get_by_source(
+		self, source_id: int, limit: int | None = None
+	) -> list[BronzeSourceVersionRead]:
 		async with self.session_maker() as db:
-			result = await db.execute(
-				select(BronzeSourceVersion)
-				.where(BronzeSourceVersion.source_id == source_id)
-				.order_by(BronzeSourceVersion.version)
-			)
+			if limit is None:
+				result = await db.execute(
+					select(BronzeSourceVersion)
+					.where(BronzeSourceVersion.source_id == source_id)
+					.order_by(BronzeSourceVersion.version)
+				)
+			else:
+				result = await db.execute(
+					select(BronzeSourceVersion)
+					.where(BronzeSourceVersion.source_id == source_id)
+					.order_by(BronzeSourceVersion.version.desc())
+					.limit(limit)
+				)
 			return [
 				BronzeSourceVersionRead.model_validate(v)
 				for v in result.scalars().all()
 			]
 
-	async def get_latest(self, source_id: int) -> BronzeSourceVersionRead | None:
+	async def get_version_by_source(
+		self, source_id: int, version: int | None = None
+	) -> BronzeSourceVersionRead | None:
+		if version is None:
+			return await self.get_latest_by_source(source_id)
+
+		async with self.session_maker() as db:
+			result = await db.execute(
+				select(BronzeSourceVersion).where(
+					BronzeSourceVersion.source_id == source_id,
+					BronzeSourceVersion.version == version,
+				)
+			)
+			entry = result.scalars().first()
+			if entry is None:
+				return None
+			return BronzeSourceVersionRead.model_validate(entry)
+
+	async def get_latest_by_source(
+		self, source_id: int
+	) -> BronzeSourceVersionRead | None:
 		async with self.session_maker() as db:
 			result = await db.execute(
 				select(BronzeSourceVersion)
