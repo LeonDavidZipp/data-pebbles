@@ -120,7 +120,8 @@ class SilverLoader:
 			source_id (int): ID of the silver source.
 
 		Returns:
-			list[SilverVersionLineageRead]: All lineage entries ordered by delta version.
+			list[SilverVersionLineageRead]: All lineage entries ordered by delta
+				version.
 		"""
 		return await self.lineage_interactor.get_by_source(source_id)
 
@@ -187,7 +188,8 @@ class GoldLoader:
 		Args:
 			source_id (int): ID of the gold source (used as table name).
 			df (pl.DataFrame): Data to write.
-			sources (list[tuple[int, int]]): List of (silver_source_id, silver_delta_version)
+			sources (list[tuple[int, int]]): List of (silver_source_id,
+				silver_delta_version)
 				tuples this data derives from.
 			mode (Literal["error", "append", "overwrite", "ignore"]): Delta write mode.
 
