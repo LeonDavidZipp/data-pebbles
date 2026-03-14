@@ -16,12 +16,31 @@ from ..postgres import (
 )
 from ..s3 import S3Interactor
 
+ALLOWED_CONTENT_TYPES = {
+	"text/csv",
+	"application/json",
+	"application/vnd.apache.parquet",
+	"application/octet-stream",
+	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+}
+
+ALLOWED_EXTENSIONS = {".csv", ".parquet", ".json", ".xlsx"}
+
 
 def validate_file(file: Annotated[UploadFile, File()]):
 	if not file.filename:
 		raise ValueError("Filename is required.")
-	if not file.content_type == "application/octet-stream":
-		raise ValueError("Invalid content type. Expected application/octet-stream.")
+	ext = "." + file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else ""
+	if ext not in ALLOWED_EXTENSIONS:
+		raise ValueError(
+			f"Unsupported file extension '{ext}'. "
+			+ f"Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
+		)
+	if file.content_type not in ALLOWED_CONTENT_TYPES:
+		raise ValueError(
+			f"Unsupported content type '{file.content_type}'. "
+			+ f"Allowed: {', '.join(sorted(ALLOWED_CONTENT_TYPES))}"
+		)
 	return file
 
 
