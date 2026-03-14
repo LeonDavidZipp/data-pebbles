@@ -207,6 +207,7 @@ const layerButtonClass = computed(() => {
           <UInput
             v-model="newSourceName"
             placeholder="Source name"
+            color="neutral"
             class="mb-4"
             @keyup.enter="createSource"
           />
@@ -219,6 +220,8 @@ const layerButtonClass = computed(() => {
             />
             <UButton
               label="Create"
+              color="neutral"
+              variant="solid"
               :loading="creating"
               @click="createSource"
             />
