@@ -26,6 +26,8 @@ const activeLayer = computed(() => {
   if (path.startsWith('/gold')) return '/gold'
   return '/bronze'
 })
+
+const mlflowPort = 5001
 </script>
 
 <template>
@@ -72,6 +74,45 @@ const activeLayer = computed(() => {
               class="size-4"
             />
             {{ layer.label }}
+          </NuxtLink>
+
+          <div class="pt-4 pb-1">
+            <span class="px-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+              Tools
+            </span>
+          </div>
+
+          <a
+            :href="`http://localhost:${mlflowPort}`"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors text-gray-400 hover:text-white hover:bg-white/5"
+          >
+            <UIcon
+              name="i-lucide-flask-conical"
+              class="size-4"
+            />
+            MLflow
+            <UIcon
+              name="i-lucide-external-link"
+              class="size-3 ml-auto opacity-50"
+            />
+          </a>
+
+          <NuxtLink
+            to="/sdk"
+            class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors"
+            :class="
+              route.path.startsWith('/sdk')
+                ? 'bg-white/10 text-white font-medium'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            "
+          >
+            <UIcon
+              name="i-lucide-book-open"
+              class="size-4"
+            />
+            SDK
           </NuxtLink>
         </nav>
 
