@@ -1,13 +1,25 @@
 services:
+  frontend:
+    container_name: dp-frontend
+    build: frontend
+    environment:
+      NUXT_API_BASE: "${NUXT_API_BASE:-http://backend:8000}"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
   backend:
     container_name: dp-backend
     build: backend
     environment:
       AWS_ACCESS_KEY_ID: "${MINIO_ROOT_USER:-dp_minio_user}"
       AWS_SECRET_ACCESS_KEY: "${MINIO_ROOT_PASSWORD:-supersecret}"
+      MLFLOW_S3_ENDPOINT_URL: "${MLFLOW_S3_ENDPOINT_URL:-http://minio:9000}"
       MLFLOW_BACKEND_STORE_URI: "postgresql+psycopg2://${POSTGRES_USER:-dp_pg_user}:${POSTGRES_PASSWORD:-supersecret}@postgres/${POSTGRES_DB:-dp_db}"
       MLFLOW_DEFAULT_ARTIFACT_ROOT: "${MLFLOW_DEFAULT_ARTIFACT_ROOT:-s3://mlflow/}"
       MLFLOW_ARTIFACTS_DESTINATION: "${MLFLOW_ARTIFACTS_DESTINATION:-s3://mlflow/}"
+      POSTGRES_URI: "postgresql+asyncpg://${POSTGRES_USER:-dp_pg_user}:${POSTGRES_PASSWORD:-supersecret}@postgres/${POSTGRES_DB:-dp_db}"
     ports:
       - "8000:8000"
     depends_on:
@@ -40,10 +52,10 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/2.0/mlflow/experiments/search?max_results=1')"]
       interval: 5s
-      timeout: 5s
-      retries: 5
+      timeout: 10s
+      retries: 10
 
   postgres:
     container_name: dp-db
