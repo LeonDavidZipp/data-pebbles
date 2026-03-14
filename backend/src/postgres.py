@@ -69,7 +69,13 @@ class BronzeSourceVersion(Base):
 	)
 	version: Mapped[int] = mapped_column(nullable=False)
 	status: Mapped[VersionStatus] = mapped_column(
-		Enum(VersionStatus, name="file_status", create_type=False, schema="public"),
+		Enum(
+			VersionStatus,
+			name="file_status",
+			create_type=False,
+			schema="bronze",
+			values_callable=lambda e: [member.value for member in e],
+		),
 		nullable=False,
 		default=VersionStatus.ACTIVE,
 	)
