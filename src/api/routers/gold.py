@@ -59,8 +59,8 @@ async def create_source(
 	)
 
 
-@gold_router.get("/{source_id}/metadata", status_code=status.HTTP_200_OK)
-async def get_source_metadata(
+@gold_router.get("/{source_id}", status_code=status.HTTP_200_OK)
+async def get_source(
 	source_id: Annotated[int, Path()],
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
 ) -> GoldMetadataResponse:
@@ -124,8 +124,8 @@ async def list_versions(
 	]
 
 
-@gold_router.post("/upload/{source_id}")
-async def upload(
+@gold_router.post("/{source_id}/versions")
+async def upload_version(
 	source_id: Annotated[int, Path()],
 	file: Annotated[UploadFile, Depends(validate_file)],
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
@@ -141,11 +141,11 @@ async def upload(
 	)
 
 
-@gold_router.get("/download/{source_id}")
-def download(
-	gold: Annotated[GoldLoader, Depends(gold_dep)],
+@gold_router.get("/{source_id}/versions/{version}")
+def download_version(
 	source_id: Annotated[int, Path()],
-	version: Annotated[int | None, Query()] = None,
+	version: Annotated[int, Path()],
+	gold: Annotated[GoldLoader, Depends(gold_dep)],
 ) -> StreamingResponse:
 	df = gold.get(source_id=source_id, version=version).collect()
 	buf = df.write_ipc_stream(None)
@@ -155,21 +155,3 @@ def download(
 		media_type="application/octet-stream",
 		headers={"Content-Disposition": f"attachment; filename={source_id}.parquet"},
 	)
-
-
-@gold_router.get("/{source_id}/lineage", status_code=status.HTTP_200_OK)
-async def get_lineage(
-	source_id: Annotated[int, Path()],
-	gold: Annotated[GoldLoader, Depends(gold_dep)],
-) -> list[GoldLineageResponse]:
-	entries = await gold.get_lineage(source_id)
-	return [
-		GoldLineageResponse(
-			id=e.id,
-			source_id=e.source_id,
-			delta_version=e.delta_version,
-			from_source_id=e.from_source_id,
-			created_at=e.created_at.isoformat(),
-		)
-		for e in entries
-	]

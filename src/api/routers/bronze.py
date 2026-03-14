@@ -1,7 +1,7 @@
 from io import BytesIO
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, UploadFile, status
+from fastapi import APIRouter, Depends, HTTPException, Path, UploadFile, status
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
@@ -61,8 +61,8 @@ async def create_source(
 	)
 
 
-@bronze_router.get("/{source_id}/metadata", status_code=status.HTTP_200_OK)
-async def get_source_metadata(
+@bronze_router.get("/{source_id}", status_code=status.HTTP_200_OK)
+async def get_source(
 	source_id: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> MetadataResponse:
@@ -128,7 +128,7 @@ async def list_versions(
 	]
 
 
-@bronze_router.patch("/{source_id}/versions/{version}/activate")
+@bronze_router.patch("/{source_id}/versions/{version}")
 async def activate_version(
 	source_id: Annotated[int, Path()],
 	version: Annotated[int, Path()],
@@ -162,10 +162,10 @@ async def delete_version(
 	)
 
 
-@bronze_router.post("/upload/{source_id}")
-async def upload(
-	file: Annotated[UploadFile, Depends(validate_file)],
+@bronze_router.post("/{source_id}/versions")
+async def upload_version(
 	source_id: Annotated[int, Path()],
+	file: Annotated[UploadFile, Depends(validate_file)],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> JSONResponse:
 	content = await file.read()
@@ -176,11 +176,11 @@ async def upload(
 	)
 
 
-@bronze_router.get("/download/{source_id}")
-async def download(
-	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
+@bronze_router.get("/{source_id}/versions/{version}")
+async def download_version(
 	source_id: Annotated[int, Path()],
-	version: Annotated[int | None, Query()] = None,
+	version: Annotated[int, Path()],
+	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> StreamingResponse:
 	result = await bronze.download_version(source_id, version)
 	if result is None:

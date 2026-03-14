@@ -59,8 +59,8 @@ async def create_source(
 	)
 
 
-@silver_router.get("/{source_id}/metadata", status_code=status.HTTP_200_OK)
-async def get_source_metadata(
+@silver_router.get("/{source_id}", status_code=status.HTTP_200_OK)
+async def get_source(
 	source_id: Annotated[int, Path()],
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
 ) -> SilverMetadataResponse:
@@ -124,8 +124,8 @@ async def list_versions(
 	]
 
 
-@silver_router.post("/upload/{source_id}")
-async def upload(
+@silver_router.post("/{source_id}/versions")
+async def upload_version(
 	source_id: Annotated[int, Path()],
 	file: Annotated[UploadFile, Depends(validate_file)],
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
@@ -138,11 +138,11 @@ async def upload(
 	)
 
 
-@silver_router.get("/download/{source_id}")
-def download(
-	silver: Annotated[SilverLoader, Depends(silver_dep)],
+@silver_router.get("/{source_id}/versions/{version}")
+def download_version(
 	source_id: Annotated[int, Path()],
-	version: Annotated[int | None, Query()] = None,
+	version: Annotated[int, Path()],
+	silver: Annotated[SilverLoader, Depends(silver_dep)],
 ) -> StreamingResponse:
 	df = silver.get(source_id=source_id, version=version).collect()
 	buf = df.write_ipc_stream(None)
@@ -152,21 +152,3 @@ def download(
 		media_type="application/octet-stream",
 		headers={"Content-Disposition": f"attachment; filename={source_id}.parquet"},
 	)
-
-
-@silver_router.get("/{source_id}/lineage", status_code=status.HTTP_200_OK)
-async def get_lineage(
-	source_id: Annotated[int, Path()],
-	silver: Annotated[SilverLoader, Depends(silver_dep)],
-) -> list[SilverLineageResponse]:
-	entries = await silver.get_lineage(source_id)
-	return [
-		SilverLineageResponse(
-			id=e.id,
-			source_id=e.source_id,
-			delta_version=e.delta_version,
-			from_source_id=e.from_source_id,
-			created_at=e.created_at.isoformat(),
-		)
-		for e in entries
-	]
