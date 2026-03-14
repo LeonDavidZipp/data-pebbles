@@ -180,7 +180,7 @@ class GoldLoader:
 		self,
 		source_id: int,
 		lf: pl.LazyFrame,
-		sources: list[tuple[int, int]],
+		sources: list[int],
 		mode: Literal["error", "append", "overwrite", "ignore"] = "append",
 	) -> list[GoldVersionLineageRead]:
 		"""Upload data to a gold Delta table and record lineage.
@@ -188,9 +188,7 @@ class GoldLoader:
 		Args:
 			source_id (int): ID of the gold source (used as table name).
 			lf (pl.LazyFrame): Data to write.
-			sources (list[tuple[int, int]]): List of (silver_source_id,
-				silver_delta_version)
-				tuples this data derives from.
+			sources (list[int]): Silver version lineage row IDs this data derives from.
 			mode (Literal["error", "append", "overwrite", "ignore"]): Delta write mode.
 
 		Returns:
@@ -224,8 +222,7 @@ class GoldLoader:
 			delta_version (int): Delta version number.
 
 		Returns:
-			list[GoldVersionLineageRead]: The lineage entries. Multiple entries possible
-				since a gold version can derive from multiple silver sources.
+			list[GoldVersionLineageRead]: The lineage entries.
 		"""
 		return await self.lineage_interactor.get_by_delta_version(
 			source_id, delta_version
