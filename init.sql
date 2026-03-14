@@ -7,7 +7,7 @@ CREATE TYPE bronze.file_status AS ENUM ('active', 'archived', 'deleted');
 -- stores metadata about the source, e.g. "customer_data", "sales_data", etc.
 CREATE TABLE IF NOT EXISTS bronze.source_metadata (
     id BIGSERIAL PRIMARY KEY,
-    name TEXTNOT NULL,
+    name TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -26,9 +26,9 @@ CREATE TABLE IF NOT EXISTS bronze.source_versions (
     UNIQUE (source_id, version)
 );
 
-CREATE INDEX IF NOT EXISTS idx_source_versions_source_id ON internal.source_versions (source_id);
+CREATE INDEX IF NOT EXISTS idx_source_versions_source_id ON bronze.source_versions (source_id);
 
-CREATE INDEX IF NOT EXISTS idx_source_versions_status ON internal.source_versions (status);
+CREATE INDEX IF NOT EXISTS idx_source_versions_status ON bronze.source_versions (status);
 
 -- silver layer
 
@@ -64,7 +64,7 @@ CREATE SCHEMA IF NOT EXISTS gold;
 -- stores metadata about the source in the gold layer, e.g. "customer_data", "sales_data", etc. This allows us to keep track of the lineage from silver to gold, and also to store any additional metadata specific to the gold layer if needed.
 CREATE TABLE IF NOT EXISTS gold.source_metadata (
     id BIGSERIAL PRIMARY KEY,
-    name TEXTNOT NULL,
+    name TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
