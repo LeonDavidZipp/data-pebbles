@@ -22,9 +22,10 @@ const layers = [
 
 const activeLayer = computed(() => {
   const path = route.path
+  if (path.startsWith('/bronze')) return '/bronze'
   if (path.startsWith('/silver')) return '/silver'
   if (path.startsWith('/gold')) return '/gold'
-  return '/bronze'
+  return ''
 })
 
 const mlflowPort = 5001
