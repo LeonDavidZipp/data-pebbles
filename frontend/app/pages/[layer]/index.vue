@@ -78,11 +78,19 @@ watch(layer, fetchSources, { immediate: true })
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-semibold capitalize">
-        {{ layer }} Sources
-      </h1>
+  <div class="h-full flex flex-col">
+    <!-- Header bar -->
+    <div class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-4 flex items-center justify-between">
+      <div>
+        <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mb-1">
+          <span>Layers</span>
+          <span>/</span>
+          <span class="capitalize text-gray-900 dark:text-white">{{ layer }}</span>
+        </div>
+        <h1 class="text-xl font-semibold text-gray-900 dark:text-white capitalize">
+          {{ layer }} Sources
+        </h1>
+      </div>
       <UButton
         icon="i-lucide-plus"
         label="New Source"
@@ -90,62 +98,94 @@ watch(layer, fetchSources, { immediate: true })
       />
     </div>
 
-    <div
-      v-if="loading"
-      class="flex justify-center py-12"
-    >
-      <UIcon
-        name="i-lucide-loader-2"
-        class="size-6 animate-spin"
-      />
-    </div>
-
-    <div
-      v-else-if="sources.length === 0"
-      class="text-center py-12 text-muted"
-    >
-      <UIcon
-        name="i-lucide-inbox"
-        class="size-12 mx-auto mb-3"
-      />
-      <p>No sources yet. Create one to get started.</p>
-    </div>
-
-    <div
-      v-else
-      class="grid gap-3"
-    >
+    <!-- Content -->
+    <div class="flex-1 overflow-auto p-6 bg-gray-50 dark:bg-gray-950">
       <div
-        v-for="source in sources"
-        :key="source.id"
-        class="flex items-center justify-between p-4 border border-default rounded-lg hover:bg-elevated transition-colors"
+        v-if="loading"
+        class="flex justify-center py-12"
       >
-        <NuxtLink
-          :to="`/${layer}/${source.id}`"
-          class="flex-1"
-        >
-          <p class="font-medium">
-            {{ source.name }}
-          </p>
-          <p class="text-sm text-muted">
-            Created {{ new Date(source.created_at).toLocaleDateString() }}
-          </p>
-        </NuxtLink>
+        <UIcon
+          name="i-lucide-loader-2"
+          class="size-6 animate-spin text-gray-400"
+        />
+      </div>
 
-        <div class="flex gap-2">
-          <UButton
-            icon="i-lucide-arrow-right"
-            variant="ghost"
-            color="neutral"
-            :to="`/${layer}/${source.id}`"
-          />
-          <UButton
-            icon="i-lucide-trash-2"
-            variant="ghost"
-            color="error"
-            @click="deleteSource(source.id)"
-          />
-        </div>
+      <div
+        v-else-if="sources.length === 0"
+        class="text-center py-16 text-gray-500 dark:text-gray-400"
+      >
+        <UIcon
+          name="i-lucide-inbox"
+          class="size-12 mx-auto mb-3 text-gray-300 dark:text-gray-600"
+        />
+        <p class="text-sm">
+          No sources yet. Create one to get started.
+        </p>
+      </div>
+
+      <div
+        v-else
+        class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden"
+      >
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+              <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                Name
+              </th>
+              <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                Created
+              </th>
+              <th class="text-right py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="source in sources"
+              :key="source.id"
+              class="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
+              @click="navigateTo(`/${layer}/${source.id}`)"
+            >
+              <td class="py-3 px-4">
+                <div class="flex items-center gap-2.5">
+                  <div class="size-8 rounded bg-primary/10 flex items-center justify-center">
+                    <UIcon
+                      name="i-lucide-file-box"
+                      class="size-4 text-primary"
+                    />
+                  </div>
+                  <span class="font-medium text-gray-900 dark:text-white">{{ source.name }}</span>
+                </div>
+              </td>
+              <td class="py-3 px-4 text-gray-500 dark:text-gray-400">
+                {{ new Date(source.created_at).toLocaleDateString() }}
+              </td>
+              <td class="py-3 px-4 text-right">
+                <div
+                  class="flex justify-end gap-1"
+                  @click.stop
+                >
+                  <UButton
+                    icon="i-lucide-arrow-right"
+                    variant="ghost"
+                    color="neutral"
+                    size="xs"
+                    :to="`/${layer}/${source.id}`"
+                  />
+                  <UButton
+                    icon="i-lucide-trash-2"
+                    variant="ghost"
+                    color="error"
+                    size="xs"
+                    @click="deleteSource(source.id)"
+                  />
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 

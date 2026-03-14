@@ -189,160 +189,220 @@ fetchAll()
 </script>
 
 <template>
-  <div class="p-6">
-    <div
-      v-if="loading"
-      class="flex justify-center py-12"
-    >
-      <UIcon
-        name="i-lucide-loader-2"
-        class="size-6 animate-spin"
-      />
+  <div class="h-full flex flex-col">
+    <!-- Header bar -->
+    <div class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mb-1">
+            <NuxtLink
+              :to="`/${layer}`"
+              class="hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              <span class="capitalize">{{ layer }}</span> Sources
+            </NuxtLink>
+            <span>/</span>
+            <span class="text-gray-900 dark:text-white">{{ source?.name ?? '...' }}</span>
+          </div>
+          <div
+            v-if="!loading && source"
+            class="flex items-center gap-3"
+          >
+            <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+              {{ source.name }}
+            </h1>
+            <UBadge
+              variant="subtle"
+              color="neutral"
+              size="sm"
+              class="capitalize"
+            >
+              {{ layer }}
+            </UBadge>
+          </div>
+        </div>
+        <div
+          v-if="!loading && source"
+          class="flex items-center gap-2"
+        >
+          <UButton
+            icon="i-lucide-pencil"
+            label="Rename"
+            variant="outline"
+            color="neutral"
+            size="sm"
+            @click="openRename"
+          />
+          <UButton
+            v-if="layer === 'bronze'"
+            icon="i-lucide-upload"
+            label="Upload Version"
+            size="sm"
+            @click="showUploadModal = true"
+          />
+        </div>
+      </div>
     </div>
 
-    <template v-else-if="source">
-      <div class="flex items-center gap-3 mb-6">
-        <UButton
-          icon="i-lucide-arrow-left"
-          variant="ghost"
-          color="neutral"
-          :to="`/${layer}`"
-        />
-        <div class="flex-1">
-          <h1 class="text-2xl font-semibold">
-            {{ source.name }}
-          </h1>
-          <p class="text-sm text-muted">
-            {{ layer }} source #{{ source.id }} &middot; Created
-            {{ new Date(source.created_at).toLocaleDateString() }}
-          </p>
-        </div>
-        <UButton
-          icon="i-lucide-pencil"
-          label="Rename"
-          variant="outline"
-          color="neutral"
-          @click="openRename"
-        />
-        <UButton
-          v-if="layer === 'bronze'"
-          icon="i-lucide-upload"
-          label="Upload Version"
-          @click="showUploadModal = true"
-        />
-      </div>
-
+    <!-- Content -->
+    <div class="flex-1 overflow-auto p-6 bg-gray-50 dark:bg-gray-950">
       <div
-        v-if="versions.length === 0"
-        class="text-center py-12 text-muted"
+        v-if="loading"
+        class="flex justify-center py-12"
       >
         <UIcon
-          name="i-lucide-file-x"
-          class="size-12 mx-auto mb-3"
+          name="i-lucide-loader-2"
+          class="size-6 animate-spin text-gray-400"
         />
-        <p>
-          No versions yet.
-          <template v-if="layer === 'bronze'">
-            Upload a file to create the first version.
-          </template><template v-else>
-            Use the SDK to upload versions to {{ layer }} sources.
-          </template>
-        </p>
       </div>
 
-      <table
-        v-else
-        class="w-full text-sm"
-      >
-        <thead>
-          <tr class="border-b border-default text-left">
-            <th class="py-2 px-3 font-medium">
-              Version
-            </th>
-            <th
-              v-if="layer === 'bronze'"
-              class="py-2 px-3 font-medium"
-            >
-              Status
-            </th>
-            <th
-              v-if="layer !== 'bronze'"
-              class="py-2 px-3 font-medium"
-            >
-              From Source
-            </th>
-            <th class="py-2 px-3 font-medium">
-              Created
-            </th>
-            <th class="py-2 px-3 font-medium text-right">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="v in versions"
-            :key="getVersionNumber(v)"
-            class="border-b border-default hover:bg-elevated transition-colors"
+      <template v-else-if="source">
+        <!-- Source details card -->
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5 mb-6">
+          <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
+            Source Details
+          </h2>
+          <div class="grid grid-cols-3 gap-4 text-sm">
+            <div>
+              <span class="text-gray-500 dark:text-gray-400">Source ID</span>
+              <p class="font-medium text-gray-900 dark:text-white mt-0.5">
+                {{ source.id }}
+              </p>
+            </div>
+            <div>
+              <span class="text-gray-500 dark:text-gray-400">Layer</span>
+              <p class="font-medium text-gray-900 dark:text-white capitalize mt-0.5">
+                {{ layer }}
+              </p>
+            </div>
+            <div>
+              <span class="text-gray-500 dark:text-gray-400">Created</span>
+              <p class="font-medium text-gray-900 dark:text-white mt-0.5">
+                {{ new Date(source.created_at).toLocaleDateString() }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Versions section -->
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+          <div class="px-5 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              Versions
+            </h2>
+            <span class="text-xs text-gray-400">{{ versions.length }} total</span>
+          </div>
+
+          <div
+            v-if="versions.length === 0"
+            class="text-center py-12 text-gray-500 dark:text-gray-400"
           >
-            <td class="py-2 px-3">
-              v{{ getVersionNumber(v) }}
-            </td>
-            <td
-              v-if="layer === 'bronze'"
-              class="py-2 px-3"
-            >
-              <UBadge
-                :color="getStatus(v) === 'active' ? 'success' : 'neutral'"
-                variant="subtle"
-                size="sm"
-              >
-                {{ getStatus(v) }}
-              </UBadge>
-            </td>
-            <td
-              v-if="layer !== 'bronze'"
-              class="py-2 px-3"
-            >
-              #{{
-                (v as SilverLineageResponse | GoldLineageResponse)
-                  .from_source_id
-              }}
-            </td>
-            <td class="py-2 px-3">
-              {{ new Date(v.created_at).toLocaleDateString() }}
-            </td>
-            <td class="py-2 px-3 text-right">
-              <div class="flex justify-end gap-1">
-                <UButton
-                  icon="i-lucide-download"
-                  variant="ghost"
-                  color="neutral"
-                  size="xs"
-                  @click="downloadVersion(getVersionNumber(v))"
-                />
-                <UButton
-                  v-if="layer === 'bronze' && getStatus(v) !== 'active'"
-                  icon="i-lucide-check-circle"
-                  variant="ghost"
-                  color="primary"
-                  size="xs"
-                  @click="activateVersion(getVersionNumber(v))"
-                />
-                <UButton
+            <UIcon
+              name="i-lucide-file-x"
+              class="size-10 mx-auto mb-3 text-gray-300 dark:text-gray-600"
+            />
+            <p class="text-sm">
+              <template v-if="layer === 'bronze'">
+                No versions yet. Upload a file to create the first version.
+              </template>
+              <template v-else>
+                Use the SDK to upload versions to {{ layer }} sources.
+              </template>
+            </p>
+          </div>
+
+          <table
+            v-else
+            class="w-full text-sm"
+          >
+            <thead>
+              <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+                <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                  Version
+                </th>
+                <th
                   v-if="layer === 'bronze'"
-                  icon="i-lucide-trash-2"
-                  variant="ghost"
-                  color="error"
-                  size="xs"
-                  @click="deleteVersion(getVersionNumber(v))"
-                />
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </template>
+                  class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider"
+                >
+                  Status
+                </th>
+                <th
+                  v-if="layer !== 'bronze'"
+                  class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider"
+                >
+                  From Source
+                </th>
+                <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                  Created
+                </th>
+                <th class="text-right py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="v in versions"
+                :key="getVersionNumber(v)"
+                class="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+              >
+                <td class="py-2.5 px-4 font-mono text-gray-900 dark:text-white">
+                  v{{ getVersionNumber(v) }}
+                </td>
+                <td
+                  v-if="layer === 'bronze'"
+                  class="py-2.5 px-4"
+                >
+                  <UBadge
+                    :color="getStatus(v) === 'active' ? 'success' : 'neutral'"
+                    variant="subtle"
+                    size="sm"
+                  >
+                    {{ getStatus(v) }}
+                  </UBadge>
+                </td>
+                <td
+                  v-if="layer !== 'bronze'"
+                  class="py-2.5 px-4 text-gray-500 dark:text-gray-400"
+                >
+                  #{{ (v as SilverLineageResponse | GoldLineageResponse).from_source_id }}
+                </td>
+                <td class="py-2.5 px-4 text-gray-500 dark:text-gray-400">
+                  {{ new Date(v.created_at).toLocaleDateString() }}
+                </td>
+                <td class="py-2.5 px-4 text-right">
+                  <div class="flex justify-end gap-1">
+                    <UButton
+                      icon="i-lucide-download"
+                      variant="ghost"
+                      color="neutral"
+                      size="xs"
+                      @click="downloadVersion(getVersionNumber(v))"
+                    />
+                    <UButton
+                      v-if="layer === 'bronze' && getStatus(v) !== 'active'"
+                      icon="i-lucide-check-circle"
+                      variant="ghost"
+                      color="primary"
+                      size="xs"
+                      @click="activateVersion(getVersionNumber(v))"
+                    />
+                    <UButton
+                      v-if="layer === 'bronze'"
+                      icon="i-lucide-trash-2"
+                      variant="ghost"
+                      color="error"
+                      size="xs"
+                      @click="deleteVersion(getVersionNumber(v))"
+                    />
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </template>
+    </div>
 
     <!-- Upload Modal -->
     <UModal v-model:open="showUploadModal">
@@ -351,14 +411,13 @@ fetchAll()
           <h2 class="text-lg font-semibold mb-4">
             Upload Version
           </h2>
-
           <div
             class="relative flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-8 transition-colors"
             :class="[
               uploading ? 'pointer-events-none opacity-60' : 'cursor-pointer',
               isDragOver
                 ? 'border-primary bg-primary/5'
-                : 'border-gray-500/40 hover:border-gray-400'
+                : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
             ]"
             @dragover.prevent="isDragOver = true"
             @dragleave.prevent="isDragOver = false"
@@ -375,13 +434,12 @@ fetchAll()
               name="i-lucide-loader-circle"
               class="text-3xl text-gray-400 animate-spin"
             />
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-gray-500 dark:text-gray-400">
               <template v-if="uploading">
                 Uploading...
               </template>
               <template v-else>
-                Drag & drop a file here, or
-                <span class="text-primary underline">browse</span>
+                Drag & drop a file here, or <span class="text-primary underline">browse</span>
               </template>
             </p>
             <input

@@ -30,27 +30,40 @@ const activeLayer = computed(() => {
 
 <template>
   <UApp>
-    <div class="flex h-screen">
-      <aside class="w-56 border-r border-default flex flex-col bg-elevated">
-        <div class="p-4 border-b border-default">
+    <div class="flex h-screen bg-gray-50 dark:bg-gray-950">
+      <!-- Sidebar -->
+      <aside class="w-60 bg-gray-900 dark:bg-gray-950 text-white flex flex-col border-r border-gray-800">
+        <div class="px-5 py-4 flex items-center gap-2.5">
+          <div class="size-8 rounded-lg bg-primary flex items-center justify-center">
+            <UIcon
+              name="i-lucide-gem"
+              class="size-4 text-white"
+            />
+          </div>
           <NuxtLink
             to="/"
-            class="text-lg font-semibold"
+            class="text-base font-semibold tracking-tight text-white"
           >
             Data Pebbles
           </NuxtLink>
         </div>
 
-        <nav class="flex-1 p-2 space-y-1">
+        <div class="px-3 mt-2 mb-1">
+          <span class="px-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+            Layers
+          </span>
+        </div>
+
+        <nav class="flex-1 px-3 space-y-0.5">
           <NuxtLink
             v-for="layer in layers"
             :key="layer.to"
             :to="layer.to"
-            class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors"
+            class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors"
             :class="
               activeLayer === layer.to
-                ? 'bg-primary/10 text-primary font-medium'
-                : 'text-muted hover:bg-elevated-muted'
+                ? 'bg-white/10 text-white font-medium'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
             "
           >
             <UIcon
@@ -61,11 +74,15 @@ const activeLayer = computed(() => {
           </NuxtLink>
         </nav>
 
-        <div class="p-2 border-t border-default">
-          <UColorModeButton class="w-full" />
+        <div class="px-3 pb-3 mt-auto border-t border-gray-800 pt-3">
+          <UColorModeButton
+            variant="ghost"
+            class="w-full text-gray-400 hover:text-white"
+          />
         </div>
       </aside>
 
+      <!-- Main content -->
       <main class="flex-1 overflow-auto">
         <NuxtPage />
       </main>
