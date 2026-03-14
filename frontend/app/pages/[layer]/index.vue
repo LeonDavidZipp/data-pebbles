@@ -75,6 +75,14 @@ async function deleteSource(id: number) {
 }
 
 watch(layer, fetchSources, { immediate: true })
+
+const layerButtonClass = computed(() => {
+  switch (layer.value) {
+    case 'silver': return 'bg-gray-400 hover:bg-gray-500 text-white'
+    case 'gold': return 'bg-yellow-500 hover:bg-yellow-600 text-white'
+    default: return 'bg-amber-700 hover:bg-amber-800 text-white'
+  }
+})
 </script>
 
 <template>
@@ -94,6 +102,7 @@ watch(layer, fetchSources, { immediate: true })
       <UButton
         icon="i-lucide-plus"
         label="New Source"
+        :class="layerButtonClass"
         @click="showCreateModal = true"
       />
     </div>
