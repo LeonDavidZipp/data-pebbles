@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useHead({
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
-  link: [{ rel: 'icon', href: '/favicon.ico' }],
+  link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
   htmlAttrs: {
     lang: 'en'
   }
@@ -34,11 +34,12 @@ const activeLayer = computed(() => {
       <!-- Sidebar -->
       <aside class="w-60 bg-gray-900 dark:bg-gray-950 text-white flex flex-col border-r border-gray-800">
         <div class="px-5 py-4 flex items-center gap-2.5">
-          <div class="size-8 rounded-lg bg-primary flex items-center justify-center">
-            <UIcon
-              name="i-lucide-gem"
-              class="size-4 text-white"
-            />
+          <div class="size-8 rounded-lg overflow-hidden flex items-center justify-center">
+            <img
+              src="/favicon.svg"
+              alt="Data Pebbles"
+              class="size-8"
+            >
           </div>
           <NuxtLink
             to="/"
