@@ -31,21 +31,21 @@ class DeltaLoader:
 		self.base_path = f"{base_path}/{layer}"
 		self.storage_options = storage_options
 
-	def get(self, table: str, version: int | None = None) -> pl.DataFrame:
+	def get(self, table: str, version: int | None = None) -> pl.LazyFrame:
 		path = f"{self.base_path}/{table}"
-		return pl.read_delta(
+		return pl.scan_delta(
 			path, version=version, storage_options=self.storage_options
 		)
 
 	def upload(
 		self,
 		table: str,
-		df: pl.DataFrame,
+		lf: pl.LazyFrame,
 		mode: Literal["error", "append", "overwrite", "ignore"] = "append",
 	) -> int:
 		path = f"{self.base_path}/{table}"
 		write_opts = {"schema_mode": "overwrite"}
-		df.write_delta(  # type: ignore
+		lf.sink_delta(  # type: ignore
 			path,
 			mode=mode,
 			storage_options=self.storage_options,
@@ -76,7 +76,7 @@ class SilverLoader:
 		"""
 		return await self.metadata_interactor.get(source_id)
 
-	def get(self, source_id: int, version: int | None = None) -> pl.DataFrame:
+	def get(self, source_id: int, version: int | None = None) -> pl.LazyFrame:
 		"""Get data from a silver Delta table.
 
 		Args:
@@ -91,7 +91,7 @@ class SilverLoader:
 	async def upload(
 		self,
 		source_id: int,
-		df: pl.DataFrame,
+		lf: pl.LazyFrame,
 		from_source_id: int,
 		mode: Literal["error", "append", "overwrite", "ignore"] = "append",
 	) -> SilverVersionLineageRead:
@@ -99,14 +99,14 @@ class SilverLoader:
 
 		Args:
 			source_id (int): ID of the silver source (used as table name).
-			df (pl.DataFrame): Data to write.
+			lf (pl.LazyFrame): Data to write.
 			from_source_id (int): Bronze source version ID this data derives from.
 			mode (Literal["error", "append", "overwrite", "ignore"]): Delta write mode.
 
 		Returns:
 			SilverVersionLineageRead: The created lineage entry.
 		"""
-		delta_version = self.delta_loader.upload(table=str(source_id), df=df, mode=mode)
+		delta_version = self.delta_loader.upload(table=str(source_id), lf=lf, mode=mode)
 		return await self.lineage_interactor.create(
 			source_id=source_id,
 			delta_version=delta_version,
@@ -164,7 +164,7 @@ class GoldLoader:
 		"""
 		return await self.metadata_interactor.get(source_id)
 
-	def get(self, source_id: int, version: int | None = None) -> pl.DataFrame:
+	def get(self, source_id: int, version: int | None = None) -> pl.LazyFrame:
 		"""Get data from a gold Delta table.
 
 		Args:
@@ -179,7 +179,7 @@ class GoldLoader:
 	async def upload(
 		self,
 		source_id: int,
-		df: pl.DataFrame,
+		lf: pl.LazyFrame,
 		sources: list[tuple[int, int]],
 		mode: Literal["error", "append", "overwrite", "ignore"] = "append",
 	) -> list[GoldVersionLineageRead]:
@@ -187,7 +187,7 @@ class GoldLoader:
 
 		Args:
 			source_id (int): ID of the gold source (used as table name).
-			df (pl.DataFrame): Data to write.
+			lf (pl.LazyFrame): Data to write.
 			sources (list[tuple[int, int]]): List of (silver_source_id,
 				silver_delta_version)
 				tuples this data derives from.
@@ -196,7 +196,7 @@ class GoldLoader:
 		Returns:
 			list[GoldVersionLineageRead]: The created lineage entries.
 		"""
-		delta_version = self.delta_loader.upload(table=str(source_id), df=df, mode=mode)
+		delta_version = self.delta_loader.upload(table=str(source_id), lf=lf, mode=mode)
 		return await self.lineage_interactor.create_many(
 			source_id=source_id,
 			delta_version=delta_version,
