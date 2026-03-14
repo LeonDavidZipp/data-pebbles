@@ -21,8 +21,8 @@ services:
   mlflow:
     container_name: dp-mlflow
     build:
-      context: .
-      dockerfile: Dockerfile.mlflow
+      context: mlflow
+      dockerfile: Dockerfile
     ports:
       - "${MLFLOW_PORT:-5001}:5000"
     environment:
@@ -45,9 +45,11 @@ services:
       timeout: 5s
       retries: 5
 
-  db:
+  postgres:
     container_name: dp-db
-    image: pgvector/pgvector@sha256:058fdb396f7b11f66cb7084db6c970846f8cb3a36b101b2714bea6727d530322
+    build:
+      context: db
+      dockerfile: Dockerfile
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-dp_pg_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-supersecret}
@@ -57,7 +59,11 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dp_pg_user} -d ${POSTGRES_DB:-dp_db} -h localhost"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-dp_pg_user} -d ${POSTGRES_DB:-dp_db} -h localhost",
+        ]
       interval: 5s
       timeout: 5s
       retries: 5

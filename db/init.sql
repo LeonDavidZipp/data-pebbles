@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS bronze.source_versions (
     id BIGSERIAL PRIMARY KEY,
     source_id BIGINT NOT NULL REFERENCES bronze.source_metadata (id) ON DELETE CASCADE,
     version BIGINT NOT NULL,
-    status file_status NOT NULL DEFAULT 'active',
+    status bronze.file_status NOT NULL DEFAULT 'active',
     s3_key TEXT UNIQUE NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
