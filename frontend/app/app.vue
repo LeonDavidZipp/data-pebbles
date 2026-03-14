@@ -34,7 +34,7 @@ const mlflowPort = 5001
   <UApp>
     <div class="flex h-screen bg-gray-50 dark:bg-gray-950">
       <!-- Sidebar -->
-      <aside class="w-60 bg-gray-900 dark:bg-gray-950 text-white flex flex-col border-r border-gray-800">
+      <aside class="w-60 bg-gray-900 text-white flex flex-col border-r border-gray-800 dark">
         <div class="px-5 py-4 flex items-center gap-2.5">
           <div class="size-8 rounded-lg overflow-hidden flex items-center justify-center">
             <img
