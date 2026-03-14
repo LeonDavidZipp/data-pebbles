@@ -2,21 +2,22 @@
 export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/ui'],
 
+  ssr: false,
+
   devtools: {
     enabled: true
   },
 
   css: ['~/assets/css/main.css'],
 
-  routeRules: {
-    '/': { prerender: true }
-  },
-
   compatibilityDate: '2025-01-15',
 
   typescript: {
     tsConfig: {
-      exclude: ['../app/utils/api']
+      exclude: ['../app/utils/api/**'],
+      compilerOptions: {
+        noImplicitOverride: false
+      }
     }
   },
 
@@ -24,7 +25,9 @@ export default defineNuxtConfig({
     config: {
       stylistic: {
         commaDangle: 'never',
-        braceStyle: '1tbs'
+        braceStyle: '1tbs',
+        quotes: 'single',
+        semi: false
       }
     }
   }

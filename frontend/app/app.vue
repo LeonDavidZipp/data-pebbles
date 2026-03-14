@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 useHead({
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   link: [{ rel: 'icon', href: '/favicon.ico' }],
@@ -7,69 +7,68 @@ useHead({
   }
 })
 
-const title = 'Nuxt Starter Template'
-const description =
-  'A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours.'
-
 useSeoMeta({
-  title,
-  description,
-  ogTitle: title,
-  ogDescription: description,
-  ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/starter-light.png',
-  twitterImage: 'https://ui.nuxt.com/assets/templates/nuxt/starter-light.png',
-  twitterCard: 'summary_large_image'
+  title: 'Data Pebbles',
+  description: 'Medallion architecture data lake manager'
+})
+
+const route = useRoute()
+
+const layers = [
+  { label: 'Bronze', icon: 'i-lucide-hard-drive', to: '/bronze' },
+  { label: 'Silver', icon: 'i-lucide-database', to: '/silver' },
+  { label: 'Gold', icon: 'i-lucide-crown', to: '/gold' }
+]
+
+const activeLayer = computed(() => {
+  const path = route.path
+  if (path.startsWith('/silver')) return '/silver'
+  if (path.startsWith('/gold')) return '/gold'
+  return '/bronze'
 })
 </script>
 
 <template>
   <UApp>
-    <UHeader>
-      <template #left>
-        <NuxtLink to="/">
-          <AppLogo class="w-auto h-6 shrink-0" />
-        </NuxtLink>
+    <div class="flex h-screen">
+      <aside class="w-56 border-r border-default flex flex-col bg-elevated">
+        <div class="p-4 border-b border-default">
+          <NuxtLink
+            to="/"
+            class="text-lg font-semibold"
+          >
+            Data Pebbles
+          </NuxtLink>
+        </div>
 
-        <TemplateMenu />
-      </template>
+        <nav class="flex-1 p-2 space-y-1">
+          <NuxtLink
+            v-for="layer in layers"
+            :key="layer.to"
+            :to="layer.to"
+            class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors"
+            :class="
+              activeLayer === layer.to
+                ? 'bg-primary/10 text-primary font-medium'
+                : 'text-muted hover:bg-elevated-muted'
+            "
+          >
+            <UIcon
+              :name="layer.icon"
+              class="size-4"
+            />
+            {{ layer.label }}
+          </NuxtLink>
+        </nav>
 
-      <template #right>
-        <UColorModeButton />
+        <div class="p-2 border-t border-default">
+          <UColorModeButton class="w-full" />
+        </div>
+      </aside>
 
-        <UButton
-          to="https://github.com/nuxt-ui-templates/starter"
-          target="_blank"
-          icon="i-simple-icons-github"
-          aria-label="GitHub"
-          color="neutral"
-          variant="ghost"
-        />
-      </template>
-    </UHeader>
-
-    <UMain>
-      <NuxtPage />
-    </UMain>
-
-    <USeparator icon="i-simple-icons-nuxtdotjs" />
-
-    <UFooter>
-      <template #left>
-        <p class="text-sm text-muted">
-          Built with Nuxt UI • © {{ new Date().getFullYear() }}
-        </p>
-      </template>
-
-      <template #right>
-        <UButton
-          to="https://github.com/nuxt-ui-templates/starter"
-          target="_blank"
-          icon="i-simple-icons-github"
-          aria-label="GitHub"
-          color="neutral"
-          variant="ghost"
-        />
-      </template>
-    </UFooter>
+      <main class="flex-1 overflow-auto">
+        <NuxtPage />
+      </main>
+    </div>
   </UApp>
 </template>

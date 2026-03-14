@@ -394,7 +394,7 @@ export class APIEndpointsForInteractingWithTheSilverLayerApi extends runtime.Bas
         const canConsumeForm = runtime.canConsumeForm(consumes);
 
         let formParams: { append(param: string, value: any): any };
-        let useForm = false;
+        let useForm = canConsumeForm;
         if (useForm) {
             formParams = new FormData();
         } else {
