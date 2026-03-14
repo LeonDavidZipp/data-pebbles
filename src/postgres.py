@@ -431,7 +431,6 @@ class SilverSourceMetadata(Base):
 class SilverSourceMetadataRead(BaseModel):
 	id: int
 	name: str
-	from_source_id: int
 	created_at: datetime
 	updated_at: datetime
 
@@ -478,18 +477,17 @@ class SilverSourceMetadataInteractor:
 	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
 		self.session_maker = session_maker
 
-	async def create(self, name: str, from_source_id: int) -> SilverSourceMetadataRead:
+	async def create(self, name: str) -> SilverSourceMetadataRead:
 		"""Create a new silver source metadata entry.
 
 		Args:
 			name (str): Name of the source.
-			from_source_id (int): ID of the bronze source this derives from.
 
 		Returns:
 			SilverSourceMetadataRead: The created source metadata.
 		"""
 		async with self.session_maker() as db:
-			source = SilverSourceMetadata(name=name, from_source_id=from_source_id)
+			source = SilverSourceMetadata(name=name)
 			db.add(source)
 			await db.commit()
 			await db.refresh(source)
