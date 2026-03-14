@@ -103,6 +103,21 @@ class BronzeSourceMetadataInteractor:
 	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
 		self.session_maker = session_maker
 
+	async def get_all(self) -> list[BronzeSourceMetadataRead]:
+		"""Get all bronze source metadata entries.
+
+		Returns:
+			list[BronzeSourceMetadataRead]: All source metadata entries.
+		"""
+		async with self.session_maker() as db:
+			result = await db.execute(
+				select(BronzeSourceMetadata).order_by(BronzeSourceMetadata.name)
+			)
+			return [
+				BronzeSourceMetadataRead.model_validate(s)
+				for s in result.scalars().all()
+			]
+
 	async def create(self, name: str) -> BronzeSourceMetadataRead:
 		"""Create a new bronze source metadata entry.
 
@@ -477,6 +492,21 @@ class SilverSourceMetadataInteractor:
 	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
 		self.session_maker = session_maker
 
+	async def get_all(self) -> list[SilverSourceMetadataRead]:
+		"""Get all silver source metadata entries.
+
+		Returns:
+			list[SilverSourceMetadataRead]: All source metadata entries.
+		"""
+		async with self.session_maker() as db:
+			result = await db.execute(
+				select(SilverSourceMetadata).order_by(SilverSourceMetadata.name)
+			)
+			return [
+				SilverSourceMetadataRead.model_validate(s)
+				for s in result.scalars().all()
+			]
+
 	async def create(self, name: str) -> SilverSourceMetadataRead:
 		"""Create a new silver source metadata entry.
 
@@ -722,6 +752,20 @@ class GoldSourceMetadataInteractor:
 
 	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
 		self.session_maker = session_maker
+
+	async def get_all(self) -> list[GoldSourceMetadataRead]:
+		"""Get all gold source metadata entries.
+
+		Returns:
+			list[GoldSourceMetadataRead]: All source metadata entries.
+		"""
+		async with self.session_maker() as db:
+			result = await db.execute(
+				select(GoldSourceMetadata).order_by(GoldSourceMetadata.name)
+			)
+			return [
+				GoldSourceMetadataRead.model_validate(s) for s in result.scalars().all()
+			]
 
 	async def create(self, name: str) -> GoldSourceMetadataRead:
 		"""Create a new gold source metadata entry.
