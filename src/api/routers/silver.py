@@ -14,6 +14,10 @@ class CreateSilverSourceRequest(BaseModel):
 	name: str
 
 
+class UpdateSilverSourceRequest(BaseModel):
+	name: str
+
+
 class SilverMetadataResponse(BaseModel):
 	id: int
 	name: str
@@ -26,6 +30,21 @@ class SilverLineageResponse(BaseModel):
 	delta_version: int
 	from_source_id: int
 	created_at: str
+
+
+@silver_router.get("/", status_code=status.HTTP_200_OK)
+async def list_sources(
+	silver: Annotated[SilverLoader, Depends(silver_dep)],
+) -> list[SilverMetadataResponse]:
+	sources = await silver.metadata_interactor.get_all()
+	return [
+		SilverMetadataResponse(
+			id=s.id,
+			name=s.name,
+			created_at=s.created_at.isoformat(),
+		)
+		for s in sources
+	]
 
 
 @silver_router.post("/")
@@ -67,6 +86,42 @@ async def delete_source(
 		content={"message": "Source deleted successfully."},
 		status_code=status.HTTP_200_OK,
 	)
+
+
+@silver_router.patch("/{source_id}")
+async def update_source(
+	source_id: Annotated[int, Path()],
+	body: UpdateSilverSourceRequest,
+	silver: Annotated[SilverLoader, Depends(silver_dep)],
+) -> SilverMetadataResponse:
+	res = await silver.metadata_interactor.update(source_id, name=body.name)
+	if res is None:
+		raise HTTPException(
+			status_code=status.HTTP_404_NOT_FOUND, detail="Source not found."
+		)
+	return SilverMetadataResponse(
+		id=res.id,
+		name=res.name,
+		created_at=res.created_at.isoformat(),
+	)
+
+
+@silver_router.get("/{source_id}/versions", status_code=status.HTTP_200_OK)
+async def list_versions(
+	source_id: Annotated[int, Path()],
+	silver: Annotated[SilverLoader, Depends(silver_dep)],
+) -> list[SilverLineageResponse]:
+	entries = await silver.get_lineage(source_id)
+	return [
+		SilverLineageResponse(
+			id=e.id,
+			source_id=e.source_id,
+			delta_version=e.delta_version,
+			from_source_id=e.from_source_id,
+			created_at=e.created_at.isoformat(),
+		)
+		for e in entries
+	]
 
 
 @silver_router.post("/upload/{source_id}")

@@ -14,6 +14,10 @@ class CreateGoldSourceRequest(BaseModel):
 	name: str
 
 
+class UpdateGoldSourceRequest(BaseModel):
+	name: str
+
+
 class GoldMetadataResponse(BaseModel):
 	id: int
 	name: str
@@ -26,6 +30,21 @@ class GoldLineageResponse(BaseModel):
 	delta_version: int
 	from_source_id: int
 	created_at: str
+
+
+@gold_router.get("/", status_code=status.HTTP_200_OK)
+async def list_sources(
+	gold: Annotated[GoldLoader, Depends(gold_dep)],
+) -> list[GoldMetadataResponse]:
+	sources = await gold.metadata_interactor.get_all()
+	return [
+		GoldMetadataResponse(
+			id=s.id,
+			name=s.name,
+			created_at=s.created_at.isoformat(),
+		)
+		for s in sources
+	]
 
 
 @gold_router.post("/")
@@ -67,6 +86,42 @@ async def delete_source(
 		content={"message": "Source deleted successfully."},
 		status_code=status.HTTP_200_OK,
 	)
+
+
+@gold_router.patch("/{source_id}")
+async def update_source(
+	source_id: Annotated[int, Path()],
+	body: UpdateGoldSourceRequest,
+	gold: Annotated[GoldLoader, Depends(gold_dep)],
+) -> GoldMetadataResponse:
+	res = await gold.metadata_interactor.update(source_id, name=body.name)
+	if res is None:
+		raise HTTPException(
+			status_code=status.HTTP_404_NOT_FOUND, detail="Source not found."
+		)
+	return GoldMetadataResponse(
+		id=res.id,
+		name=res.name,
+		created_at=res.created_at.isoformat(),
+	)
+
+
+@gold_router.get("/{source_id}/versions", status_code=status.HTTP_200_OK)
+async def list_versions(
+	source_id: Annotated[int, Path()],
+	gold: Annotated[GoldLoader, Depends(gold_dep)],
+) -> list[GoldLineageResponse]:
+	entries = await gold.get_lineage(source_id)
+	return [
+		GoldLineageResponse(
+			id=e.id,
+			source_id=e.source_id,
+			delta_version=e.delta_version,
+			from_source_id=e.from_source_id,
+			created_at=e.created_at.isoformat(),
+		)
+		for e in entries
+	]
 
 
 @gold_router.post("/upload/{source_id}")

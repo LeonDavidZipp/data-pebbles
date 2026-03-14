@@ -14,6 +14,41 @@ class CreateSourceRequest(BaseModel):
 	name: str
 
 
+class UpdateSourceRequest(BaseModel):
+	name: str
+
+
+class MetadataResponse(BaseModel):
+	id: int
+	name: str
+	created_at: str
+
+
+class VersionResponse(BaseModel):
+	id: int
+	source_id: int
+	version: int
+	status: str
+	s3_key: str
+	created_at: str
+	updated_at: str
+
+
+@bronze_router.get("/", status_code=status.HTTP_200_OK)
+async def list_sources(
+	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
+) -> list[MetadataResponse]:
+	sources = await bronze.metadata_interactor.get_all()
+	return [
+		MetadataResponse(
+			id=s.id,
+			name=s.name,
+			created_at=s.created_at.isoformat(),
+		)
+		for s in sources
+	]
+
+
 @bronze_router.post("/")
 async def create_source(
 	body: CreateSourceRequest,
@@ -24,12 +59,6 @@ async def create_source(
 		content={"message": "Source created successfully.", "source_id": res.id},
 		status_code=status.HTTP_201_CREATED,
 	)
-
-
-class MetadataResponse(BaseModel):
-	id: int
-	name: str
-	created_at: str
 
 
 @bronze_router.get("/{source_id}/metadata", status_code=status.HTTP_200_OK)
@@ -57,6 +86,78 @@ async def delete_source(
 	await bronze.metadata_interactor.delete(source_id)
 	return JSONResponse(
 		content={"message": "Source deleted successfully."},
+		status_code=status.HTTP_200_OK,
+	)
+
+
+@bronze_router.patch("/{source_id}")
+async def update_source(
+	source_id: Annotated[int, Path()],
+	body: UpdateSourceRequest,
+	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
+) -> MetadataResponse:
+	res = await bronze.metadata_interactor.update(source_id, name=body.name)
+	if res is None:
+		raise HTTPException(
+			status_code=status.HTTP_404_NOT_FOUND, detail="Source not found."
+		)
+	return MetadataResponse(
+		id=res.id,
+		name=res.name,
+		created_at=res.created_at.isoformat(),
+	)
+
+
+@bronze_router.get("/{source_id}/versions", status_code=status.HTTP_200_OK)
+async def list_versions(
+	source_id: Annotated[int, Path()],
+	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
+) -> list[VersionResponse]:
+	versions = await bronze.version_interactor.get_by_source(source_id)
+	return [
+		VersionResponse(
+			id=v.id,
+			source_id=v.source_id,
+			version=v.version,
+			status=v.status,
+			s3_key=v.s3_key,
+			created_at=v.created_at.isoformat(),
+			updated_at=v.updated_at.isoformat(),
+		)
+		for v in versions
+	]
+
+
+@bronze_router.patch("/{source_id}/versions/{version}/activate")
+async def activate_version(
+	source_id: Annotated[int, Path()],
+	version: Annotated[int, Path()],
+	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
+) -> JSONResponse:
+	rows = await bronze.version_interactor.activate_version(source_id, version)
+	if rows == 0:
+		raise HTTPException(
+			status_code=status.HTTP_404_NOT_FOUND, detail="Version not found."
+		)
+	return JSONResponse(
+		content={"message": "Version activated successfully."},
+		status_code=status.HTTP_200_OK,
+	)
+
+
+@bronze_router.delete("/{source_id}/versions/{version}")
+async def delete_version(
+	source_id: Annotated[int, Path()],
+	version: Annotated[int, Path()],
+	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
+) -> JSONResponse:
+	rows = await bronze.delete_version(source_id, version)
+	if rows == 0:
+		raise HTTPException(
+			status_code=status.HTTP_404_NOT_FOUND, detail="Version not found."
+		)
+	return JSONResponse(
+		content={"message": "Version deleted successfully."},
 		status_code=status.HTTP_200_OK,
 	)
 
