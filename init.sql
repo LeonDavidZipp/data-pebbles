@@ -76,8 +76,7 @@ CREATE TABLE gold.version_lineage (
     id BIGSERIAL PRIMARY KEY,
     source_id BIGINT NOT NULL REFERENCES gold.source_metadata (id) ON DELETE CASCADE,
     delta_version BIGINT NOT NULL, -- gold's Delta Lake version
-    from_source_id BIGINT NOT NULL REFERENCES silver.source_metadata (id) ON DELETE RESTRICT,
-    from_delta_version BIGINT NOT NULL, -- silver's Delta Lake version used
+    from_source_id BIGINT NOT NULL REFERENCES silver.version_lineage (id) ON DELETE RESTRICT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

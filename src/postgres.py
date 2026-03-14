@@ -697,11 +697,10 @@ class GoldVersionLineage(Base):
 	)
 	delta_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
 	from_source_id: Mapped[int] = mapped_column(
-		ForeignKey("silver.source_metadata.id", ondelete="RESTRICT"),
+		ForeignKey("silver.version_lineage.id", ondelete="RESTRICT"),
 		index=True,
 		nullable=False,
 	)
-	from_delta_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
 	created_at: Mapped[datetime] = mapped_column(
 		DateTime(timezone=True),
 		insert_default=lambda: datetime.now(timezone.utc),
@@ -713,7 +712,6 @@ class GoldVersionLineageRead(BaseModel):
 	source_id: int
 	delta_version: int
 	from_source_id: int
-	from_delta_version: int
 	created_at: datetime
 
 	model_config = {"from_attributes": True}
@@ -807,15 +805,13 @@ class GoldVersionLineageInteractor:
 		source_id: int,
 		delta_version: int,
 		from_source_id: int,
-		from_delta_version: int,
 	) -> GoldVersionLineageRead:
 		"""Create a new gold version lineage entry.
 
 		Args:
 			source_id (int): Gold source metadata ID.
 			delta_version (int): Gold Delta Lake version.
-			from_source_id (int): Silver source metadata ID this derives from.
-			from_delta_version (int): Silver Delta Lake version used.
+			from_source_id (int): Silver version lineage row ID this derives from.
 
 		Returns:
 			GoldVersionLineageRead: The created lineage entry.
@@ -825,7 +821,6 @@ class GoldVersionLineageInteractor:
 				source_id=source_id,
 				delta_version=delta_version,
 				from_source_id=from_source_id,
-				from_delta_version=from_delta_version,
 			)
 			db.add(entry)
 			await db.commit()
@@ -836,15 +831,14 @@ class GoldVersionLineageInteractor:
 		self,
 		source_id: int,
 		delta_version: int,
-		sources: list[tuple[int, int]],
+		sources: list[int],
 	) -> list[GoldVersionLineageRead]:
 		"""Create multiple lineage entries for a single gold delta version.
 
 		Args:
 			source_id (int): Gold source metadata ID.
 			delta_version (int): Gold Delta Lake version.
-			sources (list[tuple[int, int]]): List of
-				(silver_source_id, silver_delta_version) tuples.
+			sources (list[int]): List of silver version lineage row IDs.
 
 		Returns:
 			list[GoldVersionLineageRead]: The created lineage entries.
@@ -855,9 +849,8 @@ class GoldVersionLineageInteractor:
 					source_id=source_id,
 					delta_version=delta_version,
 					from_source_id=from_id,
-					from_delta_version=from_dv,
 				)
-				for from_id, from_dv in sources
+				for from_id in sources
 			]
 			db.add_all(entries)
 			await db.commit()
