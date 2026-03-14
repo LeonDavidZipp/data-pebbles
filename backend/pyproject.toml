@@ -12,6 +12,7 @@ dependencies = [
     "botocore-stubs>=1.42.41",
     "deltalake>=1.4.2",
     "fastapi[standard]>=0.135.1",
+    "greenlet>=3.3.2",
     "mlflow>=3.10.1",
     "pathlib>=1.0.1",
     "polars>=1.38.1",

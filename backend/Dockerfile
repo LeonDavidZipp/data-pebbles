@@ -60,8 +60,6 @@ COPY --chown=appuser:appusergroup ./src ./src
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD /bin/bash -c "source .venv/bin/activate && python -c \"import os; os.path.exists('/app/logs/healthcheck') or exit(1)\""
 
-EXPOSE 8080
-
 USER appuser
 
-CMD ["/bin/bash", "-c", "source .venv/bin/activate && fastapi run src/api/closed/main.py --app app --host 0.0.0.0 --port 8080"]
+CMD ["/bin/bash", "-c", "source .venv/bin/activate && fastapi run src/main.py --app app --host 0.0.0.0 --port 8000"]
