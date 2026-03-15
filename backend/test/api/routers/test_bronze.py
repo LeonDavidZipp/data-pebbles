@@ -46,7 +46,12 @@ class TestListResources:
 		self, client: TestClient, mock_bronze: MagicMock
 	) -> None:
 		meta = BronzeResourceMetadataRead(
-			id=1, name="res", created_at=NOW, updated_at=NOW
+			id=1,
+			name="res",
+			description=None,
+			project_id=1,
+			created_at=NOW,
+			updated_at=NOW,
 		)
 		mock_bronze.metadata_interactor.get_all.return_value = [meta]
 		resp = client.get("/bronze/")
@@ -60,10 +65,15 @@ class TestListResources:
 class TestCreateResource:
 	def test_create_success(self, client: TestClient, mock_bronze: MagicMock) -> None:
 		meta = BronzeResourceMetadataRead(
-			id=5, name="new", created_at=NOW, updated_at=NOW
+			id=5,
+			name="new",
+			description=None,
+			project_id=1,
+			created_at=NOW,
+			updated_at=NOW,
 		)
 		mock_bronze.metadata_interactor.create.return_value = meta
-		resp = client.post("/bronze/", json={"name": "new"})
+		resp = client.post("/bronze/", json={"name": "new", "project_id": 1})
 		assert resp.status_code == status.HTTP_201_CREATED
 		assert resp.json()["resource_id"] == 5
 
@@ -71,7 +81,12 @@ class TestCreateResource:
 class TestGetResource:
 	def test_get_found(self, client: TestClient, mock_bronze: MagicMock) -> None:
 		meta = BronzeResourceMetadataRead(
-			id=1, name="res", created_at=NOW, updated_at=NOW
+			id=1,
+			name="res",
+			description=None,
+			project_id=1,
+			created_at=NOW,
+			updated_at=NOW,
 		)
 		mock_bronze.get_metadata.return_value = meta
 		resp = client.get("/bronze/1")
@@ -94,7 +109,12 @@ class TestDeleteResource:
 class TestUpdateResource:
 	def test_update_found(self, client: TestClient, mock_bronze: MagicMock) -> None:
 		meta = BronzeResourceMetadataRead(
-			id=1, name="updated", created_at=NOW, updated_at=NOW
+			id=1,
+			name="updated",
+			description=None,
+			project_id=1,
+			created_at=NOW,
+			updated_at=NOW,
 		)
 		mock_bronze.metadata_interactor.update.return_value = meta
 		resp = client.patch("/bronze/1", json={"name": "updated"})

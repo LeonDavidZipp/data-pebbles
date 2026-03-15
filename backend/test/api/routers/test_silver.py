@@ -41,7 +41,12 @@ class TestListResources:
 		self, client: TestClient, mock_silver: MagicMock
 	) -> None:
 		meta = SilverResourceMetadataRead(
-			id=1, name="silver_res", created_at=NOW, updated_at=NOW
+			id=1,
+			name="silver_res",
+			description=None,
+			project_id=1,
+			created_at=NOW,
+			updated_at=NOW,
 		)
 		mock_silver.metadata_interactor.get_all.return_value = [meta]
 		resp = client.get("/silver/")
@@ -54,10 +59,15 @@ class TestListResources:
 class TestCreateResource:
 	def test_create_success(self, client: TestClient, mock_silver: MagicMock) -> None:
 		meta = SilverResourceMetadataRead(
-			id=3, name="new_silver", created_at=NOW, updated_at=NOW
+			id=3,
+			name="new_silver",
+			description=None,
+			project_id=1,
+			created_at=NOW,
+			updated_at=NOW,
 		)
 		mock_silver.metadata_interactor.create.return_value = meta
-		resp = client.post("/silver/", json={"name": "new_silver"})
+		resp = client.post("/silver/", json={"name": "new_silver", "project_id": 1})
 		assert resp.status_code == status.HTTP_201_CREATED
 		assert resp.json()["resource_id"] == 3
 
@@ -65,7 +75,12 @@ class TestCreateResource:
 class TestGetResource:
 	def test_get_found(self, client: TestClient, mock_silver: MagicMock) -> None:
 		meta = SilverResourceMetadataRead(
-			id=1, name="s", created_at=NOW, updated_at=NOW
+			id=1,
+			name="s",
+			description=None,
+			project_id=1,
+			created_at=NOW,
+			updated_at=NOW,
 		)
 		mock_silver.get_metadata.return_value = meta
 		resp = client.get("/silver/1")
@@ -88,7 +103,12 @@ class TestDeleteResource:
 class TestUpdateResource:
 	def test_update_found(self, client: TestClient, mock_silver: MagicMock) -> None:
 		meta = SilverResourceMetadataRead(
-			id=1, name="updated", created_at=NOW, updated_at=NOW
+			id=1,
+			name="updated",
+			description=None,
+			project_id=1,
+			created_at=NOW,
+			updated_at=NOW,
 		)
 		mock_silver.metadata_interactor.update.return_value = meta
 		resp = client.patch("/silver/1", json={"name": "updated"})

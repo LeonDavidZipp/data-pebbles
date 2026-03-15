@@ -20,7 +20,12 @@ NOW = datetime.now(timezone.utc)
 @pytest.fixture
 def bronze_metadata_read() -> BronzeResourceMetadataRead:
 	return BronzeResourceMetadataRead(
-		id=1, name="test_resource", created_at=NOW, updated_at=NOW
+		id=1,
+		name="test_resource",
+		description=None,
+		project_id=1,
+		created_at=NOW,
+		updated_at=NOW,
 	)
 
 
@@ -40,7 +45,12 @@ def bronze_version_read() -> BronzeResourceVersionRead:
 @pytest.fixture
 def silver_metadata_read() -> SilverResourceMetadataRead:
 	return SilverResourceMetadataRead(
-		id=1, name="silver_resource", created_at=NOW, updated_at=NOW
+		id=1,
+		name="silver_resource",
+		description=None,
+		project_id=1,
+		created_at=NOW,
+		updated_at=NOW,
 	)
 
 
@@ -54,7 +64,12 @@ def silver_lineage_read() -> SilverVersionLineageRead:
 @pytest.fixture
 def gold_metadata_read() -> GoldResourceMetadataRead:
 	return GoldResourceMetadataRead(
-		id=1, name="gold_resource", created_at=NOW, updated_at=NOW
+		id=1,
+		name="gold_resource",
+		description=None,
+		project_id=1,
+		created_at=NOW,
+		updated_at=NOW,
 	)
 
 
