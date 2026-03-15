@@ -3,8 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi_mcp import FastApiMCP  # type: ignore[stub-not-found]
 
 from .api import bronze_router, gold_router, silver_router
+from .api.exceptions import register_exception_handlers
 
 app = FastAPI()
+app = register_exception_handlers(app)
 
 app.add_middleware(
 	CORSMiddleware,
