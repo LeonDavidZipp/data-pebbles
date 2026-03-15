@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi_mcp import FastApiMCP
+from fastapi_mcp import FastApiMCP  # type: ignore[stub-not-found]
 
 from .api import bronze_router, gold_router, silver_router
 
