@@ -4,6 +4,12 @@ A small, open-source clone of [Databricks](https://www.databricks.com/) — henc
 
 Raw files are stored in S3-compatible object storage (MinIO), structured layers use a Delta Lake like structure for versioned Parquet storage, and metadata is tracked in PostgreSQL. MLflow is included for experiment tracking via its web UI.
 
+A companion [Python SDK](https://pypi.org/project/data-pebbles/) is available for programmatic access. It can be installed like this:
+
+```bash
+pip install data-pebbles
+```
+
 ## Useful Links
 
 - [MinIO Quickstart](https://github.com/minio/minio#readme) — S3-compatible object storage, self-hosted
@@ -18,6 +24,8 @@ Raw files are stored in S3-compatible object storage (MinIO), structured layers 
 | Component | Purpose |
 | --- | --- |
 | **FastAPI** | REST API backend |
+| **Nuxt** | Frontend web UI |
+| **Python SDK** | Client library for programmatic access |
 | **PostgreSQL** (pgvector) | Metadata storage, bronze source versioning |
 | **MinIO** | S3-compatible object storage for raw files and Delta tables |
 | **Delta Lake** | Versioned silver/gold layer storage |
@@ -48,6 +56,7 @@ This starts:
 
 | Service | Port | Notes |
 | --- | --- | --- |
+| Frontend | `localhost:3000` | Web UI for managing sources and browsing data |
 | Backend API | `localhost:8000` | REST API (see `/docs` for Swagger UI) |
 | MLflow UI | `localhost:5001` | Experiment tracking dashboard |
 | PostgreSQL | `localhost:5432` | Metadata database |
@@ -68,6 +77,12 @@ MINIO_ROOT_USER=dp_minio_user
 MINIO_ROOT_PASSWORD=supersecret
 ```
 
+## Frontend
+
+The frontend is a Nuxt-based web UI for managing sources, uploading files, and browsing data across all layers. It runs at `localhost:3000` and includes built-in SDK documentation.
+
+See the [frontend README](../frontend/README.md) for development details.
+
 ## API
 
 The API is organized by data layer:
@@ -77,8 +92,3 @@ The API is organized by data layer:
 - `/gold` — Access aggregated data
 
 API docs are available at `localhost:8000/docs` when the backend is running.
-
-## Roadmap
-
-- [ ] Frontend UI
-- [ ] SDK (Python client library)
