@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { Configuration } from '~/utils/api/runtime'
-import type { RequestContext, ResponseContext } from '~/utils/api/runtime'
+import type { Middleware } from '~/utils/api/runtime'
 
 describe('Configuration', () => {
   it('uses default base path when none provided', () => {
@@ -19,7 +19,7 @@ describe('Configuration', () => {
   })
 
   it('returns provided middleware', () => {
-    const mw = { pre: async (ctx: RequestContext) => ctx, post: async (ctx: ResponseContext) => ctx }
+    const mw: Middleware = { pre: async () => {}, post: async () => {} }
     const config = new Configuration({ middleware: [mw] })
     expect(config.middleware).toHaveLength(1)
   })
