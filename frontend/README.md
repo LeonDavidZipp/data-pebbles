@@ -23,6 +23,7 @@ Nuxt-based web UI for the Data Pebbles platform. Browse and manage resources acr
 | `/gold/:resourceId` | Gold resource detail |
 | `/sdk` | Python SDK documentation |
 | `/mcp` | MCP server setup & tool reference |
+| `/projects` | Projects list and management |
 
 ## Setup
 

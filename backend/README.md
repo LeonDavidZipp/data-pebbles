@@ -100,6 +100,7 @@ The API is organized by data layer:
 - `/bronze` — Upload and manage raw resource files
 - `/silver` — Upload, download, and batch-download cleaned data (Parquet/Arrow)
 - `/gold` — Access aggregated data
+ - `/projects` — Create, list, update, and delete projects (used to group resources)
 
 API docs are available at `localhost:8000/docs` when the backend is running.
 
