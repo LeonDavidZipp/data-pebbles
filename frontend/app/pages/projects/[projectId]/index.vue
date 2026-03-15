@@ -1,71 +1,71 @@
 <script setup lang="ts">
 import type {
+  ProjectResponse,
   MetadataResponse,
-  GoldMetadataResponse,
-  SilverMetadataResponse
+  SilverMetadataResponse,
+  GoldMetadataResponse
 } from '~/utils/api'
 
 const route = useRoute()
-const { bronze, silver, gold } = useApi()
-const { currentProject } = useCurrentProject()
+const { projects, bronze, silver, gold } = useApi()
 
-const layer = computed(() => route.params.layer as string)
+const projectId = computed(() => Number(route.params.projectId))
 
-const validLayers = ['bronze', 'silver', 'gold']
-if (!validLayers.includes(layer.value)) {
-  throw createError({ statusCode: 404, message: 'Layer not found' })
-}
-
-if (!currentProject.value) {
-  navigateTo('/projects')
-}
-
-const resources = ref<
-  (MetadataResponse | SilverMetadataResponse | GoldMetadataResponse)[]
->([])
+const project = ref<ProjectResponse | null>(null)
+const resources = ref<(MetadataResponse | SilverMetadataResponse | GoldMetadataResponse)[]>([])
+const activeTab = ref('bronze')
 const loading = ref(true)
+const resourcesLoading = ref(false)
+
 const showCreateModal = ref(false)
 const newResourceName = ref('')
 const newResourceDescription = ref('')
 const creating = ref(false)
 
+const tabs = [
+  { label: 'Bronze', value: 'bronze', icon: 'i-lucide-hard-drive' },
+  { label: 'Silver', value: 'silver', icon: 'i-lucide-database' },
+  { label: 'Gold', value: 'gold', icon: 'i-lucide-crown' }
+]
+
+async function fetchProject() {
+  project.value = await projects.getProjectProjectsProjectIdGet({ projectId: projectId.value })
+}
+
 async function fetchResources() {
-  if (!currentProject.value) return
-  loading.value = true
+  resourcesLoading.value = true
   try {
-    const projectId = currentProject.value.id
     let all: (MetadataResponse | SilverMetadataResponse | GoldMetadataResponse)[]
-    if (layer.value === 'bronze') {
+    if (activeTab.value === 'bronze') {
       all = await bronze.listResourcesBronzeGet()
-    } else if (layer.value === 'silver') {
+    } else if (activeTab.value === 'silver') {
       all = await silver.listResourcesSilverGet()
     } else {
       all = await gold.listResourcesGoldGet()
     }
-    resources.value = all.filter(r => r.project_id === projectId)
+    resources.value = all.filter(r => r.project_id === projectId.value)
   } finally {
-    loading.value = false
+    resourcesLoading.value = false
   }
 }
 
 async function createResource() {
-  if (!newResourceName.value.trim() || !currentProject.value) return
+  if (!newResourceName.value.trim()) return
   creating.value = true
   try {
-    const projectId = currentProject.value.id
-    if (layer.value === 'bronze') {
+    if (activeTab.value === 'bronze') {
       await bronze.createResourceBronzePost({
         createResourceRequest: {
           name: newResourceName.value,
-          project_id: projectId,
+          project_id: projectId.value,
           description: newResourceDescription.value || undefined
         }
       })
-    } else if (layer.value === 'silver') {
+    } else if (activeTab.value === 'silver') {
       await silver.createResourceSilverPost({
         createSilverResourceRequest: {
           name: newResourceName.value,
-          project_id: projectId,
+          project_id: projectId.value,
           description: newResourceDescription.value || undefined
         }
       })
@@ -73,7 +73,7 @@ async function createResource() {
       await gold.createResourceGoldPost({
         createGoldResourceRequest: {
           name: newResourceName.value,
-          project_id: projectId,
+          project_id: projectId.value,
           description: newResourceDescription.value || undefined
         }
       })
@@ -88,9 +88,9 @@ async function createResource() {
 }
 
 async function deleteResource(id: number) {
-  if (layer.value === 'bronze') {
+  if (activeTab.value === 'bronze') {
     await bronze.deleteResourceBronzeResourceIdDelete({ resourceId: id })
-  } else if (layer.value === 'silver') {
+  } else if (activeTab.value === 'silver') {
     await silver.deleteResourceSilverResourceIdDelete({ resourceId: id })
   } else {
     await gold.deleteResourceGoldResourceIdDelete({ resourceId: id })
@@ -98,10 +98,8 @@ async function deleteResource(id: number) {
   await fetchResources()
 }
 
-watch(layer, fetchResources, { immediate: true })
-
 const layerButtonClass = computed(() => {
-  switch (layer.value) {
+  switch (activeTab.value) {
     case 'silver': return 'bg-gray-400 hover:bg-gray-500 text-white'
     case 'gold': return 'bg-yellow-500 hover:bg-yellow-600 text-white'
     default: return 'bg-amber-700 hover:bg-amber-800 text-white'
@@ -109,12 +107,26 @@ const layerButtonClass = computed(() => {
 })
 
 const layerIconClass = computed(() => {
-  switch (layer.value) {
+  switch (activeTab.value) {
     case 'silver': return 'bg-gray-400/10 text-gray-400'
     case 'gold': return 'bg-yellow-500/10 text-yellow-500'
     default: return 'bg-amber-700/10 text-amber-700'
   }
 })
+
+watch(activeTab, fetchResources)
+
+async function init() {
+  loading.value = true
+  try {
+    await fetchProject()
+    await fetchResources()
+  } finally {
+    loading.value = false
+  }
+}
+
+init()
 </script>
 
 <template>
@@ -123,13 +135,26 @@ const layerIconClass = computed(() => {
     <div class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-4 flex items-center justify-between">
       <div>
         <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mb-1">
-          <span>Layers</span>
+          <NuxtLink
+            to="/projects"
+            class="hover:text-gray-900 dark:hover:text-white transition-colors"
+          >
+            Projects
+          </NuxtLink>
           <span>/</span>
-          <span class="capitalize text-gray-900 dark:text-white">{{ layer }}</span>
+          <span class="text-gray-900 dark:text-white">{{ project?.name ?? '...' }}</span>
         </div>
-        <h1 class="text-xl font-semibold text-gray-900 dark:text-white capitalize">
-          {{ layer }} Resources
-        </h1>
+        <div class="flex items-center gap-3">
+          <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
+            {{ project?.name ?? '...' }}
+          </h1>
+        </div>
+        <p
+          v-if="project?.description"
+          class="text-sm text-gray-500 dark:text-gray-400 mt-0.5"
+        >
+          {{ project.description }}
+        </p>
       </div>
       <UButton
         icon="i-lucide-plus"
@@ -140,10 +165,33 @@ const layerIconClass = computed(() => {
       />
     </div>
 
+    <!-- Layer tabs -->
+    <div class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6">
+      <nav class="flex gap-6">
+        <button
+          v-for="tab in tabs"
+          :key="tab.value"
+          class="flex items-center gap-1.5 py-3 text-sm font-medium border-b-2 transition-colors -mb-px"
+          :class="
+            activeTab === tab.value
+              ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+              : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+          "
+          @click="activeTab = tab.value"
+        >
+          <UIcon
+            :name="tab.icon"
+            class="size-4"
+          />
+          {{ tab.label }}
+        </button>
+      </nav>
+    </div>
+
     <!-- Content -->
     <div class="flex-1 overflow-auto p-6 bg-gray-50 dark:bg-gray-950">
       <div
-        v-if="loading"
+        v-if="loading || resourcesLoading"
         class="flex justify-center py-12"
       >
         <UIcon
@@ -161,7 +209,7 @@ const layerIconClass = computed(() => {
           class="size-12 mx-auto mb-3 text-gray-300 dark:text-gray-600"
         />
         <p class="text-sm">
-          No resources yet. Create one to get started.
+          No {{ activeTab }} resources yet. Create one to get started.
         </p>
       </div>
 
@@ -191,7 +239,7 @@ const layerIconClass = computed(() => {
               v-for="resource in resources"
               :key="resource.id"
               class="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
-              @click="navigateTo(`/${layer}/${resource.id}`)"
+              @click="navigateTo(`/projects/${projectId}/${activeTab}/${resource.id}`)"
             >
               <td class="py-3 px-4">
                 <div class="flex items-center gap-2.5">
@@ -223,7 +271,7 @@ const layerIconClass = computed(() => {
                     variant="ghost"
                     color="neutral"
                     size="xs"
-                    :to="`/${layer}/${resource.id}`"
+                    @click="navigateTo(`/projects/${projectId}/${activeTab}/${resource.id}`)"
                   />
                   <UButton
                     icon="i-lucide-trash-2"
@@ -247,7 +295,7 @@ const layerIconClass = computed(() => {
       <template #content>
         <div class="p-6">
           <h2 class="text-lg font-semibold mb-4">
-            Create {{ layer }} resource
+            Create {{ activeTab }} resource
           </h2>
           <UInput
             v-model="newResourceName"

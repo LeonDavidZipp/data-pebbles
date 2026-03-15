@@ -13,21 +13,6 @@ useSeoMeta({
 })
 
 const route = useRoute()
-const { currentProject } = useCurrentProject()
-
-const layers = [
-  { label: 'Bronze', icon: 'i-lucide-hard-drive', to: '/bronze' },
-  { label: 'Silver', icon: 'i-lucide-database', to: '/silver' },
-  { label: 'Gold', icon: 'i-lucide-crown', to: '/gold' }
-]
-
-const activeLayer = computed(() => {
-  const path = route.path
-  if (path.startsWith('/bronze')) return '/bronze'
-  if (path.startsWith('/silver')) return '/silver'
-  if (path.startsWith('/gold')) return '/gold'
-  return ''
-})
 
 const mlflowPort = 5001
 </script>
@@ -55,7 +40,7 @@ const mlflowPort = 5001
 
         <div class="px-3 mt-2 mb-1">
           <span class="px-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-            Project
+            Manage
           </span>
         </div>
 
@@ -73,48 +58,17 @@ const mlflowPort = 5001
               name="i-lucide-folder-kanban"
               class="size-4"
             />
-            <template v-if="currentProject">
-              {{ currentProject.name }}
-            </template>
-            <template v-else>
-              Select Project
-            </template>
+            Projects
           </NuxtLink>
         </nav>
 
         <div class="px-3 mt-4 mb-1">
           <span class="px-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-            Layers
+            Tools
           </span>
         </div>
 
         <nav class="flex-1 px-3 space-y-0.5">
-          <NuxtLink
-            v-for="layer in layers"
-            :key="layer.to"
-            :to="layer.to"
-            class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors"
-            :class="[
-              !currentProject
-                ? 'text-gray-600 pointer-events-none opacity-40'
-                : activeLayer === layer.to
-                  ? 'bg-white/10 text-white font-medium'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
-            ]"
-          >
-            <UIcon
-              :name="layer.icon"
-              class="size-4"
-            />
-            {{ layer.label }}
-          </NuxtLink>
-
-          <div class="pt-4 pb-1">
-            <span class="px-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-              Tools
-            </span>
-          </div>
-
           <a
             :href="`http://localhost:${mlflowPort}`"
             target="_blank"

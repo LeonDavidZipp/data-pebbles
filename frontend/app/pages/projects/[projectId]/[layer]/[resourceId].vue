@@ -10,18 +10,14 @@ import type {
 
 const route = useRoute()
 const { bronze, silver, gold } = useApi()
-const { currentProject } = useCurrentProject()
 
+const projectId = computed(() => Number(route.params.projectId))
 const layer = computed(() => route.params.layer as string)
 const resourceId = computed(() => Number(route.params.resourceId))
 
 const validLayers = ['bronze', 'silver', 'gold']
 if (!validLayers.includes(layer.value)) {
   throw createError({ statusCode: 404, message: 'Layer not found' })
-}
-
-if (!currentProject.value) {
-  navigateTo('/projects')
 }
 
 const resource = ref<
@@ -59,9 +55,6 @@ function onFileChange(e: Event) {
     uploadVersion()
   }
 }
-
-// Silver upload
-// Gold upload
 
 async function fetchResource() {
   if (layer.value === 'bronze') {
@@ -110,7 +103,7 @@ async function uploadVersion() {
 
   uploading.value = true
   try {
-    const file = selectedFile as unknown as string // File object sent via FormData
+    const file = selectedFile as unknown as string
 
     await bronze.uploadVersionBronzeResourceIdVersionsPost({
       resourceId: resourceId.value,
@@ -214,6 +207,8 @@ const layerTextClass = computed(() => {
   }
 })
 
+const backTo = computed(() => `/projects/${projectId.value}`)
+
 fetchAll()
 </script>
 
@@ -225,10 +220,17 @@ fetchAll()
         <div>
           <div class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mb-1">
             <NuxtLink
-              :to="`/${layer}`"
+              to="/projects"
               class="hover:text-gray-900 dark:hover:text-white transition-colors"
             >
-              <span class="capitalize">{{ layer }}</span> Resources
+              Projects
+            </NuxtLink>
+            <span>/</span>
+            <NuxtLink
+              :to="backTo"
+              class="hover:text-gray-900 dark:hover:text-white transition-colors capitalize"
+            >
+              {{ resource?.name ? '' : '...' }}{{ layer }}
             </NuxtLink>
             <span>/</span>
             <span class="text-gray-900 dark:text-white">{{ resource?.name ?? '...' }}</span>
@@ -293,7 +295,7 @@ fetchAll()
           <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
             Resource Details
           </h2>
-          <div class="grid grid-cols-4 gap-4 text-sm">
+          <div class="grid grid-cols-3 gap-4 text-sm">
             <div>
               <span class="text-gray-500 dark:text-gray-400">Resource ID</span>
               <p class="font-medium text-gray-900 dark:text-white mt-0.5">
@@ -304,12 +306,6 @@ fetchAll()
               <span class="text-gray-500 dark:text-gray-400">Layer</span>
               <p class="font-medium text-gray-900 dark:text-white capitalize mt-0.5">
                 {{ layer }}
-              </p>
-            </div>
-            <div>
-              <span class="text-gray-500 dark:text-gray-400">Project</span>
-              <p class="font-medium text-gray-900 dark:text-white mt-0.5">
-                {{ currentProject?.name ?? '—' }}
               </p>
             </div>
             <div>

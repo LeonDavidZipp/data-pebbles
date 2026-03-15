@@ -2,7 +2,6 @@
 import type { ProjectResponse } from '~/utils/api'
 
 const { projects } = useApi()
-const { currentProject, selectProject } = useCurrentProject()
 
 const projectList = ref<ProjectResponse[]>([])
 const loading = ref(true)
@@ -41,15 +40,7 @@ async function createProject() {
 
 async function deleteProject(id: number) {
   await projects.deleteProjectProjectsProjectIdDelete({ projectId: id })
-  if (currentProject.value?.id === id) {
-    currentProject.value = null
-  }
   await fetchProjects()
-}
-
-function openProject(project: ProjectResponse) {
-  selectProject(project)
-  navigateTo('/bronze')
 }
 
 fetchProjects()
@@ -127,7 +118,7 @@ fetchProjects()
               v-for="project in projectList"
               :key="project.id"
               class="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
-              @click="openProject(project)"
+              @click="navigateTo(`/projects/${project.id}`)"
             >
               <td class="py-3 px-4">
                 <div class="flex items-center gap-2.5">
@@ -137,17 +128,7 @@ fetchProjects()
                       class="size-4"
                     />
                   </div>
-                  <div class="flex items-center gap-2">
-                    <span class="font-medium text-gray-900 dark:text-white">{{ project.name }}</span>
-                    <UBadge
-                      v-if="currentProject?.id === project.id"
-                      variant="subtle"
-                      color="success"
-                      size="xs"
-                    >
-                      Active
-                    </UBadge>
-                  </div>
+                  <span class="font-medium text-gray-900 dark:text-white">{{ project.name }}</span>
                 </div>
               </td>
               <td class="py-3 px-4 text-gray-500 dark:text-gray-400">
@@ -166,7 +147,7 @@ fetchProjects()
                     variant="ghost"
                     color="neutral"
                     size="xs"
-                    @click="openProject(project)"
+                    @click="navigateTo(`/projects/${project.id}`)"
                   />
                   <UButton
                     icon="i-lucide-trash-2"
