@@ -33,7 +33,10 @@ async function example() {
 
   const body = {
     // CreateProjectRequest
-    createProjectRequest: ...,
+    createProjectRequest: {
+      name: "analytics",
+      description: "Analytics workspace",
+    },
   } satisfies CreateProjectProjectsPostRequest;
 
   try {

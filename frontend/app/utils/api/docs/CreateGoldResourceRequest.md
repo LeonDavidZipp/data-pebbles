@@ -17,9 +17,9 @@ import type { CreateGoldResourceRequest } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "name": null,
-  "project_id": null,
-  "description": null,
+  "name": "sales_summary",
+  "project_id": 1,
+  "description": "Aggregated sales summary",
 } satisfies CreateGoldResourceRequest
 
 console.log(example)

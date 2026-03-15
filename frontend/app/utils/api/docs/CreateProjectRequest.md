@@ -16,8 +16,8 @@ import type { CreateProjectRequest } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "name": null,
-  "description": null,
+  "name": "analytics",
+  "description": "Analytics workspace",
 } satisfies CreateProjectRequest
 
 console.log(example)

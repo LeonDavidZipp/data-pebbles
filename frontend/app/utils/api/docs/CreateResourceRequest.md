@@ -17,9 +17,9 @@ import type { CreateResourceRequest } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "name": null,
-  "project_id": null,
-  "description": null,
+  "name": "raw_sales",
+  "project_id": 1,
+  "description": "Raw sales files",
 } satisfies CreateResourceRequest
 
 console.log(example)
