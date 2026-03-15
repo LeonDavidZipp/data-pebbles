@@ -399,19 +399,19 @@ fetchAll()
                 <td class="py-2.5 px-4 text-right">
                   <div class="flex justify-end gap-1">
                     <UButton
-                      icon="i-lucide-download"
-                      variant="ghost"
-                      color="neutral"
-                      size="xs"
-                      @click="downloadVersion(getVersionNumber(v))"
-                    />
-                    <UButton
                       v-if="layer === 'bronze' && getStatus(v) !== 'active'"
                       icon="i-lucide-check-circle"
                       variant="ghost"
                       color="neutral"
                       size="xs"
                       @click="activateVersion(getVersionNumber(v))"
+                    />
+                    <UButton
+                      icon="i-lucide-download"
+                      variant="ghost"
+                      color="neutral"
+                      size="xs"
+                      @click="downloadVersion(getVersionNumber(v))"
                     />
                     <UButton
                       v-if="layer === 'bronze'"
