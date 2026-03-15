@@ -24,6 +24,10 @@ class VersionStatus(StrEnum):
 	DELETED = "deleted"
 
 
+def _version_status_values(_: object) -> list[str]:
+	return [s.value for s in VersionStatus]
+
+
 class Base(DeclarativeBase):
 	pass
 
@@ -74,7 +78,7 @@ class BronzeResourceVersion(Base):
 			name="file_status",
 			create_type=False,
 			schema="bronze",
-			values_callable=lambda e: [member.value for member in e],
+			values_callable=_version_status_values,
 		),
 		nullable=False,
 		default=VersionStatus.ACTIVE,
