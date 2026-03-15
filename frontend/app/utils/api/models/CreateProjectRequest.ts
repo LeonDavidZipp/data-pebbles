@@ -16,36 +16,36 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface UpdateSilverResourceRequest
+ * @interface CreateProjectRequest
  */
-export interface UpdateSilverResourceRequest {
+export interface CreateProjectRequest {
     /**
      * 
      * @type {string}
-     * @memberof UpdateSilverResourceRequest
+     * @memberof CreateProjectRequest
      */
     name: string;
     /**
      * 
      * @type {string}
-     * @memberof UpdateSilverResourceRequest
+     * @memberof CreateProjectRequest
      */
     description?: string | null;
 }
 
 /**
- * Check if a given object implements the UpdateSilverResourceRequest interface.
+ * Check if a given object implements the CreateProjectRequest interface.
  */
-export function instanceOfUpdateSilverResourceRequest(value: object): value is UpdateSilverResourceRequest {
+export function instanceOfCreateProjectRequest(value: object): value is CreateProjectRequest {
     if (!('name' in value) || value['name'] === undefined) return false;
     return true;
 }
 
-export function UpdateSilverResourceRequestFromJSON(json: any): UpdateSilverResourceRequest {
-    return UpdateSilverResourceRequestFromJSONTyped(json, false);
+export function CreateProjectRequestFromJSON(json: any): CreateProjectRequest {
+    return CreateProjectRequestFromJSONTyped(json, false);
 }
 
-export function UpdateSilverResourceRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): UpdateSilverResourceRequest {
+export function CreateProjectRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateProjectRequest {
     if (json == null) {
         return json;
     }
@@ -56,11 +56,11 @@ export function UpdateSilverResourceRequestFromJSONTyped(json: any, ignoreDiscri
     };
 }
 
-export function UpdateSilverResourceRequestToJSON(json: any): UpdateSilverResourceRequest {
-    return UpdateSilverResourceRequestToJSONTyped(json, false);
+export function CreateProjectRequestToJSON(json: any): CreateProjectRequest {
+    return CreateProjectRequestToJSONTyped(json, false);
 }
 
-export function UpdateSilverResourceRequestToJSONTyped(value?: UpdateSilverResourceRequest | null, ignoreDiscriminator: boolean = false): any {
+export function CreateProjectRequestToJSONTyped(value?: CreateProjectRequest | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }

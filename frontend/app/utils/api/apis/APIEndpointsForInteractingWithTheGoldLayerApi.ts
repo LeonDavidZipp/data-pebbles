@@ -394,7 +394,7 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
         const canConsumeForm = runtime.canConsumeForm(consumes);
 
         let formParams: { append(param: string, value: any): any };
-        let useForm = canConsumeForm;
+        let useForm = false;
         if (useForm) {
             formParams = new FormData();
         } else {

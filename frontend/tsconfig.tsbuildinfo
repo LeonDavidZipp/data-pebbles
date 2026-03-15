@@ -1,0 +1,12 @@
+{
+    "root": [
+        "./test/api-clients.test.ts",
+        "./test/api-config.test.ts",
+        "./test/lineage-models.test.ts",
+        "./test/models.test.ts",
+        "./test/runtime-errors.test.ts",
+        "./test/runtime-utils.test.ts"
+    ],
+    "errors": true,
+    "version": "5.9.3"
+}

@@ -25,6 +25,12 @@ export interface UpdateResourceRequest {
      * @memberof UpdateResourceRequest
      */
     name: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateResourceRequest
+     */
+    description?: string | null;
 }
 
 /**
@@ -46,6 +52,7 @@ export function UpdateResourceRequestFromJSONTyped(json: any, ignoreDiscriminato
     return {
         
         'name': json['name'],
+        'description': json['description'] == null ? undefined : json['description'],
     };
 }
 
@@ -61,6 +68,7 @@ export function UpdateResourceRequestToJSONTyped(value?: UpdateResourceRequest |
     return {
         
         'name': value['name'],
+        'description': value['description'],
     };
 }
 

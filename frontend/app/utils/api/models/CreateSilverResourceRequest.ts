@@ -25,6 +25,18 @@ export interface CreateSilverResourceRequest {
      * @memberof CreateSilverResourceRequest
      */
     name: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateSilverResourceRequest
+     */
+    project_id: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateSilverResourceRequest
+     */
+    description?: string | null;
 }
 
 /**
@@ -32,6 +44,7 @@ export interface CreateSilverResourceRequest {
  */
 export function instanceOfCreateSilverResourceRequest(value: object): value is CreateSilverResourceRequest {
     if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('project_id' in value) || value['project_id'] === undefined) return false;
     return true;
 }
 
@@ -46,6 +59,8 @@ export function CreateSilverResourceRequestFromJSONTyped(json: any, ignoreDiscri
     return {
         
         'name': json['name'],
+        'project_id': json['project_id'],
+        'description': json['description'] == null ? undefined : json['description'],
     };
 }
 
@@ -61,6 +76,8 @@ export function CreateSilverResourceRequestToJSONTyped(value?: CreateSilverResou
     return {
         
         'name': value['name'],
+        'project_id': value['project_id'],
+        'description': value['description'],
     };
 }
 

@@ -7,6 +7,7 @@
 Name | Type
 ------------ | -------------
 `name` | string
+`description` | string
 
 ## Example
 
@@ -16,6 +17,7 @@ import type { UpdateGoldResourceRequest } from ''
 // TODO: Update the object below with actual values
 const example = {
   "name": null,
+  "description": null,
 } satisfies UpdateGoldResourceRequest
 
 console.log(example)

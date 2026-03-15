@@ -36,6 +36,18 @@ export interface MetadataResponse {
      * @type {string}
      * @memberof MetadataResponse
      */
+    description: string | null;
+    /**
+     * 
+     * @type {number}
+     * @memberof MetadataResponse
+     */
+    project_id: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof MetadataResponse
+     */
     created_at: string;
 }
 
@@ -45,6 +57,8 @@ export interface MetadataResponse {
 export function instanceOfMetadataResponse(value: object): value is MetadataResponse {
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('description' in value) || value['description'] === undefined) return false;
+    if (!('project_id' in value) || value['project_id'] === undefined) return false;
     if (!('created_at' in value) || value['created_at'] === undefined) return false;
     return true;
 }
@@ -61,6 +75,8 @@ export function MetadataResponseFromJSONTyped(json: any, ignoreDiscriminator: bo
         
         'id': json['id'],
         'name': json['name'],
+        'description': json['description'],
+        'project_id': json['project_id'],
         'created_at': json['created_at'],
     };
 }
@@ -78,6 +94,8 @@ export function MetadataResponseToJSONTyped(value?: MetadataResponse | null, ign
         
         'id': value['id'],
         'name': value['name'],
+        'description': value['description'],
+        'project_id': value['project_id'],
         'created_at': value['created_at'],
     };
 }

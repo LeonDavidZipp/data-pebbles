@@ -16,58 +16,51 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface GoldMetadataResponse
+ * @interface ProjectResponse
  */
-export interface GoldMetadataResponse {
+export interface ProjectResponse {
     /**
      * 
      * @type {number}
-     * @memberof GoldMetadataResponse
+     * @memberof ProjectResponse
      */
     id: number;
     /**
      * 
      * @type {string}
-     * @memberof GoldMetadataResponse
+     * @memberof ProjectResponse
      */
     name: string;
     /**
      * 
      * @type {string}
-     * @memberof GoldMetadataResponse
+     * @memberof ProjectResponse
      */
     description: string | null;
     /**
      * 
-     * @type {number}
-     * @memberof GoldMetadataResponse
-     */
-    project_id: number;
-    /**
-     * 
      * @type {string}
-     * @memberof GoldMetadataResponse
+     * @memberof ProjectResponse
      */
     created_at: string;
 }
 
 /**
- * Check if a given object implements the GoldMetadataResponse interface.
+ * Check if a given object implements the ProjectResponse interface.
  */
-export function instanceOfGoldMetadataResponse(value: object): value is GoldMetadataResponse {
+export function instanceOfProjectResponse(value: object): value is ProjectResponse {
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
     if (!('description' in value) || value['description'] === undefined) return false;
-    if (!('project_id' in value) || value['project_id'] === undefined) return false;
     if (!('created_at' in value) || value['created_at'] === undefined) return false;
     return true;
 }
 
-export function GoldMetadataResponseFromJSON(json: any): GoldMetadataResponse {
-    return GoldMetadataResponseFromJSONTyped(json, false);
+export function ProjectResponseFromJSON(json: any): ProjectResponse {
+    return ProjectResponseFromJSONTyped(json, false);
 }
 
-export function GoldMetadataResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): GoldMetadataResponse {
+export function ProjectResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): ProjectResponse {
     if (json == null) {
         return json;
     }
@@ -76,16 +69,15 @@ export function GoldMetadataResponseFromJSONTyped(json: any, ignoreDiscriminator
         'id': json['id'],
         'name': json['name'],
         'description': json['description'],
-        'project_id': json['project_id'],
         'created_at': json['created_at'],
     };
 }
 
-export function GoldMetadataResponseToJSON(json: any): GoldMetadataResponse {
-    return GoldMetadataResponseToJSONTyped(json, false);
+export function ProjectResponseToJSON(json: any): ProjectResponse {
+    return ProjectResponseToJSONTyped(json, false);
 }
 
-export function GoldMetadataResponseToJSONTyped(value?: GoldMetadataResponse | null, ignoreDiscriminator: boolean = false): any {
+export function ProjectResponseToJSONTyped(value?: ProjectResponse | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
@@ -95,7 +87,6 @@ export function GoldMetadataResponseToJSONTyped(value?: GoldMetadataResponse | n
         'id': value['id'],
         'name': value['name'],
         'description': value['description'],
-        'project_id': value['project_id'],
         'created_at': value['created_at'],
     };
 }
