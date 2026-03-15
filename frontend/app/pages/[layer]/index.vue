@@ -7,6 +7,7 @@ import type {
 
 const route = useRoute()
 const { bronze, silver, gold } = useApi()
+const { currentProject } = useCurrentProject()
 
 const layer = computed(() => route.params.layer as string)
 
@@ -15,47 +16,70 @@ if (!validLayers.includes(layer.value)) {
   throw createError({ statusCode: 404, message: 'Layer not found' })
 }
 
+if (!currentProject.value) {
+  navigateTo('/projects')
+}
+
 const resources = ref<
   (MetadataResponse | SilverMetadataResponse | GoldMetadataResponse)[]
 >([])
 const loading = ref(true)
 const showCreateModal = ref(false)
 const newResourceName = ref('')
+const newResourceDescription = ref('')
 const creating = ref(false)
 
 async function fetchResources() {
+  if (!currentProject.value) return
   loading.value = true
   try {
+    const projectId = currentProject.value.id
+    let all: (MetadataResponse | SilverMetadataResponse | GoldMetadataResponse)[]
     if (layer.value === 'bronze') {
-      resources.value = await bronze.listResourcesBronzeGet()
+      all = await bronze.listResourcesBronzeGet()
     } else if (layer.value === 'silver') {
-      resources.value = await silver.listResourcesSilverGet()
+      all = await silver.listResourcesSilverGet()
     } else {
-      resources.value = await gold.listResourcesGoldGet()
+      all = await gold.listResourcesGoldGet()
     }
+    resources.value = all.filter(r => r.project_id === projectId)
   } finally {
     loading.value = false
   }
 }
 
 async function createResource() {
-  if (!newResourceName.value.trim()) return
+  if (!newResourceName.value.trim() || !currentProject.value) return
   creating.value = true
   try {
+    const projectId = currentProject.value.id
     if (layer.value === 'bronze') {
       await bronze.createResourceBronzePost({
-        createResourceRequest: { name: newResourceName.value }
+        createResourceRequest: {
+          name: newResourceName.value,
+          project_id: projectId,
+          description: newResourceDescription.value || undefined
+        }
       })
     } else if (layer.value === 'silver') {
       await silver.createResourceSilverPost({
-        createSilverResourceRequest: { name: newResourceName.value }
+        createSilverResourceRequest: {
+          name: newResourceName.value,
+          project_id: projectId,
+          description: newResourceDescription.value || undefined
+        }
       })
     } else {
       await gold.createResourceGoldPost({
-        createGoldResourceRequest: { name: newResourceName.value }
+        createGoldResourceRequest: {
+          name: newResourceName.value,
+          project_id: projectId,
+          description: newResourceDescription.value || undefined
+        }
       })
     }
     newResourceName.value = ''
+    newResourceDescription.value = ''
     showCreateModal.value = false
     await fetchResources()
   } finally {
@@ -152,6 +176,9 @@ const layerIconClass = computed(() => {
                 Name
               </th>
               <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                Description
+              </th>
+              <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
                 Created
               </th>
               <th class="text-right py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
@@ -179,6 +206,9 @@ const layerIconClass = computed(() => {
                   </div>
                   <span class="font-medium text-gray-900 dark:text-white">{{ resource.name }}</span>
                 </div>
+              </td>
+              <td class="py-3 px-4 text-gray-500 dark:text-gray-400">
+                {{ resource.description || '—' }}
               </td>
               <td class="py-3 px-4 text-gray-500 dark:text-gray-400">
                 {{ new Date(resource.created_at).toLocaleDateString() }}
@@ -222,6 +252,13 @@ const layerIconClass = computed(() => {
           <UInput
             v-model="newResourceName"
             placeholder="Resource name"
+            color="neutral"
+            class="mb-3 w-full"
+            @keyup.enter="createResource"
+          />
+          <UInput
+            v-model="newResourceDescription"
+            placeholder="Description (optional)"
             color="neutral"
             class="mb-4 w-full"
             @keyup.enter="createResource"

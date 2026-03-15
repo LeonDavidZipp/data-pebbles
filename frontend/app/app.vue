@@ -13,6 +13,7 @@ useSeoMeta({
 })
 
 const route = useRoute()
+const { currentProject } = useCurrentProject()
 
 const layers = [
   { label: 'Bronze', icon: 'i-lucide-hard-drive', to: '/bronze' },
@@ -54,6 +55,35 @@ const mlflowPort = 5001
 
         <div class="px-3 mt-2 mb-1">
           <span class="px-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+            Project
+          </span>
+        </div>
+
+        <nav class="px-3 space-y-0.5">
+          <NuxtLink
+            to="/projects"
+            class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors"
+            :class="
+              route.path.startsWith('/projects')
+                ? 'bg-white/10 text-white font-medium'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            "
+          >
+            <UIcon
+              name="i-lucide-folder-kanban"
+              class="size-4"
+            />
+            <template v-if="currentProject">
+              {{ currentProject.name }}
+            </template>
+            <template v-else>
+              Select Project
+            </template>
+          </NuxtLink>
+        </nav>
+
+        <div class="px-3 mt-4 mb-1">
+          <span class="px-2 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
             Layers
           </span>
         </div>
@@ -64,11 +94,13 @@ const mlflowPort = 5001
             :key="layer.to"
             :to="layer.to"
             class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors"
-            :class="
-              activeLayer === layer.to
-                ? 'bg-white/10 text-white font-medium'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
-            "
+            :class="[
+              !currentProject
+                ? 'text-gray-600 pointer-events-none opacity-40'
+                : activeLayer === layer.to
+                  ? 'bg-white/10 text-white font-medium'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+            ]"
           >
             <UIcon
               :name="layer.icon"

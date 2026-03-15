@@ -10,6 +10,7 @@ import type {
 
 const route = useRoute()
 const { bronze, silver, gold } = useApi()
+const { currentProject } = useCurrentProject()
 
 const layer = computed(() => route.params.layer as string)
 const resourceId = computed(() => Number(route.params.resourceId))
@@ -17,6 +18,10 @@ const resourceId = computed(() => Number(route.params.resourceId))
 const validLayers = ['bronze', 'silver', 'gold']
 if (!validLayers.includes(layer.value)) {
   throw createError({ statusCode: 404, message: 'Layer not found' })
+}
+
+if (!currentProject.value) {
+  navigateTo('/projects')
 }
 
 const resource = ref<
@@ -288,7 +293,7 @@ fetchAll()
           <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
             Resource Details
           </h2>
-          <div class="grid grid-cols-3 gap-4 text-sm">
+          <div class="grid grid-cols-4 gap-4 text-sm">
             <div>
               <span class="text-gray-500 dark:text-gray-400">Resource ID</span>
               <p class="font-medium text-gray-900 dark:text-white mt-0.5">
@@ -302,11 +307,26 @@ fetchAll()
               </p>
             </div>
             <div>
+              <span class="text-gray-500 dark:text-gray-400">Project</span>
+              <p class="font-medium text-gray-900 dark:text-white mt-0.5">
+                {{ currentProject?.name ?? '—' }}
+              </p>
+            </div>
+            <div>
               <span class="text-gray-500 dark:text-gray-400">Created</span>
               <p class="font-medium text-gray-900 dark:text-white mt-0.5">
                 {{ new Date(resource.created_at).toLocaleDateString() }}
               </p>
             </div>
+          </div>
+          <div
+            v-if="resource.description"
+            class="mt-3 text-sm"
+          >
+            <span class="text-gray-500 dark:text-gray-400">Description</span>
+            <p class="font-medium text-gray-900 dark:text-white mt-0.5">
+              {{ resource.description }}
+            </p>
           </div>
         </div>
 
