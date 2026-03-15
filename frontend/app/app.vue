@@ -115,6 +115,22 @@ const mlflowPort = 5001
             />
             SDK
           </NuxtLink>
+
+          <NuxtLink
+            to="/mcp"
+            class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors"
+            :class="
+              route.path.startsWith('/mcp')
+                ? 'bg-white/10 text-white font-medium'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            "
+          >
+            <UIcon
+              name="i-lucide-plug"
+              class="size-4"
+            />
+            MCP Server
+          </NuxtLink>
         </nav>
 
         <div class="px-3 pb-3 mt-auto border-t border-gray-800 pt-3">
