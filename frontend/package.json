@@ -1,0 +1,39 @@
+{
+  "name": "data-pebbles-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev --dotenv .env",
+    "start": "nuxt start",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck",
+    "format": "eslint . --fix",
+    "format:check": "eslint .",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "openapi": "openapi-generator generate -i ../openapi.json -g typescript-fetch -o ./app/utils/api --additional-properties=supportsES6=true,modelPropertyNaming=original"
+  },
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.95",
+    "@iconify-json/simple-icons": "^1.2.72",
+    "@nuxt/ui": "^4.5.1",
+    "@nuxtjs/i18n": "^10.2.3",
+    "dompurify": "^3.3.3",
+    "nuxt": "^4.3.1",
+    "nuxt-lucide-icons": "^2.0.0",
+    "shiki": "^4.0.2",
+    "tailwindcss": "^4.2.1"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^1.15.2",
+    "@types/node": "^25.5.0",
+    "eslint": "^10.0.3",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.2.5"
+  },
+  "packageManager": "pnpm@10.30.3"
+}
