@@ -383,6 +383,7 @@ fetchAll()
                     :color="getStatus(v) === 'active' ? 'success' : 'neutral'"
                     variant="subtle"
                     size="sm"
+                    class="w-20 justify-center"
                   >
                     {{ getStatus(v) }}
                   </UBadge>
