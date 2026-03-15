@@ -61,7 +61,7 @@ function scrollTo(id: string) {
               >MCP</a> server that lets AI assistants interact with your data lake directly. All bronze, silver, and gold layer operations are available as MCP tools.
             </p>
             <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              The server is powered by <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded">fastapi-mcp</code> and uses the SSE transport, automatically exposing every API endpoint as an MCP tool.
+              The server is powered by <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded">fastapi-mcp</code> and uses the Streamable HTTP transport, automatically exposing every API endpoint as an MCP tool.
             </p>
             <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
               <div class="flex items-center gap-2 text-sm">
@@ -70,7 +70,7 @@ function scrollTo(id: string) {
               </div>
               <div class="flex items-center gap-2 text-sm mt-2">
                 <span class="text-gray-500 dark:text-gray-400">Transport:</span>
-                <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono">SSE (Server-Sent Events)</code>
+                <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono">Streamable HTTP</code>
               </div>
             </div>
           </section>
@@ -121,7 +121,7 @@ function scrollTo(id: string) {
               :code="`{
   &quot;servers&quot;: {
     &quot;data-pebbles&quot;: {
-      &quot;type&quot;: &quot;sse&quot;,
+      &quot;type&quot;: &quot;http&quot;,
       &quot;url&quot;: &quot;http://localhost:8000/mcp&quot;
     }
   }
@@ -152,7 +152,7 @@ function scrollTo(id: string) {
 }`"
             />
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
-              This uses <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded">mcp-remote</code> to bridge the SSE transport to Claude Desktop's stdio transport.
+              This uses <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded">mcp-remote</code> to bridge the HTTP transport to Claude Desktop's stdio transport.
             </p>
           </section>
 
