@@ -10,6 +10,12 @@ A companion [Python SDK](https://pypi.org/project/data-pebbles/) is available fo
 pip install data-pebbles
 ```
 
+or with `uv`:
+
+```bash
+uv pip install data-pebbles
+```
+
 ## Useful Links
 
 - [MinIO Quickstart](https://github.com/minio/minio#readme) — S3-compatible object storage, self-hosted
@@ -18,12 +24,15 @@ pip install data-pebbles
 - [MLflow Documentation](https://mlflow.org/docs/latest/index.html) — experiment tracking, model registry, and ML lifecycle management
 - [Polars User Guide](https://docs.pola.rs/) — fast DataFrame library for data processing
 - [FastAPI Tutorial](https://fastapi.tiangolo.com/tutorial/) — async Python web framework for the REST API
+- [Model Context Protocol](https://modelcontextprotocol.io) — open protocol for AI assistant tool integration
+- [fastapi-mcp](https://github.com/tadata-org/fastapi-mcp) — library to expose FastAPI endpoints as MCP tools
 
 ## Architecture
 
 | Component | Purpose |
 | --- | --- |
 | **FastAPI** | REST API backend |
+| **MCP Server** | Model Context Protocol server for AI assistants (via `fastapi-mcp`) |
 | **Nuxt** | Frontend web UI |
 | **Python SDK** | Client library for programmatic access |
 | **PostgreSQL** (pgvector) | Metadata storage, bronze resource versioning |
@@ -58,6 +67,7 @@ This starts:
 | --- | --- | --- |
 | Frontend | `localhost:3000` | Web UI for managing resources and browsing data |
 | Backend API | `localhost:8000` | REST API (see `/docs` for Swagger UI) |
+| MCP Server | `localhost:8000/mcp` | Model Context Protocol endpoint for AI assistants |
 | MLflow UI | `localhost:5001` | Experiment tracking dashboard |
 | PostgreSQL | `localhost:5432` | Metadata database |
 | MinIO API | `localhost:9000` | S3-compatible storage endpoint |
@@ -79,7 +89,7 @@ MINIO_ROOT_PASSWORD=supersecret
 
 ## Frontend
 
-The frontend is a Nuxt-based web UI for managing resources, uploading files, and browsing data across all layers. It runs at `localhost:3000` and includes built-in SDK documentation.
+The frontend is a Nuxt-based web UI for managing resources, uploading files, and browsing data across all layers. It runs at `localhost:3000` and includes built-in SDK and MCP server documentation.
 
 See the [frontend README](../frontend/README.md) for development details.
 
@@ -92,3 +102,9 @@ The API is organized by data layer:
 - `/gold` — Access aggregated data
 
 API docs are available at `localhost:8000/docs` when the backend is running.
+
+## MCP Server
+
+The backend exposes a [Model Context Protocol](https://modelcontextprotocol.io) server at `/mcp` using Streamable HTTP transport. All API endpoints are automatically available as MCP tools, allowing AI assistants (Cursor, VS Code Copilot, Claude Desktop, etc.) to interact with the data lake directly.
+
+See the MCP page in the frontend (`localhost:3000/mcp`) for client configuration examples.
