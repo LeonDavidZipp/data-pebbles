@@ -29,6 +29,7 @@ services:
         condition: service_healthy
       mlflow:
         condition: service_healthy
+    restart: "unless-stopped"
 
   mlflow:
     container_name: dp-mlflow
@@ -52,10 +53,17 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/2.0/mlflow/experiments/search?max_results=1')"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:5000/api/2.0/mlflow/experiments/search?max_results=1')",
+        ]
       interval: 5s
       timeout: 10s
       retries: 10
+    restart: "unless-stopped"
 
   postgres:
     container_name: dp-db
@@ -79,6 +87,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: "unless-stopped"
 
   minio:
     container_name: dp-minio
@@ -97,6 +106,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: "unless-stopped"
 
   createbuckets:
     container_name: dp-createbuckets
@@ -116,8 +126,10 @@ services:
       mc anonymous set download myminio/bronze;
       exit 0;
       "
+    restart: "no"
 
 volumes:
   pgdata:
+    driver: local
   minio:
     driver: local
