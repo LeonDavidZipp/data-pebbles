@@ -13,15 +13,20 @@ gold_router = APIRouter()
 
 class CreateGoldResourceRequest(BaseModel):
 	name: str
+	project_id: int
+	description: str | None = None
 
 
 class UpdateGoldResourceRequest(BaseModel):
 	name: str
+	description: str | None = None
 
 
 class GoldMetadataResponse(BaseModel):
 	id: int
 	name: str
+	description: str | None
+	project_id: int
 	created_at: str
 
 
@@ -42,6 +47,8 @@ async def list_resources(
 		GoldMetadataResponse(
 			id=s.id,
 			name=s.name,
+			description=s.description,
+			project_id=s.project_id,
 			created_at=s.created_at.isoformat(),
 		)
 		for s in resources
@@ -53,7 +60,9 @@ async def create_resource(
 	body: CreateGoldResourceRequest,
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
 ) -> JSONResponse:
-	res = await gold.metadata_interactor.create(body.name)
+	res = await gold.metadata_interactor.create(
+		body.name, body.project_id, body.description
+	)
 	return JSONResponse(
 		content={"message": "Resource created successfully.", "resource_id": res.id},
 		status_code=status.HTTP_201_CREATED,
@@ -71,6 +80,8 @@ async def get_resource(
 	return GoldMetadataResponse(
 		id=res.id,
 		name=res.name,
+		description=res.description,
+		project_id=res.project_id,
 		created_at=res.created_at.isoformat(),
 	)
 
@@ -93,12 +104,16 @@ async def update_resource(
 	body: UpdateGoldResourceRequest,
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
 ) -> GoldMetadataResponse:
-	res = await gold.metadata_interactor.update(resource_id, name=body.name)
+	res = await gold.metadata_interactor.update(
+		resource_id, name=body.name, description=body.description
+	)
 	if res is None:
 		raise ResourceNotFoundError(resource_id)
 	return GoldMetadataResponse(
 		id=res.id,
 		name=res.name,
+		description=res.description,
+		project_id=res.project_id,
 		created_at=res.created_at.isoformat(),
 	)
 

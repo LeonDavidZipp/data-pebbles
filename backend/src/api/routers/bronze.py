@@ -13,15 +13,20 @@ bronze_router = APIRouter()
 
 class CreateResourceRequest(BaseModel):
 	name: str
+	project_id: int
+	description: str | None = None
 
 
 class UpdateResourceRequest(BaseModel):
 	name: str
+	description: str | None = None
 
 
 class MetadataResponse(BaseModel):
 	id: int
 	name: str
+	description: str | None
+	project_id: int
 	created_at: str
 
 
@@ -44,6 +49,8 @@ async def list_resources(
 		MetadataResponse(
 			id=s.id,
 			name=s.name,
+			description=s.description,
+			project_id=s.project_id,
 			created_at=s.created_at.isoformat(),
 		)
 		for s in resources
@@ -55,7 +62,9 @@ async def create_resource(
 	body: CreateResourceRequest,
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> JSONResponse:
-	res = await bronze.metadata_interactor.create(body.name)
+	res = await bronze.metadata_interactor.create(
+		body.name, body.project_id, body.description
+	)
 	return JSONResponse(
 		content={"message": "Resource created successfully.", "resource_id": res.id},
 		status_code=status.HTTP_201_CREATED,
@@ -73,6 +82,8 @@ async def get_resource(
 	return MetadataResponse(
 		id=res.id,
 		name=res.name,
+		description=res.description,
+		project_id=res.project_id,
 		created_at=res.created_at.isoformat(),
 	)
 
@@ -95,12 +106,16 @@ async def update_resource(
 	body: UpdateResourceRequest,
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> MetadataResponse:
-	res = await bronze.metadata_interactor.update(resource_id, name=body.name)
+	res = await bronze.metadata_interactor.update(
+		resource_id, name=body.name, description=body.description
+	)
 	if res is None:
 		raise ResourceNotFoundError(resource_id)
 	return MetadataResponse(
 		id=res.id,
 		name=res.name,
+		description=res.description,
+		project_id=res.project_id,
 		created_at=res.created_at.isoformat(),
 	)
 

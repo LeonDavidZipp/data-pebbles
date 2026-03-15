@@ -13,15 +13,20 @@ silver_router = APIRouter()
 
 class CreateSilverResourceRequest(BaseModel):
 	name: str
+	project_id: int
+	description: str | None = None
 
 
 class UpdateSilverResourceRequest(BaseModel):
 	name: str
+	description: str | None = None
 
 
 class SilverMetadataResponse(BaseModel):
 	id: int
 	name: str
+	description: str | None
+	project_id: int
 	created_at: str
 
 
@@ -42,6 +47,8 @@ async def list_resources(
 		SilverMetadataResponse(
 			id=s.id,
 			name=s.name,
+			description=s.description,
+			project_id=s.project_id,
 			created_at=s.created_at.isoformat(),
 		)
 		for s in resources
@@ -53,7 +60,9 @@ async def create_resource(
 	body: CreateSilverResourceRequest,
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
 ) -> JSONResponse:
-	res = await silver.metadata_interactor.create(body.name)
+	res = await silver.metadata_interactor.create(
+		body.name, body.project_id, body.description
+	)
 	return JSONResponse(
 		content={"message": "Resource created successfully.", "resource_id": res.id},
 		status_code=status.HTTP_201_CREATED,
@@ -71,6 +80,8 @@ async def get_resource(
 	return SilverMetadataResponse(
 		id=res.id,
 		name=res.name,
+		description=res.description,
+		project_id=res.project_id,
 		created_at=res.created_at.isoformat(),
 	)
 
@@ -93,12 +104,16 @@ async def update_resource(
 	body: UpdateSilverResourceRequest,
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
 ) -> SilverMetadataResponse:
-	res = await silver.metadata_interactor.update(resource_id, name=body.name)
+	res = await silver.metadata_interactor.update(
+		resource_id, name=body.name, description=body.description
+	)
 	if res is None:
 		raise ResourceNotFoundError(resource_id)
 	return SilverMetadataResponse(
 		id=res.id,
 		name=res.name,
+		description=res.description,
+		project_id=res.project_id,
 		created_at=res.created_at.isoformat(),
 	)
 
