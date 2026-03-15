@@ -10,11 +10,11 @@ from ..dependencies import BronzeLoader, bronze_dep, validate_file
 bronze_router = APIRouter()
 
 
-class CreateSourceRequest(BaseModel):
+class CreateResourceRequest(BaseModel):
 	name: str
 
 
-class UpdateSourceRequest(BaseModel):
+class UpdateResourceRequest(BaseModel):
 	name: str
 
 
@@ -26,7 +26,7 @@ class MetadataResponse(BaseModel):
 
 class VersionResponse(BaseModel):
 	id: int
-	source_id: int
+	resource_id: int
 	version: int
 	status: str
 	s3_key: str
@@ -35,41 +35,41 @@ class VersionResponse(BaseModel):
 
 
 @bronze_router.get("/", status_code=status.HTTP_200_OK)
-async def list_sources(
+async def list_resources(
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> list[MetadataResponse]:
-	sources = await bronze.metadata_interactor.get_all()
+	resources = await bronze.metadata_interactor.get_all()
 	return [
 		MetadataResponse(
 			id=s.id,
 			name=s.name,
 			created_at=s.created_at.isoformat(),
 		)
-		for s in sources
+		for s in resources
 	]
 
 
 @bronze_router.post("/")
-async def create_source(
-	body: CreateSourceRequest,
+async def create_resource(
+	body: CreateResourceRequest,
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> JSONResponse:
 	res = await bronze.metadata_interactor.create(body.name)
 	return JSONResponse(
-		content={"message": "Source created successfully.", "source_id": res.id},
+		content={"message": "Resource created successfully.", "resource_id": res.id},
 		status_code=status.HTTP_201_CREATED,
 	)
 
 
-@bronze_router.get("/{source_id}", status_code=status.HTTP_200_OK)
-async def get_source(
-	source_id: Annotated[int, Path()],
+@bronze_router.get("/{resource_id}", status_code=status.HTTP_200_OK)
+async def get_resource(
+	resource_id: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> MetadataResponse:
-	res = await bronze.get_metadata(source_id)
+	res = await bronze.get_metadata(resource_id)
 	if res is None:
 		raise HTTPException(
-			status_code=status.HTTP_404_NOT_FOUND, detail="Source not found."
+			status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found."
 		)
 	return MetadataResponse(
 		id=res.id,
@@ -78,28 +78,28 @@ async def get_source(
 	)
 
 
-@bronze_router.delete("/{source_id}")
-async def delete_source(
-	source_id: Annotated[int, Path()],
+@bronze_router.delete("/{resource_id}")
+async def delete_resource(
+	resource_id: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> JSONResponse:
-	await bronze.metadata_interactor.delete(source_id)
+	await bronze.metadata_interactor.delete(resource_id)
 	return JSONResponse(
-		content={"message": "Source deleted successfully."},
+		content={"message": "Resource deleted successfully."},
 		status_code=status.HTTP_200_OK,
 	)
 
 
-@bronze_router.patch("/{source_id}")
-async def update_source(
-	source_id: Annotated[int, Path()],
-	body: UpdateSourceRequest,
+@bronze_router.patch("/{resource_id}")
+async def update_resource(
+	resource_id: Annotated[int, Path()],
+	body: UpdateResourceRequest,
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> MetadataResponse:
-	res = await bronze.metadata_interactor.update(source_id, name=body.name)
+	res = await bronze.metadata_interactor.update(resource_id, name=body.name)
 	if res is None:
 		raise HTTPException(
-			status_code=status.HTTP_404_NOT_FOUND, detail="Source not found."
+			status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found."
 		)
 	return MetadataResponse(
 		id=res.id,
@@ -108,16 +108,16 @@ async def update_source(
 	)
 
 
-@bronze_router.get("/{source_id}/versions", status_code=status.HTTP_200_OK)
+@bronze_router.get("/{resource_id}/versions", status_code=status.HTTP_200_OK)
 async def list_versions(
-	source_id: Annotated[int, Path()],
+	resource_id: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> list[VersionResponse]:
-	versions = await bronze.version_interactor.get_by_source(source_id)
+	versions = await bronze.version_interactor.get_by_resource(resource_id)
 	return [
 		VersionResponse(
 			id=v.id,
-			source_id=v.source_id,
+			resource_id=v.resource_id,
 			version=v.version,
 			status=v.status,
 			s3_key=v.s3_key,
@@ -128,13 +128,13 @@ async def list_versions(
 	]
 
 
-@bronze_router.patch("/{source_id}/versions/{version}")
+@bronze_router.patch("/{resource_id}/versions/{version}")
 async def activate_version(
-	source_id: Annotated[int, Path()],
+	resource_id: Annotated[int, Path()],
 	version: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> JSONResponse:
-	rows = await bronze.version_interactor.activate_version(source_id, version)
+	rows = await bronze.version_interactor.activate_version(resource_id, version)
 	if rows == 0:
 		raise HTTPException(
 			status_code=status.HTTP_404_NOT_FOUND, detail="Version not found."
@@ -145,13 +145,13 @@ async def activate_version(
 	)
 
 
-@bronze_router.delete("/{source_id}/versions/{version}")
+@bronze_router.delete("/{resource_id}/versions/{version}")
 async def delete_version(
-	source_id: Annotated[int, Path()],
+	resource_id: Annotated[int, Path()],
 	version: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> JSONResponse:
-	rows = await bronze.delete_version(source_id, version)
+	rows = await bronze.delete_version(resource_id, version)
 	if rows == 0:
 		raise HTTPException(
 			status_code=status.HTTP_404_NOT_FOUND, detail="Version not found."
@@ -162,27 +162,27 @@ async def delete_version(
 	)
 
 
-@bronze_router.post("/{source_id}/versions")
+@bronze_router.post("/{resource_id}/versions")
 async def upload_version(
-	source_id: Annotated[int, Path()],
+	resource_id: Annotated[int, Path()],
 	file: Annotated[UploadFile, Depends(validate_file)],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> JSONResponse:
 	content = await file.read()
-	await bronze.upload(source_id, content, file.filename)  # type: ignore
+	await bronze.upload(resource_id, content, file.filename)  # type: ignore
 	return JSONResponse(
 		content={"message": "File uploaded successfully."},
 		status_code=status.HTTP_201_CREATED,
 	)
 
 
-@bronze_router.get("/{source_id}/versions/{version}")
+@bronze_router.get("/{resource_id}/versions/{version}")
 async def download_version(
-	source_id: Annotated[int, Path()],
+	resource_id: Annotated[int, Path()],
 	version: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> StreamingResponse:
-	result = await bronze.download_version(source_id, version)
+	result = await bronze.download_version(resource_id, version)
 	if result is None:
 		raise HTTPException(
 			status_code=status.HTTP_404_NOT_FOUND, detail="File not found."

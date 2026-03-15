@@ -26,7 +26,7 @@ pip install data-pebbles
 | **FastAPI** | REST API backend |
 | **Nuxt** | Frontend web UI |
 | **Python SDK** | Client library for programmatic access |
-| **PostgreSQL** (pgvector) | Metadata storage, bronze source versioning |
+| **PostgreSQL** (pgvector) | Metadata storage, bronze resource versioning |
 | **MinIO** | S3-compatible object storage for raw files and Delta tables |
 | **Delta Lake** | Versioned silver/gold layer storage |
 | **MLflow** | Experiment tracking and model registry |
@@ -34,7 +34,7 @@ pip install data-pebbles
 
 ### Data Layers
 
-- **Bronze** — Raw source files stored in MinIO, versioned via PostgreSQL metadata
+- **Bronze** — Raw resource files stored in MinIO, versioned via PostgreSQL metadata
 - **Silver** — Cleaned and structured data, stored as Delta tables
 - **Gold** — Aggregated, business-ready data, stored as Delta tables
 
@@ -56,7 +56,7 @@ This starts:
 
 | Service | Port | Notes |
 | --- | --- | --- |
-| Frontend | `localhost:3000` | Web UI for managing sources and browsing data |
+| Frontend | `localhost:3000` | Web UI for managing resources and browsing data |
 | Backend API | `localhost:8000` | REST API (see `/docs` for Swagger UI) |
 | MLflow UI | `localhost:5001` | Experiment tracking dashboard |
 | PostgreSQL | `localhost:5432` | Metadata database |
@@ -79,7 +79,7 @@ MINIO_ROOT_PASSWORD=supersecret
 
 ## Frontend
 
-The frontend is a Nuxt-based web UI for managing sources, uploading files, and browsing data across all layers. It runs at `localhost:3000` and includes built-in SDK documentation.
+The frontend is a Nuxt-based web UI for managing resources, uploading files, and browsing data across all layers. It runs at `localhost:3000` and includes built-in SDK documentation.
 
 See the [frontend README](../frontend/README.md) for development details.
 
@@ -87,7 +87,7 @@ See the [frontend README](../frontend/README.md) for development details.
 
 The API is organized by data layer:
 
-- `/bronze` — Upload and manage raw source files
+- `/bronze` — Upload and manage raw resource files
 - `/silver` — Upload, download, and batch-download cleaned data (Parquet/Arrow)
 - `/gold` — Access aggregated data
 

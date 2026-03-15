@@ -1,7 +1,7 @@
-"""S3-compatible interactor for uploading and managing source files.
+"""S3-compatible interactor for uploading and managing resource files.
 
 This module provides functionality for interacting with S3-compatible services
-(AWS S3, MinIO, LocalStack, etc.) to store and retrieve source files.
+(AWS S3, MinIO, LocalStack, etc.) to store and retrieve resource files.
 """
 
 from datetime import datetime, timezone
@@ -13,7 +13,7 @@ from mypy_boto3_s3 import S3Client
 
 
 class S3Interactor:
-	"""Handles S3-compatible operations for source file management."""
+	"""Handles S3-compatible operations for resource file management."""
 
 	def __init__(
 		self,

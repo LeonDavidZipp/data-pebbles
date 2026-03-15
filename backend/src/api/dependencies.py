@@ -7,11 +7,11 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from ..config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, POSTGRES_URI, S3_URL
 from ..loaders import BronzeLoader, DeltaLoader, GoldLoader, SilverLoader
 from ..postgres import (
-	BronzeSourceMetadataInteractor,
-	BronzeSourceVersionInteractor,
-	GoldSourceMetadataInteractor,
+	BronzeResourceMetadataInteractor,
+	BronzeResourceVersionInteractor,
+	GoldResourceMetadataInteractor,
 	GoldVersionLineageInteractor,
-	SilverSourceMetadataInteractor,
+	SilverResourceMetadataInteractor,
 	SilverVersionLineageInteractor,
 )
 from ..s3 import S3Interactor
@@ -68,16 +68,16 @@ s3_ = boto3.client(  # type: ignore
 	aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
 )
 
-bronze_source_metadata_interactor_ = BronzeSourceMetadataInteractor(session_maker_)
-bronze_source_version_interactor_ = BronzeSourceVersionInteractor(session_maker_)
+bronze_resource_metadata_interactor_ = BronzeResourceMetadataInteractor(session_maker_)
+bronze_resource_version_interactor_ = BronzeResourceVersionInteractor(session_maker_)
 bronze_s3_interactor_ = S3Interactor("bronze", s3_)
 bronze_loader_ = BronzeLoader(
-	bronze_source_metadata_interactor_,
-	bronze_source_version_interactor_,
+	bronze_resource_metadata_interactor_,
+	bronze_resource_version_interactor_,
 	bronze_s3_interactor_,
 )
 
-silver_metadata_interactor_ = SilverSourceMetadataInteractor(session_maker_)
+silver_metadata_interactor_ = SilverResourceMetadataInteractor(session_maker_)
 silver_lineage_interactor_ = SilverVersionLineageInteractor(session_maker_)
 silver_delta_loader_ = DeltaLoader("silver", storage_options=opts_)
 silver_loader_ = SilverLoader(
@@ -86,7 +86,7 @@ silver_loader_ = SilverLoader(
 	silver_delta_loader_,
 )
 
-gold_metadata_interactor_ = GoldSourceMetadataInteractor(session_maker_)
+gold_metadata_interactor_ = GoldResourceMetadataInteractor(session_maker_)
 gold_lineage_interactor_ = GoldVersionLineageInteractor(session_maker_)
 gold_delta_loader_ = DeltaLoader("gold", storage_options=opts_)
 gold_loader_ = GoldLoader(
