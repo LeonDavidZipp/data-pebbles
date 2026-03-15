@@ -11,6 +11,7 @@ from ..postgres import (
 	BronzeResourceVersionInteractor,
 	GoldResourceMetadataInteractor,
 	GoldVersionLineageInteractor,
+	ProjectMetadataInteractor,
 	SilverResourceMetadataInteractor,
 	SilverVersionLineageInteractor,
 )
@@ -94,6 +95,8 @@ gold_loader_ = GoldLoader(
 	gold_delta_loader_,
 )
 
+project_metadata_interactor_ = ProjectMetadataInteractor(session_maker_)
+
 
 def bronze_dep() -> BronzeLoader:
 	return bronze_loader_
@@ -105,3 +108,7 @@ def silver_dep() -> SilverLoader:
 
 def gold_dep() -> GoldLoader:
 	return gold_loader_
+
+
+def projects_dep() -> ProjectMetadataInteractor:
+	return project_metadata_interactor_
