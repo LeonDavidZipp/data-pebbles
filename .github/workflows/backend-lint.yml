@@ -33,5 +33,5 @@ jobs:
               with:
                   enable-cache: true
             - run: uv sync --dev --frozen
-            - run: uv run ruff check src/
-            - run: uv run ruff format --check src/
+            - run: uv tool run ruff check src/
+            - run: uv tool run ruff format --check src/
