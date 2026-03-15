@@ -15,6 +15,11 @@ from ..postgres import (
 	SilverVersionLineageInteractor,
 )
 from ..s3 import S3Interactor
+from .exceptions import (
+	MissingFileNameError,
+	UnsupportedContentTypeError,
+	UnsupportedFileExtensionError,
+)
 
 ALLOWED_CONTENT_TYPES = {
 	"text/csv",
@@ -27,24 +32,18 @@ ALLOWED_CONTENT_TYPES = {
 ALLOWED_EXTENSIONS = {".csv", ".parquet", ".json", ".xlsx"}
 
 
-def validate_file(file: Annotated[UploadFile, File()]):
+def validate_file(file: Annotated[UploadFile, File()]) -> UploadFile:
 	if not file.filename:
-		raise ValueError("Filename is required.")
+		raise MissingFileNameError
 	ext = "." + file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else ""
 	if ext not in ALLOWED_EXTENSIONS:
-		raise ValueError(
-			f"Unsupported file extension '{ext}'. "
-			+ f"Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
-		)
+		raise UnsupportedFileExtensionError(ext, ALLOWED_EXTENSIONS)
 	if file.content_type not in ALLOWED_CONTENT_TYPES:
-		raise ValueError(
-			f"Unsupported content type '{file.content_type}'. "
-			+ f"Allowed: {', '.join(sorted(ALLOWED_CONTENT_TYPES))}"
-		)
+		raise UnsupportedContentTypeError(file.content_type, ALLOWED_CONTENT_TYPES)
 	return file
 
 
-def validate_files(files: Annotated[list[UploadFile], File()]):
+def validate_files(files: Annotated[list[UploadFile], File()]) -> list[UploadFile]:
 	for file in files:
 		validate_file(file)
 	return files

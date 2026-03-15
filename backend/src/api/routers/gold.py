@@ -1,11 +1,12 @@
 from typing import Annotated
 
 import polars as pl
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, UploadFile, status
+from fastapi import APIRouter, Depends, Path, Query, UploadFile, status
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
 from ..dependencies import GoldLoader, gold_dep, validate_file
+from ..exceptions import ResourceNotFoundError
 
 gold_router = APIRouter()
 
@@ -66,9 +67,7 @@ async def get_resource(
 ) -> GoldMetadataResponse:
 	res = await gold.get_metadata(resource_id)
 	if res is None:
-		raise HTTPException(
-			status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found."
-		)
+		raise ResourceNotFoundError(resource_id)
 	return GoldMetadataResponse(
 		id=res.id,
 		name=res.name,
@@ -96,9 +95,7 @@ async def update_resource(
 ) -> GoldMetadataResponse:
 	res = await gold.metadata_interactor.update(resource_id, name=body.name)
 	if res is None:
-		raise HTTPException(
-			status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found."
-		)
+		raise ResourceNotFoundError(resource_id)
 	return GoldMetadataResponse(
 		id=res.id,
 		name=res.name,

@@ -1,11 +1,12 @@
 from typing import Annotated
 
 import polars as pl
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, UploadFile, status
+from fastapi import APIRouter, Depends, Path, Query, UploadFile, status
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
 from ..dependencies import SilverLoader, silver_dep, validate_file
+from ..exceptions import ResourceNotFoundError
 
 silver_router = APIRouter()
 
@@ -66,9 +67,7 @@ async def get_resource(
 ) -> SilverMetadataResponse:
 	res = await silver.get_metadata(resource_id)
 	if res is None:
-		raise HTTPException(
-			status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found."
-		)
+		raise ResourceNotFoundError(resource_id)
 	return SilverMetadataResponse(
 		id=res.id,
 		name=res.name,
@@ -96,9 +95,7 @@ async def update_resource(
 ) -> SilverMetadataResponse:
 	res = await silver.metadata_interactor.update(resource_id, name=body.name)
 	if res is None:
-		raise HTTPException(
-			status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found."
-		)
+		raise ResourceNotFoundError(resource_id)
 	return SilverMetadataResponse(
 		id=res.id,
 		name=res.name,

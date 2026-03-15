@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
 from ..dependencies import BronzeLoader, bronze_dep, validate_file
+from ..exceptions import ResourceNotFoundError, VersionNotFoundError
 
 bronze_router = APIRouter()
 
@@ -68,9 +69,7 @@ async def get_resource(
 ) -> MetadataResponse:
 	res = await bronze.get_metadata(resource_id)
 	if res is None:
-		raise HTTPException(
-			status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found."
-		)
+		raise ResourceNotFoundError(resource_id)
 	return MetadataResponse(
 		id=res.id,
 		name=res.name,
@@ -98,9 +97,7 @@ async def update_resource(
 ) -> MetadataResponse:
 	res = await bronze.metadata_interactor.update(resource_id, name=body.name)
 	if res is None:
-		raise HTTPException(
-			status_code=status.HTTP_404_NOT_FOUND, detail="Resource not found."
-		)
+		raise ResourceNotFoundError(resource_id)
 	return MetadataResponse(
 		id=res.id,
 		name=res.name,
@@ -136,9 +133,7 @@ async def activate_version(
 ) -> JSONResponse:
 	rows = await bronze.version_interactor.activate_version(resource_id, version)
 	if rows == 0:
-		raise HTTPException(
-			status_code=status.HTTP_404_NOT_FOUND, detail="Version not found."
-		)
+		raise VersionNotFoundError(resource_id, version)
 	return JSONResponse(
 		content={"message": "Version activated successfully."},
 		status_code=status.HTTP_200_OK,
@@ -153,9 +148,7 @@ async def delete_version(
 ) -> JSONResponse:
 	rows = await bronze.delete_version(resource_id, version)
 	if rows == 0:
-		raise HTTPException(
-			status_code=status.HTTP_404_NOT_FOUND, detail="Version not found."
-		)
+		raise VersionNotFoundError(resource_id, version)
 	return JSONResponse(
 		content={"message": "Version deleted successfully."},
 		status_code=status.HTTP_200_OK,
