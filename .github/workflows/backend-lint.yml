@@ -1,0 +1,37 @@
+name: backend-lint
+
+on:
+    pull_request:
+        paths:
+            - "backend/src/**"
+            - "backend/pyproject.toml"
+            - "backend/ruff.toml"
+            - "backend/uv.lock"
+            - ".github/workflows/backend-lint.yml"
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+defaults:
+    run:
+        working-directory: backend
+
+jobs:
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+
+        steps:
+            - uses: actions/checkout@v5
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.13"
+            - uses: astral-sh/setup-uv@v4
+              with:
+                  enable-cache: true
+            - run: uv sync --dev --frozen
+            - run: uv run ruff check src/
+            - run: uv run ruff format --check src/
