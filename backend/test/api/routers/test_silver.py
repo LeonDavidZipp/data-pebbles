@@ -1,3 +1,4 @@
+from collections.abc import Generator
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -23,7 +24,7 @@ def mock_silver() -> MagicMock:
 
 
 @pytest.fixture
-def client(mock_silver: MagicMock) -> TestClient:
+def client(mock_silver: MagicMock) -> Generator[TestClient, None, None]:
 	app.dependency_overrides[silver_dep] = lambda: mock_silver
 	yield TestClient(app)  # type: ignore[misc]
 	app.dependency_overrides.clear()

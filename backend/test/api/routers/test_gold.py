@@ -1,3 +1,4 @@
+from collections.abc import Generator
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -23,7 +24,7 @@ def mock_gold() -> MagicMock:
 
 
 @pytest.fixture
-def client(mock_gold: MagicMock) -> TestClient:
+def client(mock_gold: MagicMock) -> Generator[TestClient, None, None]:
 	app.dependency_overrides[gold_dep] = lambda: mock_gold
 	yield TestClient(app)  # type: ignore[misc]
 	app.dependency_overrides.clear()
