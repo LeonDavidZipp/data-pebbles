@@ -77,24 +77,24 @@ function scrollTo(id: string) {
 
 dp = DataPebbles(&quot;http://localhost:8000&quot;, token=&quot;your-token&quot;)
 
-# List bronze sources
-sources = dp.bronze.list_sources()
+# List bronze resources
+resources = dp.bronze.list_resources()
 
 # Upload a file to bronze (.csv, .parquet, .json, .xlsx)
-dp.bronze.create_source(&quot;raw_sales&quot;)
+dp.bronze.create_resource(&quot;raw_sales&quot;)
 dp.bronze.upload(1, file_path=&quot;sales.csv&quot;)
 
 # Download and transform through the layers
 raw = dp.bronze.download(1)
 lf  = dp.silver.download(2)
-dp.gold.upload(3, lf, from_source_ids=[2])"
+dp.gold.upload(3, lf, from_resource_ids=[2])"
             />
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
               The client can also be used as a context manager:
             </p>
             <CodeBlock
               code="with DataPebbles(&quot;http://localhost:8000&quot;) as dp:
-    sources = dp.bronze.list_sources()"
+    resources = dp.bronze.list_resources()"
             />
           </section>
 
@@ -121,55 +121,55 @@ dp.gold.upload(3, lf, from_source_ids=[2])"
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      create_source(name)
+                      create_resource(name)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      Create a new bronze source
+                      Create a new bronze resource
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      list_sources()
+                      list_resources()
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      List all bronze sources
+                      List all bronze resources
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      get_source(source_id)
+                      get_resource(resource_id)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      Get metadata for a source
+                      Get metadata for a resource
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      update_source(source_id, name)
+                      update_resource(resource_id, name)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      Rename a source
+                      Rename a resource
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      delete_source(source_id)
+                      delete_resource(resource_id)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      Delete a source and all its versions
+                      Delete a resource and all its versions
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      list_versions(source_id)
+                      list_versions(resource_id)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      List all versions of a source
+                      List all versions of a resource
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      upload(source_id, *, file_path=None, data=None, file_name=&quot;upload&quot;)
+                      upload(resource_id, *, file_path=None, data=None, file_name=&quot;upload&quot;)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
                       Upload a file by path or raw bytes (.csv, .parquet, .json, .xlsx)
@@ -177,7 +177,7 @@ dp.gold.upload(3, lf, from_source_ids=[2])"
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      download(source_id, *, version=None)
+                      download(resource_id, *, version=None)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
                       Download raw bytes (latest version by default)
@@ -185,7 +185,7 @@ dp.gold.upload(3, lf, from_source_ids=[2])"
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      activate_version(source_id, version)
+                      activate_version(resource_id, version)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
                       Set a version as active
@@ -193,7 +193,7 @@ dp.gold.upload(3, lf, from_source_ids=[2])"
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      delete_version(source_id, version)
+                      delete_version(resource_id, version)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
                       Delete a specific version
@@ -227,47 +227,47 @@ dp.gold.upload(3, lf, from_source_ids=[2])"
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      create_source(name)
+                      create_resource(name)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      Create a new silver source
+                      Create a new silver resource
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      list_sources()
+                      list_resources()
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      List all silver sources
+                      List all silver resources
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      get_source(source_id)
+                      get_resource(resource_id)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      Get metadata for a source
+                      Get metadata for a resource
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      update_source(source_id, name)
+                      update_resource(resource_id, name)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      Rename a source
+                      Rename a resource
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      delete_source(source_id)
+                      delete_resource(resource_id)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      Delete a source and all its versions
+                      Delete a resource and all its versions
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      list_versions(source_id)
+                      list_versions(resource_id)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
                       List all versions with lineage info
@@ -275,7 +275,7 @@ dp.gold.upload(3, lf, from_source_ids=[2])"
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      upload(source_id, data, *, from_source_id)
+                      upload(resource_id, data, *, from_resource_id)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
                       Upload a DataFrame/LazyFrame with bronze lineage
@@ -283,7 +283,7 @@ dp.gold.upload(3, lf, from_source_ids=[2])"
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      download(source_id, *, version=None)
+                      download(resource_id, *, version=None)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
                       Download as a Polars LazyFrame
@@ -317,47 +317,47 @@ dp.gold.upload(3, lf, from_source_ids=[2])"
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      create_source(name)
+                      create_resource(name)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      Create a new gold source
+                      Create a new gold resource
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      list_sources()
+                      list_resources()
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      List all gold sources
+                      List all gold resources
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      get_source(source_id)
+                      get_resource(resource_id)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      Get metadata for a source
+                      Get metadata for a resource
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      update_source(source_id, name)
+                      update_resource(resource_id, name)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      Rename a source
+                      Rename a resource
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      delete_source(source_id)
+                      delete_resource(resource_id)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      Delete a source and all its versions
+                      Delete a resource and all its versions
                     </td>
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      list_versions(source_id)
+                      list_versions(resource_id)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
                       List all versions with lineage info
@@ -365,7 +365,7 @@ dp.gold.upload(3, lf, from_source_ids=[2])"
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      upload(source_id, data, *, from_source_ids)
+                      upload(resource_id, data, *, from_resource_ids)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
                       Upload a DataFrame/LazyFrame with silver lineage
@@ -373,7 +373,7 @@ dp.gold.upload(3, lf, from_source_ids=[2])"
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      download(source_id, *, version=None)
+                      download(resource_id, *, version=None)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
                       Download as a Polars LazyFrame
@@ -422,7 +422,7 @@ def clean_eu(lf: pl.LazyFrame) -> pl.LazyFrame:
               gold_transform
             </h3>
             <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              Transforms silver → gold. The decorated function receives a dict mapping silver source IDs to their LazyFrames and returns a LazyFrame.
+              Transforms silver → gold. The decorated function receives a dict mapping silver resource IDs to their LazyFrames and returns a LazyFrame.
             </p>
             <CodeBlock
               code="@dp.gold_transform(target_id=3, from_silver_ids=[1, 2])
