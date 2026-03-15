@@ -60,32 +60,32 @@ function onFileChange(e: Event) {
 
 async function fetchResource() {
   if (layer.value === 'bronze') {
-    resource.value = await bronze.getSourceBronzeSourceIdGet({
-      sourceId: resourceId.value
+    resource.value = await bronze.getResourceBronzeResourceIdGet({
+      resourceId: resourceId.value
     })
   } else if (layer.value === 'silver') {
-    resource.value = await silver.getSourceSilverSourceIdGet({
-      sourceId: resourceId.value
+    resource.value = await silver.getResourceSilverResourceIdGet({
+      resourceId: resourceId.value
     })
   } else {
-    resource.value = await gold.getSourceGoldSourceIdGet({
-      sourceId: resourceId.value
+    resource.value = await gold.getResourceGoldResourceIdGet({
+      resourceId: resourceId.value
     })
   }
 }
 
 async function fetchVersions() {
   if (layer.value === 'bronze') {
-    versions.value = await bronze.listVersionsBronzeSourceIdVersionsGet({
-      sourceId: resourceId.value
+    versions.value = await bronze.listVersionsBronzeResourceIdVersionsGet({
+      resourceId: resourceId.value
     })
   } else if (layer.value === 'silver') {
-    versions.value = await silver.listVersionsSilverSourceIdVersionsGet({
-      sourceId: resourceId.value
+    versions.value = await silver.listVersionsSilverResourceIdVersionsGet({
+      resourceId: resourceId.value
     })
   } else {
-    versions.value = await gold.listVersionsGoldSourceIdVersionsGet({
-      sourceId: resourceId.value
+    versions.value = await gold.listVersionsGoldResourceIdVersionsGet({
+      resourceId: resourceId.value
     })
   }
 }
@@ -107,8 +107,8 @@ async function uploadVersion() {
   try {
     const file = selectedFile as unknown as string // File object sent via FormData
 
-    await bronze.uploadVersionBronzeSourceIdVersionsPost({
-      sourceId: resourceId.value,
+    await bronze.uploadVersionBronzeResourceIdVersionsPost({
+      resourceId: resourceId.value,
       file
     })
     showUploadModal.value = false
@@ -120,16 +120,16 @@ async function uploadVersion() {
 }
 
 async function activateVersion(version: number) {
-  await bronze.activateVersionBronzeSourceIdVersionsVersionPatch({
-    sourceId: resourceId.value,
+  await bronze.activateVersionBronzeResourceIdVersionsVersionPatch({
+    resourceId: resourceId.value,
     version
   })
   await fetchVersions()
 }
 
 async function deleteVersion(version: number) {
-  await bronze.deleteVersionBronzeSourceIdVersionsVersionDelete({
-    sourceId: resourceId.value,
+  await bronze.deleteVersionBronzeResourceIdVersionsVersionDelete({
+    resourceId: resourceId.value,
     version
   })
   await fetchVersions()
@@ -147,19 +147,19 @@ async function renameResource() {
   renaming.value = true
   try {
     if (layer.value === 'bronze') {
-      resource.value = await bronze.updateSourceBronzeSourceIdPatch({
-        sourceId: resourceId.value,
-        updateSourceRequest: { name: renameName.value }
+      resource.value = await bronze.updateResourceBronzeResourceIdPatch({
+        resourceId: resourceId.value,
+        updateResourceRequest: { name: renameName.value }
       })
     } else if (layer.value === 'silver') {
-      resource.value = await silver.updateSourceSilverSourceIdPatch({
-        sourceId: resourceId.value,
-        updateSilverSourceRequest: { name: renameName.value }
+      resource.value = await silver.updateResourceSilverResourceIdPatch({
+        resourceId: resourceId.value,
+        updateSilverResourceRequest: { name: renameName.value }
       })
     } else {
-      resource.value = await gold.updateSourceGoldSourceIdPatch({
-        sourceId: resourceId.value,
-        updateGoldSourceRequest: { name: renameName.value }
+      resource.value = await gold.updateResourceGoldResourceIdPatch({
+        resourceId: resourceId.value,
+        updateGoldResourceRequest: { name: renameName.value }
       })
     }
     showRenameModal.value = false
@@ -392,7 +392,7 @@ fetchAll()
                   v-if="layer !== 'bronze'"
                   class="py-2.5 px-4 text-gray-500 dark:text-gray-400"
                 >
-                  #{{ (v as SilverLineageResponse | GoldLineageResponse).from_source_id }}
+                  #{{ (v as SilverLineageResponse | GoldLineageResponse).from_resource_id }}
                 </td>
                 <td class="py-2.5 px-4 text-gray-500 dark:text-gray-400">
                   {{ new Date(v.created_at).toLocaleDateString() }}
