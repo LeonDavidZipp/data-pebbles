@@ -9,11 +9,41 @@ const sections = [
 ]
 
 const activeSection = ref('overview')
+const scrollContainer = ref<HTMLElement>()
+let isScrolling = false
 
 function scrollTo(id: string) {
+  isScrolling = true
   activeSection.value = id
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+  setTimeout(() => {
+    isScrolling = false
+  }, 800)
 }
+
+onMounted(() => {
+  const container = scrollContainer.value
+  if (!container) return
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (isScrolling) return
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          activeSection.value = entry.target.id
+        }
+      }
+    },
+    { root: container, rootMargin: '0px 0px -60% 0px', threshold: 0 }
+  )
+
+  for (const s of sections) {
+    const el = document.getElementById(s.id)
+    if (el) observer.observe(el)
+  }
+
+  onUnmounted(() => observer.disconnect())
+})
 </script>
 
 <template>
@@ -45,7 +75,10 @@ function scrollTo(id: string) {
       </nav>
 
       <!-- Content -->
-      <div class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-950 p-6 lg:p-10">
+      <div
+        ref="scrollContainer"
+        class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-950 p-6 lg:p-10"
+      >
         <div class="max-w-3xl mx-auto space-y-12">
           <!-- Overview -->
           <section id="overview">
