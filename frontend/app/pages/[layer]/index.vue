@@ -210,7 +210,10 @@ const layerIconClass = computed(() => {
       </div>
     </div>
 
-    <UModal v-model:open="showCreateModal">
+    <UModal
+      v-model:open="showCreateModal"
+      class="max-w-sm"
+    >
       <template #content>
         <div class="p-6">
           <h2 class="text-lg font-semibold mb-4">
@@ -220,7 +223,7 @@ const layerIconClass = computed(() => {
             v-model="newSourceName"
             placeholder="Source name"
             color="neutral"
-            class="mb-4"
+            class="mb-4 w-full"
             @keyup.enter="createSource"
           />
           <div class="flex justify-end gap-2">

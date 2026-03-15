@@ -431,7 +431,10 @@ fetchAll()
     </div>
 
     <!-- Upload Modal -->
-    <UModal v-model:open="showUploadModal">
+    <UModal
+      v-model:open="showUploadModal"
+      class="max-w-sm"
+    >
       <template #content>
         <div class="p-6">
           <h2 class="text-lg font-semibold mb-4">
@@ -483,7 +486,10 @@ fetchAll()
     </UModal>
 
     <!-- Rename Modal -->
-    <UModal v-model:open="showRenameModal">
+    <UModal
+      v-model:open="showRenameModal"
+      class="max-w-sm"
+    >
       <template #content>
         <div class="p-6">
           <h2 class="text-lg font-semibold mb-4">
@@ -492,7 +498,8 @@ fetchAll()
           <UInput
             v-model="renameName"
             placeholder="New name"
-            class="mb-4"
+            color="neutral"
+            class="mb-4 w-full"
             @keyup.enter="renameSource"
           />
           <div class="flex justify-end gap-2">
@@ -504,6 +511,7 @@ fetchAll()
             />
             <UButton
               label="Save"
+              color="neutral"
               :loading="renaming"
               @click="renameSource"
             />
