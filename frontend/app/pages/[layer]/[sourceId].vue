@@ -185,6 +185,30 @@ function getStatus(
   return 'status' in v ? v.status : null
 }
 
+const layerButtonClass = computed(() => {
+  switch (layer.value) {
+    case 'silver': return 'bg-gray-400 hover:bg-gray-500 text-white'
+    case 'gold': return 'bg-yellow-500 hover:bg-yellow-600 text-white'
+    default: return 'bg-amber-700 hover:bg-amber-800 text-white'
+  }
+})
+
+const layerDragActiveClass = computed(() => {
+  switch (layer.value) {
+    case 'silver': return 'border-gray-400 bg-gray-400/5'
+    case 'gold': return 'border-yellow-500 bg-yellow-500/5'
+    default: return 'border-amber-700 bg-amber-700/5'
+  }
+})
+
+const layerTextClass = computed(() => {
+  switch (layer.value) {
+    case 'silver': return 'text-gray-400'
+    case 'gold': return 'text-yellow-500'
+    default: return 'text-amber-700'
+  }
+})
+
 fetchAll()
 </script>
 
@@ -238,6 +262,8 @@ fetchAll()
             icon="i-lucide-upload"
             label="Upload Version"
             size="sm"
+            color="neutral"
+            :class="layerButtonClass"
             @click="showUploadModal = true"
           />
         </div>
@@ -383,7 +409,7 @@ fetchAll()
                       v-if="layer === 'bronze' && getStatus(v) !== 'active'"
                       icon="i-lucide-check-circle"
                       variant="ghost"
-                      color="primary"
+                      color="neutral"
                       size="xs"
                       @click="activateVersion(getVersionNumber(v))"
                     />
@@ -416,7 +442,7 @@ fetchAll()
             :class="[
               uploading ? 'pointer-events-none opacity-60' : 'cursor-pointer',
               isDragOver
-                ? 'border-primary bg-primary/5'
+                ? layerDragActiveClass
                 : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
             ]"
             @dragover.prevent="isDragOver = true"
@@ -439,7 +465,10 @@ fetchAll()
                 Uploading...
               </template>
               <template v-else>
-                Drag & drop a file here, or <span class="text-primary underline">browse</span>
+                Drag & drop a file here, or <span
+                  :class="layerTextClass"
+                  class="underline"
+                >browse</span>
               </template>
             </p>
             <input

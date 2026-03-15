@@ -83,6 +83,14 @@ const layerButtonClass = computed(() => {
     default: return 'bg-amber-700 hover:bg-amber-800 text-white'
   }
 })
+
+const layerIconClass = computed(() => {
+  switch (layer.value) {
+    case 'silver': return 'bg-gray-400/10 text-gray-400'
+    case 'gold': return 'bg-yellow-500/10 text-yellow-500'
+    default: return 'bg-amber-700/10 text-amber-700'
+  }
+})
 </script>
 
 <template>
@@ -102,6 +110,7 @@ const layerButtonClass = computed(() => {
       <UButton
         icon="i-lucide-plus"
         label="New Source"
+        color="neutral"
         :class="layerButtonClass"
         @click="showCreateModal = true"
       />
@@ -159,10 +168,13 @@ const layerButtonClass = computed(() => {
             >
               <td class="py-3 px-4">
                 <div class="flex items-center gap-2.5">
-                  <div class="size-8 rounded bg-primary/10 flex items-center justify-center">
+                  <div
+                    class="size-8 rounded flex items-center justify-center"
+                    :class="layerIconClass"
+                  >
                     <UIcon
                       name="i-lucide-file-box"
-                      class="size-4 text-primary"
+                      class="size-4"
                     />
                   </div>
                   <span class="font-medium text-gray-900 dark:text-white">{{ source.name }}</span>
