@@ -80,14 +80,14 @@ dp = DataPebbles(&quot;http://localhost:8000&quot;, token=&quot;your-token&quot;
 # List bronze sources
 sources = dp.bronze.list_sources()
 
-# Upload a file to bronze
+# Upload a file to bronze (.csv, .parquet, .json, .xlsx)
 dp.bronze.create_source(&quot;raw_sales&quot;)
 dp.bronze.upload(1, file_path=&quot;sales.csv&quot;)
 
 # Download and transform through the layers
 raw = dp.bronze.download(1)
-df  = dp.silver.download(2)
-dp.gold.upload(3, df, from_source_ids=[2])"
+lf  = dp.silver.download(2)
+dp.gold.upload(3, lf, from_source_ids=[2])"
             />
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
               The client can also be used as a context manager:
@@ -104,7 +104,7 @@ dp.gold.upload(3, df, from_source_ids=[2])"
               Bronze Layer
             </h2>
             <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              The bronze layer stores raw, unprocessed files. Upload any file format and download the raw bytes.
+              The bronze layer stores raw, unprocessed files. Only <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded">.csv</code>, <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded">.parquet</code>, <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded">.json</code>, and <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded">.xlsx</code> files are accepted.
             </p>
             <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
               <table class="w-full text-sm">
@@ -169,10 +169,10 @@ dp.gold.upload(3, df, from_source_ids=[2])"
                   </tr>
                   <tr>
                     <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
-                      upload(source_id, *, file_path=None, data=None)
+                      upload(source_id, *, file_path=None, data=None, file_name=&quot;upload&quot;)
                     </td>
                     <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
-                      Upload a file by path or raw bytes
+                      Upload a file by path or raw bytes (.csv, .parquet, .json, .xlsx)
                     </td>
                   </tr>
                   <tr>
@@ -397,26 +397,35 @@ dp.gold.upload(3, df, from_source_ids=[2])"
               silver_transform
             </h3>
             <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              Transforms bronze → silver. The decorated function receives raw bytes and returns a DataFrame or LazyFrame.
+              Transforms bronze → silver. The decorator auto-parses bronze data into a LazyFrame based on the file extension. The decorated function receives a LazyFrame and returns a LazyFrame.
             </p>
             <CodeBlock
-              class="mb-6"
-              code="@dp.silver_transform(target=2, from_bronze=1)
-def clean(raw: bytes) -> pl.LazyFrame:
-    return pl.read_csv(raw).lazy().filter(pl.col(&quot;amount&quot;) > 0)
+              class="mb-3"
+              code="@dp.silver_transform(target_id=2, from_bronze_id=1)
+def clean(lf: pl.LazyFrame) -> pl.LazyFrame:
+    return lf.filter(pl.col(&quot;amount&quot;) > 0)
 
 clean()            # uses latest bronze version
 clean(version=5)   # uses a specific bronze version"
+            />
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              For CSV files with a non-standard delimiter:
+            </p>
+            <CodeBlock
+              class="mb-6"
+              code="@dp.silver_transform(target_id=2, from_bronze_id=1, csv_separator=&quot;;&quot;)
+def clean_eu(lf: pl.LazyFrame) -> pl.LazyFrame:
+    return lf.filter(pl.col(&quot;amount&quot;) > 0)"
             />
 
             <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">
               gold_transform
             </h3>
             <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
-              Transforms silver → gold. The decorated function receives a dict mapping silver source IDs to their LazyFrames.
+              Transforms silver → gold. The decorated function receives a dict mapping silver source IDs to their LazyFrames and returns a LazyFrame.
             </p>
             <CodeBlock
-              code="@dp.gold_transform(target=3, from_silver=[1, 2])
+              code="@dp.gold_transform(target_id=3, from_silver_ids=[1, 2])
 def aggregate(sources: dict[int, pl.LazyFrame]) -> pl.LazyFrame:
     return (
         pl.concat(sources.values())
