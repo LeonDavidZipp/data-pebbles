@@ -1,3 +1,16 @@
+-- projects
+
+CREATE SCHEMA IF NOT EXISTS projects;
+
+-- stores metadata about the project, e.g. project name, description, etc. This allows us to group related resources together under a common project and also to store any additional metadata specific to the project if needed.
+CREATE TABLE IF NOT EXISTS projects.project_metadata (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(256) NOT NULL UNIQUE,
+    description VARCHAR(512),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- bronze layer
 
 CREATE SCHEMA IF NOT EXISTS bronze;
@@ -7,7 +20,9 @@ CREATE TYPE bronze.file_status AS ENUM ('active', 'archived', 'deleted');
 -- stores metadata about the resource, e.g. "customer_data", "sales_data", etc.
 CREATE TABLE IF NOT EXISTS bronze.resource_metadata (
     id BIGSERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
+    name VARCHAR(256) NOT NULL,
+    description VARCHAR(512),
+    project_id BIGINT NOT NULL REFERENCES projects.project_metadata (id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -37,7 +52,9 @@ CREATE SCHEMA IF NOT EXISTS silver;
 -- stores metadata about the resource in the silver layer, e.g. "customer_data", "sales_data", etc. This allows us to keep track of the lineage from bronze to silver, and also to store any additional metadata specific to the silver layer if needed.
 CREATE TABLE IF NOT EXISTS silver.resource_metadata (
     id BIGSERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
+    name VARCHAR(256) NOT NULL,
+    description VARCHAR(512),
+    project_id BIGINT NOT NULL REFERENCES projects.project_metadata (id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -64,7 +81,9 @@ CREATE SCHEMA IF NOT EXISTS gold;
 -- stores metadata about the resource in the gold layer, e.g. "customer_data", "sales_data", etc. This allows us to keep track of the lineage from silver to gold, and also to store any additional metadata specific to the gold layer if needed.
 CREATE TABLE IF NOT EXISTS gold.resource_metadata (
     id BIGSERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
+    name VARCHAR(256) NOT NULL,
+    description VARCHAR(512),
+    project_id BIGINT NOT NULL REFERENCES projects.project_metadata (id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
