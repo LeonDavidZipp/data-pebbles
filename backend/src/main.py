@@ -30,4 +30,4 @@ app.include_router(
 )
 
 mcp = FastApiMCP(app)
-mcp.mount()
+mcp.mount_http()
