@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_mcp import FastApiMCP
 
 from .api import bronze_router, gold_router, silver_router
 
@@ -27,3 +28,6 @@ app.include_router(
 	prefix="/gold",
 	tags=["API Endpoints for interacting with the Gold layer"],
 )
+
+mcp = FastApiMCP(app)
+mcp.mount()
