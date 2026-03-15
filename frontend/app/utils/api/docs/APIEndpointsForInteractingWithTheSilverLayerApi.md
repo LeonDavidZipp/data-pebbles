@@ -4,22 +4,22 @@ All URIs are relative to *http://localhost*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**createSourceSilverPost**](APIEndpointsForInteractingWithTheSilverLayerApi.md#createsourcesilverpost) | **POST** /silver/ | Create Source |
-| [**deleteSourceSilverSourceIdDelete**](APIEndpointsForInteractingWithTheSilverLayerApi.md#deletesourcesilversourceiddelete) | **DELETE** /silver/{source_id} | Delete Source |
-| [**downloadVersionSilverSourceIdVersionsVersionGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#downloadversionsilversourceidversionsversionget) | **GET** /silver/{source_id}/versions/{version} | Download Version |
-| [**getSourceSilverSourceIdGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#getsourcesilversourceidget) | **GET** /silver/{source_id} | Get Source |
-| [**listSourcesSilverGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#listsourcessilverget) | **GET** /silver/ | List Sources |
-| [**listVersionsSilverSourceIdVersionsGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#listversionssilversourceidversionsget) | **GET** /silver/{source_id}/versions | List Versions |
-| [**updateSourceSilverSourceIdPatch**](APIEndpointsForInteractingWithTheSilverLayerApi.md#updatesourcesilversourceidpatch) | **PATCH** /silver/{source_id} | Update Source |
-| [**uploadVersionSilverSourceIdVersionsPost**](APIEndpointsForInteractingWithTheSilverLayerApi.md#uploadversionsilversourceidversionspost) | **POST** /silver/{source_id}/versions | Upload Version |
+| [**createResourceSilverPost**](APIEndpointsForInteractingWithTheSilverLayerApi.md#createresourcesilverpost) | **POST** /silver/ | Create Resource |
+| [**deleteResourceSilverResourceIdDelete**](APIEndpointsForInteractingWithTheSilverLayerApi.md#deleteresourcesilverresourceiddelete) | **DELETE** /silver/{resource_id} | Delete Resource |
+| [**downloadVersionSilverResourceIdVersionsVersionGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#downloadversionsilverresourceidversionsversionget) | **GET** /silver/{resource_id}/versions/{version} | Download Version |
+| [**getResourceSilverResourceIdGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#getresourcesilverresourceidget) | **GET** /silver/{resource_id} | Get Resource |
+| [**listResourcesSilverGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#listresourcessilverget) | **GET** /silver/ | List Resources |
+| [**listVersionsSilverResourceIdVersionsGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#listversionssilverresourceidversionsget) | **GET** /silver/{resource_id}/versions | List Versions |
+| [**updateResourceSilverResourceIdPatch**](APIEndpointsForInteractingWithTheSilverLayerApi.md#updateresourcesilverresourceidpatch) | **PATCH** /silver/{resource_id} | Update Resource |
+| [**uploadVersionSilverResourceIdVersionsPost**](APIEndpointsForInteractingWithTheSilverLayerApi.md#uploadversionsilverresourceidversionspost) | **POST** /silver/{resource_id}/versions | Upload Version |
 
 
 
-## createSourceSilverPost
+## createResourceSilverPost
 
-> any createSourceSilverPost(createSilverSourceRequest)
+> any createResourceSilverPost(createSilverResourceRequest)
 
-Create Source
+Create Resource
 
 ### Example
 
@@ -28,19 +28,19 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheSilverLayerApi,
 } from '';
-import type { CreateSourceSilverPostRequest } from '';
+import type { CreateResourceSilverPostRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
   const api = new APIEndpointsForInteractingWithTheSilverLayerApi();
 
   const body = {
-    // CreateSilverSourceRequest
-    createSilverSourceRequest: ...,
-  } satisfies CreateSourceSilverPostRequest;
+    // CreateSilverResourceRequest
+    createSilverResourceRequest: ...,
+  } satisfies CreateResourceSilverPostRequest;
 
   try {
-    const data = await api.createSourceSilverPost(body);
+    const data = await api.createResourceSilverPost(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -56,7 +56,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **createSilverSourceRequest** | [CreateSilverSourceRequest](CreateSilverSourceRequest.md) |  | |
+| **createSilverResourceRequest** | [CreateSilverResourceRequest](CreateSilverResourceRequest.md) |  | |
 
 ### Return type
 
@@ -81,11 +81,11 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## deleteSourceSilverSourceIdDelete
+## deleteResourceSilverResourceIdDelete
 
-> any deleteSourceSilverSourceIdDelete(sourceId)
+> any deleteResourceSilverResourceIdDelete(resourceId)
 
-Delete Source
+Delete Resource
 
 ### Example
 
@@ -94,7 +94,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheSilverLayerApi,
 } from '';
-import type { DeleteSourceSilverSourceIdDeleteRequest } from '';
+import type { DeleteResourceSilverResourceIdDeleteRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -102,11 +102,11 @@ async function example() {
 
   const body = {
     // number
-    sourceId: 56,
-  } satisfies DeleteSourceSilverSourceIdDeleteRequest;
+    resourceId: 56,
+  } satisfies DeleteResourceSilverResourceIdDeleteRequest;
 
   try {
-    const data = await api.deleteSourceSilverSourceIdDelete(body);
+    const data = await api.deleteResourceSilverResourceIdDelete(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -122,7 +122,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **sourceId** | `number` |  | [Defaults to `undefined`] |
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
 
 ### Return type
 
@@ -147,9 +147,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## downloadVersionSilverSourceIdVersionsVersionGet
+## downloadVersionSilverResourceIdVersionsVersionGet
 
-> any downloadVersionSilverSourceIdVersionsVersionGet(sourceId, version)
+> any downloadVersionSilverResourceIdVersionsVersionGet(resourceId, version)
 
 Download Version
 
@@ -160,7 +160,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheSilverLayerApi,
 } from '';
-import type { DownloadVersionSilverSourceIdVersionsVersionGetRequest } from '';
+import type { DownloadVersionSilverResourceIdVersionsVersionGetRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -168,13 +168,13 @@ async function example() {
 
   const body = {
     // number
-    sourceId: 56,
+    resourceId: 56,
     // number
     version: 56,
-  } satisfies DownloadVersionSilverSourceIdVersionsVersionGetRequest;
+  } satisfies DownloadVersionSilverResourceIdVersionsVersionGetRequest;
 
   try {
-    const data = await api.downloadVersionSilverSourceIdVersionsVersionGet(body);
+    const data = await api.downloadVersionSilverResourceIdVersionsVersionGet(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -190,7 +190,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **sourceId** | `number` |  | [Defaults to `undefined`] |
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
 | **version** | `number` |  | [Defaults to `undefined`] |
 
 ### Return type
@@ -216,11 +216,11 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## getSourceSilverSourceIdGet
+## getResourceSilverResourceIdGet
 
-> SilverMetadataResponse getSourceSilverSourceIdGet(sourceId)
+> SilverMetadataResponse getResourceSilverResourceIdGet(resourceId)
 
-Get Source
+Get Resource
 
 ### Example
 
@@ -229,7 +229,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheSilverLayerApi,
 } from '';
-import type { GetSourceSilverSourceIdGetRequest } from '';
+import type { GetResourceSilverResourceIdGetRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -237,11 +237,11 @@ async function example() {
 
   const body = {
     // number
-    sourceId: 56,
-  } satisfies GetSourceSilverSourceIdGetRequest;
+    resourceId: 56,
+  } satisfies GetResourceSilverResourceIdGetRequest;
 
   try {
-    const data = await api.getSourceSilverSourceIdGet(body);
+    const data = await api.getResourceSilverResourceIdGet(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -257,7 +257,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **sourceId** | `number` |  | [Defaults to `undefined`] |
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
 
 ### Return type
 
@@ -282,11 +282,11 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## listSourcesSilverGet
+## listResourcesSilverGet
 
-> Array&lt;SilverMetadataResponse&gt; listSourcesSilverGet()
+> Array&lt;SilverMetadataResponse&gt; listResourcesSilverGet()
 
-List Sources
+List Resources
 
 ### Example
 
@@ -295,14 +295,14 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheSilverLayerApi,
 } from '';
-import type { ListSourcesSilverGetRequest } from '';
+import type { ListResourcesSilverGetRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
   const api = new APIEndpointsForInteractingWithTheSilverLayerApi();
 
   try {
-    const data = await api.listSourcesSilverGet();
+    const data = await api.listResourcesSilverGet();
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -339,9 +339,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## listVersionsSilverSourceIdVersionsGet
+## listVersionsSilverResourceIdVersionsGet
 
-> Array&lt;SilverLineageResponse&gt; listVersionsSilverSourceIdVersionsGet(sourceId)
+> Array&lt;SilverLineageResponse&gt; listVersionsSilverResourceIdVersionsGet(resourceId)
 
 List Versions
 
@@ -352,7 +352,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheSilverLayerApi,
 } from '';
-import type { ListVersionsSilverSourceIdVersionsGetRequest } from '';
+import type { ListVersionsSilverResourceIdVersionsGetRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -360,11 +360,11 @@ async function example() {
 
   const body = {
     // number
-    sourceId: 56,
-  } satisfies ListVersionsSilverSourceIdVersionsGetRequest;
+    resourceId: 56,
+  } satisfies ListVersionsSilverResourceIdVersionsGetRequest;
 
   try {
-    const data = await api.listVersionsSilverSourceIdVersionsGet(body);
+    const data = await api.listVersionsSilverResourceIdVersionsGet(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -380,7 +380,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **sourceId** | `number` |  | [Defaults to `undefined`] |
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
 
 ### Return type
 
@@ -405,11 +405,11 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## updateSourceSilverSourceIdPatch
+## updateResourceSilverResourceIdPatch
 
-> SilverMetadataResponse updateSourceSilverSourceIdPatch(sourceId, updateSilverSourceRequest)
+> SilverMetadataResponse updateResourceSilverResourceIdPatch(resourceId, updateSilverResourceRequest)
 
-Update Source
+Update Resource
 
 ### Example
 
@@ -418,7 +418,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheSilverLayerApi,
 } from '';
-import type { UpdateSourceSilverSourceIdPatchRequest } from '';
+import type { UpdateResourceSilverResourceIdPatchRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -426,13 +426,13 @@ async function example() {
 
   const body = {
     // number
-    sourceId: 56,
-    // UpdateSilverSourceRequest
-    updateSilverSourceRequest: ...,
-  } satisfies UpdateSourceSilverSourceIdPatchRequest;
+    resourceId: 56,
+    // UpdateSilverResourceRequest
+    updateSilverResourceRequest: ...,
+  } satisfies UpdateResourceSilverResourceIdPatchRequest;
 
   try {
-    const data = await api.updateSourceSilverSourceIdPatch(body);
+    const data = await api.updateResourceSilverResourceIdPatch(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -448,8 +448,8 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **sourceId** | `number` |  | [Defaults to `undefined`] |
-| **updateSilverSourceRequest** | [UpdateSilverSourceRequest](UpdateSilverSourceRequest.md) |  | |
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
+| **updateSilverResourceRequest** | [UpdateSilverResourceRequest](UpdateSilverResourceRequest.md) |  | |
 
 ### Return type
 
@@ -474,9 +474,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## uploadVersionSilverSourceIdVersionsPost
+## uploadVersionSilverResourceIdVersionsPost
 
-> any uploadVersionSilverSourceIdVersionsPost(sourceId, fromSourceId, file)
+> any uploadVersionSilverResourceIdVersionsPost(resourceId, fromResourceId, file)
 
 Upload Version
 
@@ -487,7 +487,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheSilverLayerApi,
 } from '';
-import type { UploadVersionSilverSourceIdVersionsPostRequest } from '';
+import type { UploadVersionSilverResourceIdVersionsPostRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -495,15 +495,15 @@ async function example() {
 
   const body = {
     // number
-    sourceId: 56,
+    resourceId: 56,
     // number
-    fromSourceId: 56,
+    fromResourceId: 56,
     // string
     file: file_example,
-  } satisfies UploadVersionSilverSourceIdVersionsPostRequest;
+  } satisfies UploadVersionSilverResourceIdVersionsPostRequest;
 
   try {
-    const data = await api.uploadVersionSilverSourceIdVersionsPost(body);
+    const data = await api.uploadVersionSilverResourceIdVersionsPost(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -519,8 +519,8 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **sourceId** | `number` |  | [Defaults to `undefined`] |
-| **fromSourceId** | `number` |  | [Defaults to `undefined`] |
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
+| **fromResourceId** | `number` |  | [Defaults to `undefined`] |
 | **file** | `string` |  | [Defaults to `undefined`] |
 
 ### Return type

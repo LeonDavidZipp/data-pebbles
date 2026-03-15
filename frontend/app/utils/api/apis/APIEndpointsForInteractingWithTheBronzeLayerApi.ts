@@ -15,63 +15,63 @@
 
 import * as runtime from '../runtime';
 import type {
-  CreateSourceRequest,
+  CreateResourceRequest,
   HTTPValidationError,
   MetadataResponse,
-  UpdateSourceRequest,
+  UpdateResourceRequest,
   VersionResponse,
 } from '../models/index';
 import {
-    CreateSourceRequestFromJSON,
-    CreateSourceRequestToJSON,
+    CreateResourceRequestFromJSON,
+    CreateResourceRequestToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
     MetadataResponseFromJSON,
     MetadataResponseToJSON,
-    UpdateSourceRequestFromJSON,
-    UpdateSourceRequestToJSON,
+    UpdateResourceRequestFromJSON,
+    UpdateResourceRequestToJSON,
     VersionResponseFromJSON,
     VersionResponseToJSON,
 } from '../models/index';
 
-export interface ActivateVersionBronzeSourceIdVersionsVersionPatchRequest {
-    sourceId: number;
+export interface ActivateVersionBronzeResourceIdVersionsVersionPatchRequest {
+    resourceId: number;
     version: number;
 }
 
-export interface CreateSourceBronzePostRequest {
-    createSourceRequest: CreateSourceRequest;
+export interface CreateResourceBronzePostRequest {
+    createResourceRequest: CreateResourceRequest;
 }
 
-export interface DeleteSourceBronzeSourceIdDeleteRequest {
-    sourceId: number;
+export interface DeleteResourceBronzeResourceIdDeleteRequest {
+    resourceId: number;
 }
 
-export interface DeleteVersionBronzeSourceIdVersionsVersionDeleteRequest {
-    sourceId: number;
+export interface DeleteVersionBronzeResourceIdVersionsVersionDeleteRequest {
+    resourceId: number;
     version: number;
 }
 
-export interface DownloadVersionBronzeSourceIdVersionsVersionGetRequest {
-    sourceId: number;
+export interface DownloadVersionBronzeResourceIdVersionsVersionGetRequest {
+    resourceId: number;
     version: number;
 }
 
-export interface GetSourceBronzeSourceIdGetRequest {
-    sourceId: number;
+export interface GetResourceBronzeResourceIdGetRequest {
+    resourceId: number;
 }
 
-export interface ListVersionsBronzeSourceIdVersionsGetRequest {
-    sourceId: number;
+export interface ListVersionsBronzeResourceIdVersionsGetRequest {
+    resourceId: number;
 }
 
-export interface UpdateSourceBronzeSourceIdPatchRequest {
-    sourceId: number;
-    updateSourceRequest: UpdateSourceRequest;
+export interface UpdateResourceBronzeResourceIdPatchRequest {
+    resourceId: number;
+    updateResourceRequest: UpdateResourceRequest;
 }
 
-export interface UploadVersionBronzeSourceIdVersionsPostRequest {
-    sourceId: number;
+export interface UploadVersionBronzeResourceIdVersionsPostRequest {
+    resourceId: number;
     file: string;
 }
 
@@ -83,18 +83,18 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     /**
      * Activate Version
      */
-    async activateVersionBronzeSourceIdVersionsVersionPatchRaw(requestParameters: ActivateVersionBronzeSourceIdVersionsVersionPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
-        if (requestParameters['sourceId'] == null) {
+    async activateVersionBronzeResourceIdVersionsVersionPatchRaw(requestParameters: ActivateVersionBronzeResourceIdVersionsVersionPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling activateVersionBronzeSourceIdVersionsVersionPatch().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling activateVersionBronzeResourceIdVersionsVersionPatch().'
             );
         }
 
         if (requestParameters['version'] == null) {
             throw new runtime.RequiredError(
                 'version',
-                'Required parameter "version" was null or undefined when calling activateVersionBronzeSourceIdVersionsVersionPatch().'
+                'Required parameter "version" was null or undefined when calling activateVersionBronzeResourceIdVersionsVersionPatch().'
             );
         }
 
@@ -103,8 +103,8 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/bronze/{source_id}/versions/{version}`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/bronze/{resource_id}/versions/{version}`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
         urlPath = urlPath.replace(`{${"version"}}`, encodeURIComponent(String(requestParameters['version'])));
 
         const response = await this.request({
@@ -124,19 +124,19 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     /**
      * Activate Version
      */
-    async activateVersionBronzeSourceIdVersionsVersionPatch(requestParameters: ActivateVersionBronzeSourceIdVersionsVersionPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
-        const response = await this.activateVersionBronzeSourceIdVersionsVersionPatchRaw(requestParameters, initOverrides);
+    async activateVersionBronzeResourceIdVersionsVersionPatch(requestParameters: ActivateVersionBronzeResourceIdVersionsVersionPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.activateVersionBronzeResourceIdVersionsVersionPatchRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Create Source
+     * Create Resource
      */
-    async createSourceBronzePostRaw(requestParameters: CreateSourceBronzePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
-        if (requestParameters['createSourceRequest'] == null) {
+    async createResourceBronzePostRaw(requestParameters: CreateResourceBronzePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+        if (requestParameters['createResourceRequest'] == null) {
             throw new runtime.RequiredError(
-                'createSourceRequest',
-                'Required parameter "createSourceRequest" was null or undefined when calling createSourceBronzePost().'
+                'createResourceRequest',
+                'Required parameter "createResourceRequest" was null or undefined when calling createResourceBronzePost().'
             );
         }
 
@@ -154,7 +154,7 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CreateSourceRequestToJSON(requestParameters['createSourceRequest']),
+            body: CreateResourceRequestToJSON(requestParameters['createResourceRequest']),
         }, initOverrides);
 
         if (this.isJsonMime(response.headers.get('content-type'))) {
@@ -165,21 +165,21 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     }
 
     /**
-     * Create Source
+     * Create Resource
      */
-    async createSourceBronzePost(requestParameters: CreateSourceBronzePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
-        const response = await this.createSourceBronzePostRaw(requestParameters, initOverrides);
+    async createResourceBronzePost(requestParameters: CreateResourceBronzePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.createResourceBronzePostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Delete Source
+     * Delete Resource
      */
-    async deleteSourceBronzeSourceIdDeleteRaw(requestParameters: DeleteSourceBronzeSourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
-        if (requestParameters['sourceId'] == null) {
+    async deleteResourceBronzeResourceIdDeleteRaw(requestParameters: DeleteResourceBronzeResourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling deleteSourceBronzeSourceIdDelete().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling deleteResourceBronzeResourceIdDelete().'
             );
         }
 
@@ -188,8 +188,8 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/bronze/{source_id}`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/bronze/{resource_id}`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -206,28 +206,28 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     }
 
     /**
-     * Delete Source
+     * Delete Resource
      */
-    async deleteSourceBronzeSourceIdDelete(requestParameters: DeleteSourceBronzeSourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
-        const response = await this.deleteSourceBronzeSourceIdDeleteRaw(requestParameters, initOverrides);
+    async deleteResourceBronzeResourceIdDelete(requestParameters: DeleteResourceBronzeResourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.deleteResourceBronzeResourceIdDeleteRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      * Delete Version
      */
-    async deleteVersionBronzeSourceIdVersionsVersionDeleteRaw(requestParameters: DeleteVersionBronzeSourceIdVersionsVersionDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
-        if (requestParameters['sourceId'] == null) {
+    async deleteVersionBronzeResourceIdVersionsVersionDeleteRaw(requestParameters: DeleteVersionBronzeResourceIdVersionsVersionDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling deleteVersionBronzeSourceIdVersionsVersionDelete().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling deleteVersionBronzeResourceIdVersionsVersionDelete().'
             );
         }
 
         if (requestParameters['version'] == null) {
             throw new runtime.RequiredError(
                 'version',
-                'Required parameter "version" was null or undefined when calling deleteVersionBronzeSourceIdVersionsVersionDelete().'
+                'Required parameter "version" was null or undefined when calling deleteVersionBronzeResourceIdVersionsVersionDelete().'
             );
         }
 
@@ -236,8 +236,8 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/bronze/{source_id}/versions/{version}`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/bronze/{resource_id}/versions/{version}`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
         urlPath = urlPath.replace(`{${"version"}}`, encodeURIComponent(String(requestParameters['version'])));
 
         const response = await this.request({
@@ -257,26 +257,26 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     /**
      * Delete Version
      */
-    async deleteVersionBronzeSourceIdVersionsVersionDelete(requestParameters: DeleteVersionBronzeSourceIdVersionsVersionDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
-        const response = await this.deleteVersionBronzeSourceIdVersionsVersionDeleteRaw(requestParameters, initOverrides);
+    async deleteVersionBronzeResourceIdVersionsVersionDelete(requestParameters: DeleteVersionBronzeResourceIdVersionsVersionDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.deleteVersionBronzeResourceIdVersionsVersionDeleteRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      * Download Version
      */
-    async downloadVersionBronzeSourceIdVersionsVersionGetRaw(requestParameters: DownloadVersionBronzeSourceIdVersionsVersionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
-        if (requestParameters['sourceId'] == null) {
+    async downloadVersionBronzeResourceIdVersionsVersionGetRaw(requestParameters: DownloadVersionBronzeResourceIdVersionsVersionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling downloadVersionBronzeSourceIdVersionsVersionGet().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling downloadVersionBronzeResourceIdVersionsVersionGet().'
             );
         }
 
         if (requestParameters['version'] == null) {
             throw new runtime.RequiredError(
                 'version',
-                'Required parameter "version" was null or undefined when calling downloadVersionBronzeSourceIdVersionsVersionGet().'
+                'Required parameter "version" was null or undefined when calling downloadVersionBronzeResourceIdVersionsVersionGet().'
             );
         }
 
@@ -285,8 +285,8 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/bronze/{source_id}/versions/{version}`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/bronze/{resource_id}/versions/{version}`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
         urlPath = urlPath.replace(`{${"version"}}`, encodeURIComponent(String(requestParameters['version'])));
 
         const response = await this.request({
@@ -306,19 +306,19 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     /**
      * Download Version
      */
-    async downloadVersionBronzeSourceIdVersionsVersionGet(requestParameters: DownloadVersionBronzeSourceIdVersionsVersionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
-        const response = await this.downloadVersionBronzeSourceIdVersionsVersionGetRaw(requestParameters, initOverrides);
+    async downloadVersionBronzeResourceIdVersionsVersionGet(requestParameters: DownloadVersionBronzeResourceIdVersionsVersionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.downloadVersionBronzeResourceIdVersionsVersionGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Get Source
+     * Get Resource
      */
-    async getSourceBronzeSourceIdGetRaw(requestParameters: GetSourceBronzeSourceIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MetadataResponse>> {
-        if (requestParameters['sourceId'] == null) {
+    async getResourceBronzeResourceIdGetRaw(requestParameters: GetResourceBronzeResourceIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MetadataResponse>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling getSourceBronzeSourceIdGet().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling getResourceBronzeResourceIdGet().'
             );
         }
 
@@ -327,8 +327,8 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/bronze/{source_id}`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/bronze/{resource_id}`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -341,17 +341,17 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     }
 
     /**
-     * Get Source
+     * Get Resource
      */
-    async getSourceBronzeSourceIdGet(requestParameters: GetSourceBronzeSourceIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MetadataResponse> {
-        const response = await this.getSourceBronzeSourceIdGetRaw(requestParameters, initOverrides);
+    async getResourceBronzeResourceIdGet(requestParameters: GetResourceBronzeResourceIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MetadataResponse> {
+        const response = await this.getResourceBronzeResourceIdGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * List Sources
+     * List Resources
      */
-    async listSourcesBronzeGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<MetadataResponse>>> {
+    async listResourcesBronzeGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<MetadataResponse>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -370,21 +370,21 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     }
 
     /**
-     * List Sources
+     * List Resources
      */
-    async listSourcesBronzeGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<MetadataResponse>> {
-        const response = await this.listSourcesBronzeGetRaw(initOverrides);
+    async listResourcesBronzeGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<MetadataResponse>> {
+        const response = await this.listResourcesBronzeGetRaw(initOverrides);
         return await response.value();
     }
 
     /**
      * List Versions
      */
-    async listVersionsBronzeSourceIdVersionsGetRaw(requestParameters: ListVersionsBronzeSourceIdVersionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<VersionResponse>>> {
-        if (requestParameters['sourceId'] == null) {
+    async listVersionsBronzeResourceIdVersionsGetRaw(requestParameters: ListVersionsBronzeResourceIdVersionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<VersionResponse>>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling listVersionsBronzeSourceIdVersionsGet().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling listVersionsBronzeResourceIdVersionsGet().'
             );
         }
 
@@ -393,8 +393,8 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/bronze/{source_id}/versions`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/bronze/{resource_id}/versions`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -409,26 +409,26 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     /**
      * List Versions
      */
-    async listVersionsBronzeSourceIdVersionsGet(requestParameters: ListVersionsBronzeSourceIdVersionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<VersionResponse>> {
-        const response = await this.listVersionsBronzeSourceIdVersionsGetRaw(requestParameters, initOverrides);
+    async listVersionsBronzeResourceIdVersionsGet(requestParameters: ListVersionsBronzeResourceIdVersionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<VersionResponse>> {
+        const response = await this.listVersionsBronzeResourceIdVersionsGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Update Source
+     * Update Resource
      */
-    async updateSourceBronzeSourceIdPatchRaw(requestParameters: UpdateSourceBronzeSourceIdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MetadataResponse>> {
-        if (requestParameters['sourceId'] == null) {
+    async updateResourceBronzeResourceIdPatchRaw(requestParameters: UpdateResourceBronzeResourceIdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MetadataResponse>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling updateSourceBronzeSourceIdPatch().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling updateResourceBronzeResourceIdPatch().'
             );
         }
 
-        if (requestParameters['updateSourceRequest'] == null) {
+        if (requestParameters['updateResourceRequest'] == null) {
             throw new runtime.RequiredError(
-                'updateSourceRequest',
-                'Required parameter "updateSourceRequest" was null or undefined when calling updateSourceBronzeSourceIdPatch().'
+                'updateResourceRequest',
+                'Required parameter "updateResourceRequest" was null or undefined when calling updateResourceBronzeResourceIdPatch().'
             );
         }
 
@@ -439,43 +439,43 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/bronze/{source_id}`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/bronze/{resource_id}`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
 
         const response = await this.request({
             path: urlPath,
             method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: UpdateSourceRequestToJSON(requestParameters['updateSourceRequest']),
+            body: UpdateResourceRequestToJSON(requestParameters['updateResourceRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => MetadataResponseFromJSON(jsonValue));
     }
 
     /**
-     * Update Source
+     * Update Resource
      */
-    async updateSourceBronzeSourceIdPatch(requestParameters: UpdateSourceBronzeSourceIdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MetadataResponse> {
-        const response = await this.updateSourceBronzeSourceIdPatchRaw(requestParameters, initOverrides);
+    async updateResourceBronzeResourceIdPatch(requestParameters: UpdateResourceBronzeResourceIdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MetadataResponse> {
+        const response = await this.updateResourceBronzeResourceIdPatchRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      * Upload Version
      */
-    async uploadVersionBronzeSourceIdVersionsPostRaw(requestParameters: UploadVersionBronzeSourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
-        if (requestParameters['sourceId'] == null) {
+    async uploadVersionBronzeResourceIdVersionsPostRaw(requestParameters: UploadVersionBronzeResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling uploadVersionBronzeSourceIdVersionsPost().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling uploadVersionBronzeResourceIdVersionsPost().'
             );
         }
 
         if (requestParameters['file'] == null) {
             throw new runtime.RequiredError(
                 'file',
-                'Required parameter "file" was null or undefined when calling uploadVersionBronzeSourceIdVersionsPost().'
+                'Required parameter "file" was null or undefined when calling uploadVersionBronzeResourceIdVersionsPost().'
             );
         }
 
@@ -490,7 +490,7 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
         const canConsumeForm = runtime.canConsumeForm(consumes);
 
         let formParams: { append(param: string, value: any): any };
-        let useForm = canConsumeForm;
+        let useForm = false;
         if (useForm) {
             formParams = new FormData();
         } else {
@@ -502,8 +502,8 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
         }
 
 
-        let urlPath = `/bronze/{source_id}/versions`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/bronze/{resource_id}/versions`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -523,8 +523,8 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     /**
      * Upload Version
      */
-    async uploadVersionBronzeSourceIdVersionsPost(requestParameters: UploadVersionBronzeSourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
-        const response = await this.uploadVersionBronzeSourceIdVersionsPostRaw(requestParameters, initOverrides);
+    async uploadVersionBronzeResourceIdVersionsPost(requestParameters: UploadVersionBronzeResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.uploadVersionBronzeResourceIdVersionsPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

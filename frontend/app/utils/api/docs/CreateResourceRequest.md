@@ -1,34 +1,22 @@
 
-# VersionResponse
+# CreateResourceRequest
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`id` | number
-`resource_id` | number
-`version` | number
-`status` | string
-`s3_key` | string
-`created_at` | string
-`updated_at` | string
+`name` | string
 
 ## Example
 
 ```typescript
-import type { VersionResponse } from ''
+import type { CreateResourceRequest } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "id": null,
-  "resource_id": null,
-  "version": null,
-  "status": null,
-  "s3_key": null,
-  "created_at": null,
-  "updated_at": null,
-} satisfies VersionResponse
+  "name": null,
+} satisfies CreateResourceRequest
 
 console.log(example)
 
@@ -37,7 +25,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as VersionResponse
+const exampleParsed = JSON.parse(exampleJSON) as CreateResourceRequest
 console.log(exampleParsed)
 ```
 

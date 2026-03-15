@@ -15,54 +15,54 @@
 
 import * as runtime from '../runtime';
 import type {
-  CreateGoldSourceRequest,
+  CreateGoldResourceRequest,
   GoldLineageResponse,
   GoldMetadataResponse,
   HTTPValidationError,
-  UpdateGoldSourceRequest,
+  UpdateGoldResourceRequest,
 } from '../models/index';
 import {
-    CreateGoldSourceRequestFromJSON,
-    CreateGoldSourceRequestToJSON,
+    CreateGoldResourceRequestFromJSON,
+    CreateGoldResourceRequestToJSON,
     GoldLineageResponseFromJSON,
     GoldLineageResponseToJSON,
     GoldMetadataResponseFromJSON,
     GoldMetadataResponseToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
-    UpdateGoldSourceRequestFromJSON,
-    UpdateGoldSourceRequestToJSON,
+    UpdateGoldResourceRequestFromJSON,
+    UpdateGoldResourceRequestToJSON,
 } from '../models/index';
 
-export interface CreateSourceGoldPostRequest {
-    createGoldSourceRequest: CreateGoldSourceRequest;
+export interface CreateResourceGoldPostRequest {
+    createGoldResourceRequest: CreateGoldResourceRequest;
 }
 
-export interface DeleteSourceGoldSourceIdDeleteRequest {
-    sourceId: number;
+export interface DeleteResourceGoldResourceIdDeleteRequest {
+    resourceId: number;
 }
 
-export interface DownloadVersionGoldSourceIdVersionsVersionGetRequest {
-    sourceId: number;
+export interface DownloadVersionGoldResourceIdVersionsVersionGetRequest {
+    resourceId: number;
     version: number;
 }
 
-export interface GetSourceGoldSourceIdGetRequest {
-    sourceId: number;
+export interface GetResourceGoldResourceIdGetRequest {
+    resourceId: number;
 }
 
-export interface ListVersionsGoldSourceIdVersionsGetRequest {
-    sourceId: number;
+export interface ListVersionsGoldResourceIdVersionsGetRequest {
+    resourceId: number;
 }
 
-export interface UpdateSourceGoldSourceIdPatchRequest {
-    sourceId: number;
-    updateGoldSourceRequest: UpdateGoldSourceRequest;
+export interface UpdateResourceGoldResourceIdPatchRequest {
+    resourceId: number;
+    updateGoldResourceRequest: UpdateGoldResourceRequest;
 }
 
-export interface UploadVersionGoldSourceIdVersionsPostRequest {
-    sourceId: number;
-    sources: Array<number>;
+export interface UploadVersionGoldResourceIdVersionsPostRequest {
+    resourceId: number;
+    resources: Array<number>;
     file: string;
 }
 
@@ -72,13 +72,13 @@ export interface UploadVersionGoldSourceIdVersionsPostRequest {
 export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseAPI {
 
     /**
-     * Create Source
+     * Create Resource
      */
-    async createSourceGoldPostRaw(requestParameters: CreateSourceGoldPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
-        if (requestParameters['createGoldSourceRequest'] == null) {
+    async createResourceGoldPostRaw(requestParameters: CreateResourceGoldPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+        if (requestParameters['createGoldResourceRequest'] == null) {
             throw new runtime.RequiredError(
-                'createGoldSourceRequest',
-                'Required parameter "createGoldSourceRequest" was null or undefined when calling createSourceGoldPost().'
+                'createGoldResourceRequest',
+                'Required parameter "createGoldResourceRequest" was null or undefined when calling createResourceGoldPost().'
             );
         }
 
@@ -96,7 +96,7 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CreateGoldSourceRequestToJSON(requestParameters['createGoldSourceRequest']),
+            body: CreateGoldResourceRequestToJSON(requestParameters['createGoldResourceRequest']),
         }, initOverrides);
 
         if (this.isJsonMime(response.headers.get('content-type'))) {
@@ -107,21 +107,21 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
     }
 
     /**
-     * Create Source
+     * Create Resource
      */
-    async createSourceGoldPost(requestParameters: CreateSourceGoldPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
-        const response = await this.createSourceGoldPostRaw(requestParameters, initOverrides);
+    async createResourceGoldPost(requestParameters: CreateResourceGoldPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.createResourceGoldPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Delete Source
+     * Delete Resource
      */
-    async deleteSourceGoldSourceIdDeleteRaw(requestParameters: DeleteSourceGoldSourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
-        if (requestParameters['sourceId'] == null) {
+    async deleteResourceGoldResourceIdDeleteRaw(requestParameters: DeleteResourceGoldResourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling deleteSourceGoldSourceIdDelete().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling deleteResourceGoldResourceIdDelete().'
             );
         }
 
@@ -130,8 +130,8 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/gold/{source_id}`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/gold/{resource_id}`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -148,28 +148,28 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
     }
 
     /**
-     * Delete Source
+     * Delete Resource
      */
-    async deleteSourceGoldSourceIdDelete(requestParameters: DeleteSourceGoldSourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
-        const response = await this.deleteSourceGoldSourceIdDeleteRaw(requestParameters, initOverrides);
+    async deleteResourceGoldResourceIdDelete(requestParameters: DeleteResourceGoldResourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.deleteResourceGoldResourceIdDeleteRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      * Download Version
      */
-    async downloadVersionGoldSourceIdVersionsVersionGetRaw(requestParameters: DownloadVersionGoldSourceIdVersionsVersionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
-        if (requestParameters['sourceId'] == null) {
+    async downloadVersionGoldResourceIdVersionsVersionGetRaw(requestParameters: DownloadVersionGoldResourceIdVersionsVersionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling downloadVersionGoldSourceIdVersionsVersionGet().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling downloadVersionGoldResourceIdVersionsVersionGet().'
             );
         }
 
         if (requestParameters['version'] == null) {
             throw new runtime.RequiredError(
                 'version',
-                'Required parameter "version" was null or undefined when calling downloadVersionGoldSourceIdVersionsVersionGet().'
+                'Required parameter "version" was null or undefined when calling downloadVersionGoldResourceIdVersionsVersionGet().'
             );
         }
 
@@ -178,8 +178,8 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/gold/{source_id}/versions/{version}`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/gold/{resource_id}/versions/{version}`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
         urlPath = urlPath.replace(`{${"version"}}`, encodeURIComponent(String(requestParameters['version'])));
 
         const response = await this.request({
@@ -199,19 +199,19 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
     /**
      * Download Version
      */
-    async downloadVersionGoldSourceIdVersionsVersionGet(requestParameters: DownloadVersionGoldSourceIdVersionsVersionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
-        const response = await this.downloadVersionGoldSourceIdVersionsVersionGetRaw(requestParameters, initOverrides);
+    async downloadVersionGoldResourceIdVersionsVersionGet(requestParameters: DownloadVersionGoldResourceIdVersionsVersionGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.downloadVersionGoldResourceIdVersionsVersionGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Get Source
+     * Get Resource
      */
-    async getSourceGoldSourceIdGetRaw(requestParameters: GetSourceGoldSourceIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GoldMetadataResponse>> {
-        if (requestParameters['sourceId'] == null) {
+    async getResourceGoldResourceIdGetRaw(requestParameters: GetResourceGoldResourceIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GoldMetadataResponse>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling getSourceGoldSourceIdGet().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling getResourceGoldResourceIdGet().'
             );
         }
 
@@ -220,8 +220,8 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/gold/{source_id}`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/gold/{resource_id}`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -234,17 +234,17 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
     }
 
     /**
-     * Get Source
+     * Get Resource
      */
-    async getSourceGoldSourceIdGet(requestParameters: GetSourceGoldSourceIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GoldMetadataResponse> {
-        const response = await this.getSourceGoldSourceIdGetRaw(requestParameters, initOverrides);
+    async getResourceGoldResourceIdGet(requestParameters: GetResourceGoldResourceIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GoldMetadataResponse> {
+        const response = await this.getResourceGoldResourceIdGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * List Sources
+     * List Resources
      */
-    async listSourcesGoldGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<GoldMetadataResponse>>> {
+    async listResourcesGoldGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<GoldMetadataResponse>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -263,21 +263,21 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
     }
 
     /**
-     * List Sources
+     * List Resources
      */
-    async listSourcesGoldGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<GoldMetadataResponse>> {
-        const response = await this.listSourcesGoldGetRaw(initOverrides);
+    async listResourcesGoldGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<GoldMetadataResponse>> {
+        const response = await this.listResourcesGoldGetRaw(initOverrides);
         return await response.value();
     }
 
     /**
      * List Versions
      */
-    async listVersionsGoldSourceIdVersionsGetRaw(requestParameters: ListVersionsGoldSourceIdVersionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<GoldLineageResponse>>> {
-        if (requestParameters['sourceId'] == null) {
+    async listVersionsGoldResourceIdVersionsGetRaw(requestParameters: ListVersionsGoldResourceIdVersionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<GoldLineageResponse>>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling listVersionsGoldSourceIdVersionsGet().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling listVersionsGoldResourceIdVersionsGet().'
             );
         }
 
@@ -286,8 +286,8 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/gold/{source_id}/versions`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/gold/{resource_id}/versions`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -302,26 +302,26 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
     /**
      * List Versions
      */
-    async listVersionsGoldSourceIdVersionsGet(requestParameters: ListVersionsGoldSourceIdVersionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<GoldLineageResponse>> {
-        const response = await this.listVersionsGoldSourceIdVersionsGetRaw(requestParameters, initOverrides);
+    async listVersionsGoldResourceIdVersionsGet(requestParameters: ListVersionsGoldResourceIdVersionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<GoldLineageResponse>> {
+        const response = await this.listVersionsGoldResourceIdVersionsGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Update Source
+     * Update Resource
      */
-    async updateSourceGoldSourceIdPatchRaw(requestParameters: UpdateSourceGoldSourceIdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GoldMetadataResponse>> {
-        if (requestParameters['sourceId'] == null) {
+    async updateResourceGoldResourceIdPatchRaw(requestParameters: UpdateResourceGoldResourceIdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GoldMetadataResponse>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling updateSourceGoldSourceIdPatch().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling updateResourceGoldResourceIdPatch().'
             );
         }
 
-        if (requestParameters['updateGoldSourceRequest'] == null) {
+        if (requestParameters['updateGoldResourceRequest'] == null) {
             throw new runtime.RequiredError(
-                'updateGoldSourceRequest',
-                'Required parameter "updateGoldSourceRequest" was null or undefined when calling updateSourceGoldSourceIdPatch().'
+                'updateGoldResourceRequest',
+                'Required parameter "updateGoldResourceRequest" was null or undefined when calling updateResourceGoldResourceIdPatch().'
             );
         }
 
@@ -332,57 +332,57 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/gold/{source_id}`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/gold/{resource_id}`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
 
         const response = await this.request({
             path: urlPath,
             method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: UpdateGoldSourceRequestToJSON(requestParameters['updateGoldSourceRequest']),
+            body: UpdateGoldResourceRequestToJSON(requestParameters['updateGoldResourceRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => GoldMetadataResponseFromJSON(jsonValue));
     }
 
     /**
-     * Update Source
+     * Update Resource
      */
-    async updateSourceGoldSourceIdPatch(requestParameters: UpdateSourceGoldSourceIdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GoldMetadataResponse> {
-        const response = await this.updateSourceGoldSourceIdPatchRaw(requestParameters, initOverrides);
+    async updateResourceGoldResourceIdPatch(requestParameters: UpdateResourceGoldResourceIdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GoldMetadataResponse> {
+        const response = await this.updateResourceGoldResourceIdPatchRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      * Upload Version
      */
-    async uploadVersionGoldSourceIdVersionsPostRaw(requestParameters: UploadVersionGoldSourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
-        if (requestParameters['sourceId'] == null) {
+    async uploadVersionGoldResourceIdVersionsPostRaw(requestParameters: UploadVersionGoldResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+        if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling uploadVersionGoldSourceIdVersionsPost().'
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling uploadVersionGoldResourceIdVersionsPost().'
             );
         }
 
-        if (requestParameters['sources'] == null) {
+        if (requestParameters['resources'] == null) {
             throw new runtime.RequiredError(
-                'sources',
-                'Required parameter "sources" was null or undefined when calling uploadVersionGoldSourceIdVersionsPost().'
+                'resources',
+                'Required parameter "resources" was null or undefined when calling uploadVersionGoldResourceIdVersionsPost().'
             );
         }
 
         if (requestParameters['file'] == null) {
             throw new runtime.RequiredError(
                 'file',
-                'Required parameter "file" was null or undefined when calling uploadVersionGoldSourceIdVersionsPost().'
+                'Required parameter "file" was null or undefined when calling uploadVersionGoldResourceIdVersionsPost().'
             );
         }
 
         const queryParameters: any = {};
 
-        if (requestParameters['sources'] != null) {
-            queryParameters['sources'] = requestParameters['sources'];
+        if (requestParameters['resources'] != null) {
+            queryParameters['resources'] = requestParameters['resources'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -394,7 +394,7 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
         const canConsumeForm = runtime.canConsumeForm(consumes);
 
         let formParams: { append(param: string, value: any): any };
-        let useForm = canConsumeForm;
+        let useForm = false;
         if (useForm) {
             formParams = new FormData();
         } else {
@@ -406,8 +406,8 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
         }
 
 
-        let urlPath = `/gold/{source_id}/versions`;
-        urlPath = urlPath.replace(`{${"source_id"}}`, encodeURIComponent(String(requestParameters['sourceId'])));
+        let urlPath = `/gold/{resource_id}/versions`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
 
         const response = await this.request({
             path: urlPath,
@@ -427,8 +427,8 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
     /**
      * Upload Version
      */
-    async uploadVersionGoldSourceIdVersionsPost(requestParameters: UploadVersionGoldSourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
-        const response = await this.uploadVersionGoldSourceIdVersionsPostRaw(requestParameters, initOverrides);
+    async uploadVersionGoldResourceIdVersionsPost(requestParameters: UploadVersionGoldResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.uploadVersionGoldResourceIdVersionsPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

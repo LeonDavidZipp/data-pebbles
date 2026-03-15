@@ -30,7 +30,7 @@ export interface GoldLineageResponse {
      * @type {number}
      * @memberof GoldLineageResponse
      */
-    source_id: number;
+    resource_id: number;
     /**
      * 
      * @type {number}
@@ -42,7 +42,7 @@ export interface GoldLineageResponse {
      * @type {number}
      * @memberof GoldLineageResponse
      */
-    from_source_id: number;
+    from_resource_id: number;
     /**
      * 
      * @type {string}
@@ -56,9 +56,9 @@ export interface GoldLineageResponse {
  */
 export function instanceOfGoldLineageResponse(value: object): value is GoldLineageResponse {
     if (!('id' in value) || value['id'] === undefined) return false;
-    if (!('source_id' in value) || value['source_id'] === undefined) return false;
+    if (!('resource_id' in value) || value['resource_id'] === undefined) return false;
     if (!('delta_version' in value) || value['delta_version'] === undefined) return false;
-    if (!('from_source_id' in value) || value['from_source_id'] === undefined) return false;
+    if (!('from_resource_id' in value) || value['from_resource_id'] === undefined) return false;
     if (!('created_at' in value) || value['created_at'] === undefined) return false;
     return true;
 }
@@ -74,9 +74,9 @@ export function GoldLineageResponseFromJSONTyped(json: any, ignoreDiscriminator:
     return {
         
         'id': json['id'],
-        'source_id': json['source_id'],
+        'resource_id': json['resource_id'],
         'delta_version': json['delta_version'],
-        'from_source_id': json['from_source_id'],
+        'from_resource_id': json['from_resource_id'],
         'created_at': json['created_at'],
     };
 }
@@ -93,9 +93,9 @@ export function GoldLineageResponseToJSONTyped(value?: GoldLineageResponse | nul
     return {
         
         'id': value['id'],
-        'source_id': value['source_id'],
+        'resource_id': value['resource_id'],
         'delta_version': value['delta_version'],
-        'from_source_id': value['from_source_id'],
+        'from_resource_id': value['from_resource_id'],
         'created_at': value['created_at'],
     };
 }

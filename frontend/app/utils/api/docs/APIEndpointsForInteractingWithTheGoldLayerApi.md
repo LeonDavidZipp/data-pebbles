@@ -4,22 +4,22 @@ All URIs are relative to *http://localhost*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**createSourceGoldPost**](APIEndpointsForInteractingWithTheGoldLayerApi.md#createsourcegoldpost) | **POST** /gold/ | Create Source |
-| [**deleteSourceGoldSourceIdDelete**](APIEndpointsForInteractingWithTheGoldLayerApi.md#deletesourcegoldsourceiddelete) | **DELETE** /gold/{source_id} | Delete Source |
-| [**downloadVersionGoldSourceIdVersionsVersionGet**](APIEndpointsForInteractingWithTheGoldLayerApi.md#downloadversiongoldsourceidversionsversionget) | **GET** /gold/{source_id}/versions/{version} | Download Version |
-| [**getSourceGoldSourceIdGet**](APIEndpointsForInteractingWithTheGoldLayerApi.md#getsourcegoldsourceidget) | **GET** /gold/{source_id} | Get Source |
-| [**listSourcesGoldGet**](APIEndpointsForInteractingWithTheGoldLayerApi.md#listsourcesgoldget) | **GET** /gold/ | List Sources |
-| [**listVersionsGoldSourceIdVersionsGet**](APIEndpointsForInteractingWithTheGoldLayerApi.md#listversionsgoldsourceidversionsget) | **GET** /gold/{source_id}/versions | List Versions |
-| [**updateSourceGoldSourceIdPatch**](APIEndpointsForInteractingWithTheGoldLayerApi.md#updatesourcegoldsourceidpatch) | **PATCH** /gold/{source_id} | Update Source |
-| [**uploadVersionGoldSourceIdVersionsPost**](APIEndpointsForInteractingWithTheGoldLayerApi.md#uploadversiongoldsourceidversionspost) | **POST** /gold/{source_id}/versions | Upload Version |
+| [**createResourceGoldPost**](APIEndpointsForInteractingWithTheGoldLayerApi.md#createresourcegoldpost) | **POST** /gold/ | Create Resource |
+| [**deleteResourceGoldResourceIdDelete**](APIEndpointsForInteractingWithTheGoldLayerApi.md#deleteresourcegoldresourceiddelete) | **DELETE** /gold/{resource_id} | Delete Resource |
+| [**downloadVersionGoldResourceIdVersionsVersionGet**](APIEndpointsForInteractingWithTheGoldLayerApi.md#downloadversiongoldresourceidversionsversionget) | **GET** /gold/{resource_id}/versions/{version} | Download Version |
+| [**getResourceGoldResourceIdGet**](APIEndpointsForInteractingWithTheGoldLayerApi.md#getresourcegoldresourceidget) | **GET** /gold/{resource_id} | Get Resource |
+| [**listResourcesGoldGet**](APIEndpointsForInteractingWithTheGoldLayerApi.md#listresourcesgoldget) | **GET** /gold/ | List Resources |
+| [**listVersionsGoldResourceIdVersionsGet**](APIEndpointsForInteractingWithTheGoldLayerApi.md#listversionsgoldresourceidversionsget) | **GET** /gold/{resource_id}/versions | List Versions |
+| [**updateResourceGoldResourceIdPatch**](APIEndpointsForInteractingWithTheGoldLayerApi.md#updateresourcegoldresourceidpatch) | **PATCH** /gold/{resource_id} | Update Resource |
+| [**uploadVersionGoldResourceIdVersionsPost**](APIEndpointsForInteractingWithTheGoldLayerApi.md#uploadversiongoldresourceidversionspost) | **POST** /gold/{resource_id}/versions | Upload Version |
 
 
 
-## createSourceGoldPost
+## createResourceGoldPost
 
-> any createSourceGoldPost(createGoldSourceRequest)
+> any createResourceGoldPost(createGoldResourceRequest)
 
-Create Source
+Create Resource
 
 ### Example
 
@@ -28,19 +28,19 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheGoldLayerApi,
 } from '';
-import type { CreateSourceGoldPostRequest } from '';
+import type { CreateResourceGoldPostRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
   const api = new APIEndpointsForInteractingWithTheGoldLayerApi();
 
   const body = {
-    // CreateGoldSourceRequest
-    createGoldSourceRequest: ...,
-  } satisfies CreateSourceGoldPostRequest;
+    // CreateGoldResourceRequest
+    createGoldResourceRequest: ...,
+  } satisfies CreateResourceGoldPostRequest;
 
   try {
-    const data = await api.createSourceGoldPost(body);
+    const data = await api.createResourceGoldPost(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -56,7 +56,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **createGoldSourceRequest** | [CreateGoldSourceRequest](CreateGoldSourceRequest.md) |  | |
+| **createGoldResourceRequest** | [CreateGoldResourceRequest](CreateGoldResourceRequest.md) |  | |
 
 ### Return type
 
@@ -81,11 +81,11 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## deleteSourceGoldSourceIdDelete
+## deleteResourceGoldResourceIdDelete
 
-> any deleteSourceGoldSourceIdDelete(sourceId)
+> any deleteResourceGoldResourceIdDelete(resourceId)
 
-Delete Source
+Delete Resource
 
 ### Example
 
@@ -94,7 +94,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheGoldLayerApi,
 } from '';
-import type { DeleteSourceGoldSourceIdDeleteRequest } from '';
+import type { DeleteResourceGoldResourceIdDeleteRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -102,11 +102,11 @@ async function example() {
 
   const body = {
     // number
-    sourceId: 56,
-  } satisfies DeleteSourceGoldSourceIdDeleteRequest;
+    resourceId: 56,
+  } satisfies DeleteResourceGoldResourceIdDeleteRequest;
 
   try {
-    const data = await api.deleteSourceGoldSourceIdDelete(body);
+    const data = await api.deleteResourceGoldResourceIdDelete(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -122,7 +122,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **sourceId** | `number` |  | [Defaults to `undefined`] |
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
 
 ### Return type
 
@@ -147,9 +147,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## downloadVersionGoldSourceIdVersionsVersionGet
+## downloadVersionGoldResourceIdVersionsVersionGet
 
-> any downloadVersionGoldSourceIdVersionsVersionGet(sourceId, version)
+> any downloadVersionGoldResourceIdVersionsVersionGet(resourceId, version)
 
 Download Version
 
@@ -160,7 +160,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheGoldLayerApi,
 } from '';
-import type { DownloadVersionGoldSourceIdVersionsVersionGetRequest } from '';
+import type { DownloadVersionGoldResourceIdVersionsVersionGetRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -168,13 +168,13 @@ async function example() {
 
   const body = {
     // number
-    sourceId: 56,
+    resourceId: 56,
     // number
     version: 56,
-  } satisfies DownloadVersionGoldSourceIdVersionsVersionGetRequest;
+  } satisfies DownloadVersionGoldResourceIdVersionsVersionGetRequest;
 
   try {
-    const data = await api.downloadVersionGoldSourceIdVersionsVersionGet(body);
+    const data = await api.downloadVersionGoldResourceIdVersionsVersionGet(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -190,7 +190,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **sourceId** | `number` |  | [Defaults to `undefined`] |
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
 | **version** | `number` |  | [Defaults to `undefined`] |
 
 ### Return type
@@ -216,11 +216,11 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## getSourceGoldSourceIdGet
+## getResourceGoldResourceIdGet
 
-> GoldMetadataResponse getSourceGoldSourceIdGet(sourceId)
+> GoldMetadataResponse getResourceGoldResourceIdGet(resourceId)
 
-Get Source
+Get Resource
 
 ### Example
 
@@ -229,7 +229,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheGoldLayerApi,
 } from '';
-import type { GetSourceGoldSourceIdGetRequest } from '';
+import type { GetResourceGoldResourceIdGetRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -237,11 +237,11 @@ async function example() {
 
   const body = {
     // number
-    sourceId: 56,
-  } satisfies GetSourceGoldSourceIdGetRequest;
+    resourceId: 56,
+  } satisfies GetResourceGoldResourceIdGetRequest;
 
   try {
-    const data = await api.getSourceGoldSourceIdGet(body);
+    const data = await api.getResourceGoldResourceIdGet(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -257,7 +257,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **sourceId** | `number` |  | [Defaults to `undefined`] |
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
 
 ### Return type
 
@@ -282,11 +282,11 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## listSourcesGoldGet
+## listResourcesGoldGet
 
-> Array&lt;GoldMetadataResponse&gt; listSourcesGoldGet()
+> Array&lt;GoldMetadataResponse&gt; listResourcesGoldGet()
 
-List Sources
+List Resources
 
 ### Example
 
@@ -295,14 +295,14 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheGoldLayerApi,
 } from '';
-import type { ListSourcesGoldGetRequest } from '';
+import type { ListResourcesGoldGetRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
   const api = new APIEndpointsForInteractingWithTheGoldLayerApi();
 
   try {
-    const data = await api.listSourcesGoldGet();
+    const data = await api.listResourcesGoldGet();
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -339,9 +339,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## listVersionsGoldSourceIdVersionsGet
+## listVersionsGoldResourceIdVersionsGet
 
-> Array&lt;GoldLineageResponse&gt; listVersionsGoldSourceIdVersionsGet(sourceId)
+> Array&lt;GoldLineageResponse&gt; listVersionsGoldResourceIdVersionsGet(resourceId)
 
 List Versions
 
@@ -352,7 +352,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheGoldLayerApi,
 } from '';
-import type { ListVersionsGoldSourceIdVersionsGetRequest } from '';
+import type { ListVersionsGoldResourceIdVersionsGetRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -360,11 +360,11 @@ async function example() {
 
   const body = {
     // number
-    sourceId: 56,
-  } satisfies ListVersionsGoldSourceIdVersionsGetRequest;
+    resourceId: 56,
+  } satisfies ListVersionsGoldResourceIdVersionsGetRequest;
 
   try {
-    const data = await api.listVersionsGoldSourceIdVersionsGet(body);
+    const data = await api.listVersionsGoldResourceIdVersionsGet(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -380,7 +380,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **sourceId** | `number` |  | [Defaults to `undefined`] |
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
 
 ### Return type
 
@@ -405,11 +405,11 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## updateSourceGoldSourceIdPatch
+## updateResourceGoldResourceIdPatch
 
-> GoldMetadataResponse updateSourceGoldSourceIdPatch(sourceId, updateGoldSourceRequest)
+> GoldMetadataResponse updateResourceGoldResourceIdPatch(resourceId, updateGoldResourceRequest)
 
-Update Source
+Update Resource
 
 ### Example
 
@@ -418,7 +418,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheGoldLayerApi,
 } from '';
-import type { UpdateSourceGoldSourceIdPatchRequest } from '';
+import type { UpdateResourceGoldResourceIdPatchRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -426,13 +426,13 @@ async function example() {
 
   const body = {
     // number
-    sourceId: 56,
-    // UpdateGoldSourceRequest
-    updateGoldSourceRequest: ...,
-  } satisfies UpdateSourceGoldSourceIdPatchRequest;
+    resourceId: 56,
+    // UpdateGoldResourceRequest
+    updateGoldResourceRequest: ...,
+  } satisfies UpdateResourceGoldResourceIdPatchRequest;
 
   try {
-    const data = await api.updateSourceGoldSourceIdPatch(body);
+    const data = await api.updateResourceGoldResourceIdPatch(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -448,8 +448,8 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **sourceId** | `number` |  | [Defaults to `undefined`] |
-| **updateGoldSourceRequest** | [UpdateGoldSourceRequest](UpdateGoldSourceRequest.md) |  | |
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
+| **updateGoldResourceRequest** | [UpdateGoldResourceRequest](UpdateGoldResourceRequest.md) |  | |
 
 ### Return type
 
@@ -474,9 +474,9 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## uploadVersionGoldSourceIdVersionsPost
+## uploadVersionGoldResourceIdVersionsPost
 
-> any uploadVersionGoldSourceIdVersionsPost(sourceId, sources, file)
+> any uploadVersionGoldResourceIdVersionsPost(resourceId, resources, file)
 
 Upload Version
 
@@ -487,7 +487,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheGoldLayerApi,
 } from '';
-import type { UploadVersionGoldSourceIdVersionsPostRequest } from '';
+import type { UploadVersionGoldResourceIdVersionsPostRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -495,15 +495,15 @@ async function example() {
 
   const body = {
     // number
-    sourceId: 56,
+    resourceId: 56,
     // Array<number>
-    sources: ...,
+    resources: ...,
     // string
     file: file_example,
-  } satisfies UploadVersionGoldSourceIdVersionsPostRequest;
+  } satisfies UploadVersionGoldResourceIdVersionsPostRequest;
 
   try {
-    const data = await api.uploadVersionGoldSourceIdVersionsPost(body);
+    const data = await api.uploadVersionGoldResourceIdVersionsPost(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -519,8 +519,8 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **sourceId** | `number` |  | [Defaults to `undefined`] |
-| **sources** | `Array<number>` |  | |
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
+| **resources** | `Array<number>` |  | |
 | **file** | `string` |  | [Defaults to `undefined`] |
 
 ### Return type

@@ -7,9 +7,9 @@
 Name | Type
 ------------ | -------------
 `id` | number
-`source_id` | number
+`resource_id` | number
 `delta_version` | number
-`from_source_id` | number
+`from_resource_id` | number
 `created_at` | string
 
 ## Example
@@ -20,9 +20,9 @@ import type { SilverLineageResponse } from ''
 // TODO: Update the object below with actual values
 const example = {
   "id": null,
-  "source_id": null,
+  "resource_id": null,
   "delta_version": null,
-  "from_source_id": null,
+  "from_resource_id": null,
   "created_at": null,
 } satisfies SilverLineageResponse
 

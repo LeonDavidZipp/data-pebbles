@@ -30,7 +30,7 @@ export interface VersionResponse {
      * @type {number}
      * @memberof VersionResponse
      */
-    source_id: number;
+    resource_id: number;
     /**
      * 
      * @type {number}
@@ -68,7 +68,7 @@ export interface VersionResponse {
  */
 export function instanceOfVersionResponse(value: object): value is VersionResponse {
     if (!('id' in value) || value['id'] === undefined) return false;
-    if (!('source_id' in value) || value['source_id'] === undefined) return false;
+    if (!('resource_id' in value) || value['resource_id'] === undefined) return false;
     if (!('version' in value) || value['version'] === undefined) return false;
     if (!('status' in value) || value['status'] === undefined) return false;
     if (!('s3_key' in value) || value['s3_key'] === undefined) return false;
@@ -88,7 +88,7 @@ export function VersionResponseFromJSONTyped(json: any, ignoreDiscriminator: boo
     return {
         
         'id': json['id'],
-        'source_id': json['source_id'],
+        'resource_id': json['resource_id'],
         'version': json['version'],
         'status': json['status'],
         's3_key': json['s3_key'],
@@ -109,7 +109,7 @@ export function VersionResponseToJSONTyped(value?: VersionResponse | null, ignor
     return {
         
         'id': value['id'],
-        'source_id': value['source_id'],
+        'resource_id': value['resource_id'],
         'version': value['version'],
         'status': value['status'],
         's3_key': value['s3_key'],
