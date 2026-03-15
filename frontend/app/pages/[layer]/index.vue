@@ -15,55 +15,55 @@ if (!validLayers.includes(layer.value)) {
   throw createError({ statusCode: 404, message: 'Layer not found' })
 }
 
-const sources = ref<
+const resources = ref<
   (MetadataResponse | SilverMetadataResponse | GoldMetadataResponse)[]
 >([])
 const loading = ref(true)
 const showCreateModal = ref(false)
-const newSourceName = ref('')
+const newResourceName = ref('')
 const creating = ref(false)
 
-async function fetchSources() {
+async function fetchResources() {
   loading.value = true
   try {
     if (layer.value === 'bronze') {
-      sources.value = await bronze.listSourcesBronzeGet()
+      resources.value = await bronze.listSourcesBronzeGet()
     } else if (layer.value === 'silver') {
-      sources.value = await silver.listSourcesSilverGet()
+      resources.value = await silver.listSourcesSilverGet()
     } else {
-      sources.value = await gold.listSourcesGoldGet()
+      resources.value = await gold.listSourcesGoldGet()
     }
   } finally {
     loading.value = false
   }
 }
 
-async function createSource() {
-  if (!newSourceName.value.trim()) return
+async function createResource() {
+  if (!newResourceName.value.trim()) return
   creating.value = true
   try {
     if (layer.value === 'bronze') {
       await bronze.createSourceBronzePost({
-        createSourceRequest: { name: newSourceName.value }
+        createSourceRequest: { name: newResourceName.value }
       })
     } else if (layer.value === 'silver') {
       await silver.createSourceSilverPost({
-        createSilverSourceRequest: { name: newSourceName.value }
+        createSilverSourceRequest: { name: newResourceName.value }
       })
     } else {
       await gold.createSourceGoldPost({
-        createGoldSourceRequest: { name: newSourceName.value }
+        createGoldSourceRequest: { name: newResourceName.value }
       })
     }
-    newSourceName.value = ''
+    newResourceName.value = ''
     showCreateModal.value = false
-    await fetchSources()
+    await fetchResources()
   } finally {
     creating.value = false
   }
 }
 
-async function deleteSource(id: number) {
+async function deleteResource(id: number) {
   if (layer.value === 'bronze') {
     await bronze.deleteSourceBronzeSourceIdDelete({ sourceId: id })
   } else if (layer.value === 'silver') {
@@ -71,10 +71,10 @@ async function deleteSource(id: number) {
   } else {
     await gold.deleteSourceGoldSourceIdDelete({ sourceId: id })
   }
-  await fetchSources()
+  await fetchResources()
 }
 
-watch(layer, fetchSources, { immediate: true })
+watch(layer, fetchResources, { immediate: true })
 
 const layerButtonClass = computed(() => {
   switch (layer.value) {
@@ -104,12 +104,12 @@ const layerIconClass = computed(() => {
           <span class="capitalize text-gray-900 dark:text-white">{{ layer }}</span>
         </div>
         <h1 class="text-xl font-semibold text-gray-900 dark:text-white capitalize">
-          {{ layer }} Sources
+          {{ layer }} Resources
         </h1>
       </div>
       <UButton
         icon="i-lucide-plus"
-        label="New Source"
+        label="New Resource"
         color="neutral"
         :class="layerButtonClass"
         @click="showCreateModal = true"
@@ -129,7 +129,7 @@ const layerIconClass = computed(() => {
       </div>
 
       <div
-        v-else-if="sources.length === 0"
+        v-else-if="resources.length === 0"
         class="text-center py-16 text-gray-500 dark:text-gray-400"
       >
         <UIcon
@@ -137,7 +137,7 @@ const layerIconClass = computed(() => {
           class="size-12 mx-auto mb-3 text-gray-300 dark:text-gray-600"
         />
         <p class="text-sm">
-          No sources yet. Create one to get started.
+          No resources yet. Create one to get started.
         </p>
       </div>
 
@@ -161,10 +161,10 @@ const layerIconClass = computed(() => {
           </thead>
           <tbody>
             <tr
-              v-for="source in sources"
-              :key="source.id"
+              v-for="resource in resources"
+              :key="resource.id"
               class="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
-              @click="navigateTo(`/${layer}/${source.id}`)"
+              @click="navigateTo(`/${layer}/${resource.id}`)"
             >
               <td class="py-3 px-4">
                 <div class="flex items-center gap-2.5">
@@ -177,11 +177,11 @@ const layerIconClass = computed(() => {
                       class="size-4"
                     />
                   </div>
-                  <span class="font-medium text-gray-900 dark:text-white">{{ source.name }}</span>
+                  <span class="font-medium text-gray-900 dark:text-white">{{ resource.name }}</span>
                 </div>
               </td>
               <td class="py-3 px-4 text-gray-500 dark:text-gray-400">
-                {{ new Date(source.created_at).toLocaleDateString() }}
+                {{ new Date(resource.created_at).toLocaleDateString() }}
               </td>
               <td class="py-3 px-4 text-right">
                 <div
@@ -193,14 +193,14 @@ const layerIconClass = computed(() => {
                     variant="ghost"
                     color="neutral"
                     size="xs"
-                    :to="`/${layer}/${source.id}`"
+                    :to="`/${layer}/${resource.id}`"
                   />
                   <UButton
                     icon="i-lucide-trash-2"
                     variant="ghost"
                     color="error"
                     size="xs"
-                    @click="deleteSource(source.id)"
+                    @click="deleteResource(resource.id)"
                   />
                 </div>
               </td>
@@ -217,14 +217,14 @@ const layerIconClass = computed(() => {
       <template #content>
         <div class="p-6">
           <h2 class="text-lg font-semibold mb-4">
-            Create {{ layer }} source
+            Create {{ layer }} resource
           </h2>
           <UInput
-            v-model="newSourceName"
-            placeholder="Source name"
+            v-model="newResourceName"
+            placeholder="Resource name"
             color="neutral"
             class="mb-4 w-full"
-            @keyup.enter="createSource"
+            @keyup.enter="createResource"
           />
           <div class="flex justify-end gap-2">
             <UButton
@@ -238,7 +238,7 @@ const layerIconClass = computed(() => {
               color="neutral"
               variant="solid"
               :loading="creating"
-              @click="createSource"
+              @click="createResource"
             />
           </div>
         </div>

@@ -12,14 +12,14 @@ const route = useRoute()
 const { bronze, silver, gold } = useApi()
 
 const layer = computed(() => route.params.layer as string)
-const sourceId = computed(() => Number(route.params.sourceId))
+const resourceId = computed(() => Number(route.params.resourceId))
 
 const validLayers = ['bronze', 'silver', 'gold']
 if (!validLayers.includes(layer.value)) {
   throw createError({ statusCode: 404, message: 'Layer not found' })
 }
 
-const source = ref<
+const resource = ref<
   MetadataResponse | SilverMetadataResponse | GoldMetadataResponse | null
 >(null)
 const versions = ref<
@@ -58,18 +58,18 @@ function onFileChange(e: Event) {
 // Silver upload
 // Gold upload
 
-async function fetchSource() {
+async function fetchResource() {
   if (layer.value === 'bronze') {
-    source.value = await bronze.getSourceBronzeSourceIdGet({
-      sourceId: sourceId.value
+    resource.value = await bronze.getSourceBronzeSourceIdGet({
+      sourceId: resourceId.value
     })
   } else if (layer.value === 'silver') {
-    source.value = await silver.getSourceSilverSourceIdGet({
-      sourceId: sourceId.value
+    resource.value = await silver.getSourceSilverSourceIdGet({
+      sourceId: resourceId.value
     })
   } else {
-    source.value = await gold.getSourceGoldSourceIdGet({
-      sourceId: sourceId.value
+    resource.value = await gold.getSourceGoldSourceIdGet({
+      sourceId: resourceId.value
     })
   }
 }
@@ -77,15 +77,15 @@ async function fetchSource() {
 async function fetchVersions() {
   if (layer.value === 'bronze') {
     versions.value = await bronze.listVersionsBronzeSourceIdVersionsGet({
-      sourceId: sourceId.value
+      sourceId: resourceId.value
     })
   } else if (layer.value === 'silver') {
     versions.value = await silver.listVersionsSilverSourceIdVersionsGet({
-      sourceId: sourceId.value
+      sourceId: resourceId.value
     })
   } else {
     versions.value = await gold.listVersionsGoldSourceIdVersionsGet({
-      sourceId: sourceId.value
+      sourceId: resourceId.value
     })
   }
 }
@@ -93,7 +93,7 @@ async function fetchVersions() {
 async function fetchAll() {
   loading.value = true
   try {
-    await Promise.all([fetchSource(), fetchVersions()])
+    await Promise.all([fetchResource(), fetchVersions()])
   } finally {
     loading.value = false
   }
@@ -108,7 +108,7 @@ async function uploadVersion() {
     const file = selectedFile as unknown as string // File object sent via FormData
 
     await bronze.uploadVersionBronzeSourceIdVersionsPost({
-      sourceId: sourceId.value,
+      sourceId: resourceId.value,
       file
     })
     showUploadModal.value = false
@@ -121,7 +121,7 @@ async function uploadVersion() {
 
 async function activateVersion(version: number) {
   await bronze.activateVersionBronzeSourceIdVersionsVersionPatch({
-    sourceId: sourceId.value,
+    sourceId: resourceId.value,
     version
   })
   await fetchVersions()
@@ -129,7 +129,7 @@ async function activateVersion(version: number) {
 
 async function deleteVersion(version: number) {
   await bronze.deleteVersionBronzeSourceIdVersionsVersionDelete({
-    sourceId: sourceId.value,
+    sourceId: resourceId.value,
     version
   })
   await fetchVersions()
@@ -137,28 +137,28 @@ async function deleteVersion(version: number) {
 
 function downloadVersion(version: number) {
   window.open(
-    `/api/${layer.value}/${sourceId.value}/versions/${version}`,
+    `/api/${layer.value}/${resourceId.value}/versions/${version}`,
     '_blank'
   )
 }
 
-async function renameSource() {
+async function renameResource() {
   if (!renameName.value.trim()) return
   renaming.value = true
   try {
     if (layer.value === 'bronze') {
-      source.value = await bronze.updateSourceBronzeSourceIdPatch({
-        sourceId: sourceId.value,
+      resource.value = await bronze.updateSourceBronzeSourceIdPatch({
+        sourceId: resourceId.value,
         updateSourceRequest: { name: renameName.value }
       })
     } else if (layer.value === 'silver') {
-      source.value = await silver.updateSourceSilverSourceIdPatch({
-        sourceId: sourceId.value,
+      resource.value = await silver.updateSourceSilverSourceIdPatch({
+        sourceId: resourceId.value,
         updateSilverSourceRequest: { name: renameName.value }
       })
     } else {
-      source.value = await gold.updateSourceGoldSourceIdPatch({
-        sourceId: sourceId.value,
+      resource.value = await gold.updateSourceGoldSourceIdPatch({
+        sourceId: resourceId.value,
         updateGoldSourceRequest: { name: renameName.value }
       })
     }
@@ -169,7 +169,7 @@ async function renameSource() {
 }
 
 function openRename() {
-  renameName.value = source.value?.name ?? ''
+  renameName.value = resource.value?.name ?? ''
   showRenameModal.value = true
 }
 
@@ -223,17 +223,17 @@ fetchAll()
               :to="`/${layer}`"
               class="hover:text-gray-900 dark:hover:text-white transition-colors"
             >
-              <span class="capitalize">{{ layer }}</span> Sources
+              <span class="capitalize">{{ layer }}</span> Resources
             </NuxtLink>
             <span>/</span>
-            <span class="text-gray-900 dark:text-white">{{ source?.name ?? '...' }}</span>
+            <span class="text-gray-900 dark:text-white">{{ resource?.name ?? '...' }}</span>
           </div>
           <div
-            v-if="!loading && source"
+            v-if="!loading && resource"
             class="flex items-center gap-3"
           >
             <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-              {{ source.name }}
+              {{ resource.name }}
             </h1>
             <UBadge
               variant="subtle"
@@ -246,7 +246,7 @@ fetchAll()
           </div>
         </div>
         <div
-          v-if="!loading && source"
+          v-if="!loading && resource"
           class="flex items-center gap-2"
         >
           <UButton
@@ -282,17 +282,17 @@ fetchAll()
         />
       </div>
 
-      <template v-else-if="source">
-        <!-- Source details card -->
+      <template v-else-if="resource">
+        <!-- Resource details card -->
         <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5 mb-6">
           <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">
-            Source Details
+            Resource Details
           </h2>
           <div class="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <span class="text-gray-500 dark:text-gray-400">Source ID</span>
+              <span class="text-gray-500 dark:text-gray-400">Resource ID</span>
               <p class="font-medium text-gray-900 dark:text-white mt-0.5">
-                {{ source.id }}
+                {{ resource.id }}
               </p>
             </div>
             <div>
@@ -304,7 +304,7 @@ fetchAll()
             <div>
               <span class="text-gray-500 dark:text-gray-400">Created</span>
               <p class="font-medium text-gray-900 dark:text-white mt-0.5">
-                {{ new Date(source.created_at).toLocaleDateString() }}
+                {{ new Date(resource.created_at).toLocaleDateString() }}
               </p>
             </div>
           </div>
@@ -332,7 +332,7 @@ fetchAll()
                 No versions yet. Upload a file to create the first version.
               </template>
               <template v-else>
-                Use the SDK to upload versions to {{ layer }} sources.
+                Use the SDK to upload versions to {{ layer }} resources.
               </template>
             </p>
           </div>
@@ -356,7 +356,7 @@ fetchAll()
                   v-if="layer !== 'bronze'"
                   class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider"
                 >
-                  From Source
+                  From Resource
                 </th>
                 <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
                   Created
@@ -494,14 +494,14 @@ fetchAll()
       <template #content>
         <div class="p-6">
           <h2 class="text-lg font-semibold mb-4">
-            Rename Source
+            Rename Resource
           </h2>
           <UInput
             v-model="renameName"
             placeholder="New name"
             color="neutral"
             class="mb-4 w-full"
-            @keyup.enter="renameSource"
+            @keyup.enter="renameResource"
           />
           <div class="flex justify-end gap-2">
             <UButton
@@ -514,7 +514,7 @@ fetchAll()
               label="Save"
               color="neutral"
               :loading="renaming"
-              @click="renameSource"
+              @click="renameResource"
             />
           </div>
         </div>
