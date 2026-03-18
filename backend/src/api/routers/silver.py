@@ -152,7 +152,7 @@ async def upload_version(
 	content = await file.read()
 	lf = pl.scan_parquet(content)
 	await silver.upload(
-		resource_id=resource_id, lf=lf, from_resource_id=from_resource_id, mode="append"
+		resource_id=resource_id, lf=lf, from_resource_id=from_resource_id, mode="overwrite"
 	)
 	return MessageResponse(message="File uploaded successfully.")
 

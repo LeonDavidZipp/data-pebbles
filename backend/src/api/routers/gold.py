@@ -155,7 +155,7 @@ async def upload_version(
 		resource_id=resource_id,
 		lf=lf,
 		resources=resources,
-		mode="append",
+		mode="overwrite",
 	)
 	return MessageResponse(message="File uploaded successfully.")
 

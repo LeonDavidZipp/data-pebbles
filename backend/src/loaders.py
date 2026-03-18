@@ -28,7 +28,7 @@ class DeltaLoader:
 		base_path: str = "s3://",
 		storage_options: dict[str, Any] | None = None,
 	):
-		self.base_path = f"{base_path}/{layer}"
+		self.base_path = f"{base_path}{layer}"
 		self.storage_options = storage_options
 
 	def get(self, table: str, version: int | None = None) -> pl.LazyFrame:
@@ -41,7 +41,7 @@ class DeltaLoader:
 		self,
 		table: str,
 		lf: pl.LazyFrame,
-		mode: Literal["error", "append", "overwrite", "ignore"] = "append",
+		mode: Literal["error", "append", "overwrite", "ignore"] = "overwrite",
 	) -> int:
 		path = f"{self.base_path}/{table}"
 		write_opts = {"schema_mode": "overwrite"}
@@ -94,7 +94,7 @@ class SilverLoader:
 		resource_id: int,
 		lf: pl.LazyFrame,
 		from_resource_id: int,
-		mode: Literal["error", "append", "overwrite", "ignore"] = "append",
+		mode: Literal["error", "append", "overwrite", "ignore"] = "overwrite",
 	) -> SilverVersionLineageRead:
 		"""Upload data to a silver Delta table and record lineage.
 
@@ -184,7 +184,7 @@ class GoldLoader:
 		resource_id: int,
 		lf: pl.LazyFrame,
 		resources: list[int],
-		mode: Literal["error", "append", "overwrite", "ignore"] = "append",
+		mode: Literal["error", "append", "overwrite", "ignore"] = "overwrite",
 	) -> list[GoldVersionLineageRead]:
 		"""Upload data to a gold Delta table and record lineage.
 
