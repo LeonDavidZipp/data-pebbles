@@ -5,7 +5,8 @@ import type {
   GoldMetadataResponse,
   VersionResponse,
   SilverLineageResponse,
-  GoldLineageResponse
+  GoldLineageResponse,
+  SchemaResponse
 } from '~/utils/api'
 
 const route = useRoute()
@@ -32,6 +33,10 @@ const showRenameModal = ref(false)
 const uploading = ref(false)
 const renameName = ref('')
 const renaming = ref(false)
+
+const schemaData = ref<SchemaResponse | null>(null)
+const schemaVersion = ref<number | null>(null)
+const schemaLoading = ref(false)
 
 // Bronze upload
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -170,6 +175,46 @@ function openRename() {
   renameName.value = resource.value?.name ?? ''
   showRenameModal.value = true
 }
+
+async function fetchSchema(version: number) {
+  if (schemaVersion.value === version) {
+    schemaData.value = null
+    schemaVersion.value = null
+    return
+  }
+  schemaLoading.value = true
+  schemaVersion.value = version
+  try {
+    if (layer.value === 'silver') {
+      schemaData.value = await silver.getSchemaSilverResourceIdVersionsVersionSchemaGet({
+        resourceId: resourceId.value,
+        version
+      })
+    } else if (layer.value === 'gold') {
+      schemaData.value = await gold.getSchemaGoldResourceIdVersionsVersionSchemaGet({
+        resourceId: resourceId.value,
+        version
+      })
+    }
+  } finally {
+    schemaLoading.value = false
+  }
+}
+
+const schemaColumns = computed(() => {
+  if (!schemaData.value) return []
+  return Object.keys(schemaData.value.data_schema)
+})
+
+const schemaRows = computed(() => {
+  if (!schemaData.value || schemaColumns.value.length === 0) return []
+  const firstCol = schemaColumns.value[0]
+  if (!firstCol) return []
+  const rowCount = schemaData.value.data[firstCol]?.length ?? 0
+  return Array.from({ length: rowCount }, (_, i) =>
+    Object.fromEntries(schemaColumns.value.map(col => [col, schemaData.value!.data[col]?.[i]]))
+  )
+})
 
 function getVersionNumber(
   v: VersionResponse | SilverLineageResponse | GoldLineageResponse
@@ -431,6 +476,15 @@ fetchAll()
                       @click="downloadVersion(getVersionNumber(v))"
                     />
                     <UButton
+                      v-if="layer !== 'bronze'"
+                      icon="i-lucide-table-2"
+                      variant="ghost"
+                      color="neutral"
+                      size="xs"
+                      :loading="schemaLoading && schemaVersion === getVersionNumber(v)"
+                      @click="fetchSchema(getVersionNumber(v))"
+                    />
+                    <UButton
                       v-if="layer === 'bronze'"
                       icon="i-lucide-trash-2"
                       variant="ghost"
@@ -443,6 +497,68 @@ fetchAll()
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Schema & Data Preview -->
+        <div
+          v-if="schemaData && schemaVersion !== null"
+          class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden mt-6"
+        >
+          <div class="px-5 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              Schema & Data Preview — v{{ schemaVersion }}
+            </h2>
+            <UButton
+              icon="i-lucide-x"
+              variant="ghost"
+              color="neutral"
+              size="xs"
+              @click="schemaData = null; schemaVersion = null"
+            />
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+                  <th
+                    v-for="col in schemaColumns"
+                    :key="col"
+                    class="text-left py-2.5 px-4 font-medium text-xs"
+                  >
+                    <div class="text-gray-900 dark:text-white">
+                      {{ col }}
+                    </div>
+                    <div class="text-gray-400 font-normal">
+                      {{ schemaData.data_schema[col] }}
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(row, i) in schemaRows"
+                  :key="i"
+                  class="border-b border-gray-100 dark:border-gray-800 last:border-0"
+                >
+                  <td
+                    v-for="col in schemaColumns"
+                    :key="col"
+                    class="py-2 px-4 text-gray-700 dark:text-gray-300 font-mono text-xs"
+                  >
+                    {{ row[col] ?? '—' }}
+                  </td>
+                </tr>
+                <tr v-if="schemaRows.length === 0">
+                  <td
+                    :colspan="schemaColumns.length"
+                    class="py-4 px-4 text-center text-gray-400 text-sm"
+                  >
+                    No data rows available.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </template>
     </div>

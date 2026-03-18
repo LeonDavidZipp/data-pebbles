@@ -22,6 +22,10 @@ const newResourceName = ref('')
 const newResourceDescription = ref('')
 const creating = ref(false)
 
+const showRenameModal = ref(false)
+const renameName = ref('')
+const renaming = ref(false)
+
 const tabs = [
   { label: 'Bronze', value: 'bronze', icon: 'i-lucide-hard-drive' },
   { label: 'Silver', value: 'silver', icon: 'i-lucide-database' },
@@ -114,6 +118,25 @@ const layerIconClass = computed(() => {
   }
 })
 
+async function renameProject() {
+  if (!renameName.value.trim()) return
+  renaming.value = true
+  try {
+    project.value = await projects.updateProjectProjectsProjectIdPatch({
+      projectId: projectId.value,
+      updateProjectRequest: { name: renameName.value }
+    })
+    showRenameModal.value = false
+  } finally {
+    renaming.value = false
+  }
+}
+
+function openRename() {
+  renameName.value = project.value?.name ?? ''
+  showRenameModal.value = true
+}
+
 watch(activeTab, fetchResources)
 
 async function init() {
@@ -156,13 +179,23 @@ init()
           {{ project.description }}
         </p>
       </div>
-      <UButton
-        icon="i-lucide-plus"
-        label="New Resource"
-        color="neutral"
-        :class="layerButtonClass"
-        @click="showCreateModal = true"
-      />
+      <div class="flex items-center gap-2">
+        <UButton
+          icon="i-lucide-pencil"
+          label="Rename"
+          variant="outline"
+          color="neutral"
+          size="sm"
+          @click="openRename"
+        />
+        <UButton
+          icon="i-lucide-plus"
+          label="New Resource"
+          color="neutral"
+          :class="layerButtonClass"
+          @click="showCreateModal = true"
+        />
+      </div>
     </div>
 
     <!-- Layer tabs -->
@@ -287,6 +320,41 @@ init()
         </table>
       </div>
     </div>
+
+    <!-- Rename Modal -->
+    <UModal
+      v-model:open="showRenameModal"
+      class="max-w-sm"
+    >
+      <template #content>
+        <div class="p-6">
+          <h2 class="text-lg font-semibold mb-4">
+            Rename Project
+          </h2>
+          <UInput
+            v-model="renameName"
+            placeholder="New name"
+            color="neutral"
+            class="mb-4 w-full"
+            @keyup.enter="renameProject"
+          />
+          <div class="flex justify-end gap-2">
+            <UButton
+              label="Cancel"
+              variant="ghost"
+              color="neutral"
+              @click="showRenameModal = false"
+            />
+            <UButton
+              label="Save"
+              color="neutral"
+              :loading="renaming"
+              @click="renameProject"
+            />
+          </div>
+        </div>
+      </template>
+    </UModal>
 
     <UModal
       v-model:open="showCreateModal"
