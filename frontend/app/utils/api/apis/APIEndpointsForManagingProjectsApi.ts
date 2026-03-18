@@ -16,15 +16,21 @@
 import * as runtime from '../runtime';
 import type {
   CreateProjectRequest,
+  CreateProjectResponse,
   HTTPValidationError,
+  MessageResponse,
   ProjectResponse,
   UpdateProjectRequest,
 } from '../models/index';
 import {
     CreateProjectRequestFromJSON,
     CreateProjectRequestToJSON,
+    CreateProjectResponseFromJSON,
+    CreateProjectResponseToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
+    MessageResponseFromJSON,
+    MessageResponseToJSON,
     ProjectResponseFromJSON,
     ProjectResponseToJSON,
     UpdateProjectRequestFromJSON,
@@ -56,7 +62,7 @@ export class APIEndpointsForManagingProjectsApi extends runtime.BaseAPI {
     /**
      * Create Project
      */
-    async createProjectProjectsPostRaw(requestParameters: CreateProjectProjectsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+    async createProjectProjectsPostRaw(requestParameters: CreateProjectProjectsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateProjectResponse>> {
         if (requestParameters['createProjectRequest'] == null) {
             throw new runtime.RequiredError(
                 'createProjectRequest',
@@ -81,17 +87,13 @@ export class APIEndpointsForManagingProjectsApi extends runtime.BaseAPI {
             body: CreateProjectRequestToJSON(requestParameters['createProjectRequest']),
         }, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<any>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => CreateProjectResponseFromJSON(jsonValue));
     }
 
     /**
      * Create Project
      */
-    async createProjectProjectsPost(requestParameters: CreateProjectProjectsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+    async createProjectProjectsPost(requestParameters: CreateProjectProjectsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateProjectResponse> {
         const response = await this.createProjectProjectsPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -99,7 +101,7 @@ export class APIEndpointsForManagingProjectsApi extends runtime.BaseAPI {
     /**
      * Delete Project
      */
-    async deleteProjectProjectsProjectIdDeleteRaw(requestParameters: DeleteProjectProjectsProjectIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+    async deleteProjectProjectsProjectIdDeleteRaw(requestParameters: DeleteProjectProjectsProjectIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MessageResponse>> {
         if (requestParameters['projectId'] == null) {
             throw new runtime.RequiredError(
                 'projectId',
@@ -122,17 +124,13 @@ export class APIEndpointsForManagingProjectsApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<any>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => MessageResponseFromJSON(jsonValue));
     }
 
     /**
      * Delete Project
      */
-    async deleteProjectProjectsProjectIdDelete(requestParameters: DeleteProjectProjectsProjectIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+    async deleteProjectProjectsProjectIdDelete(requestParameters: DeleteProjectProjectsProjectIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageResponse> {
         const response = await this.deleteProjectProjectsProjectIdDeleteRaw(requestParameters, initOverrides);
         return await response.value();
     }

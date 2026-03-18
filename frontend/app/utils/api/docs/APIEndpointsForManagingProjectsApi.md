@@ -14,7 +14,7 @@ All URIs are relative to *http://localhost*
 
 ## createProjectProjectsPost
 
-> any createProjectProjectsPost(createProjectRequest)
+> CreateProjectResponse createProjectProjectsPost(createProjectRequest)
 
 Create Project
 
@@ -33,10 +33,7 @@ async function example() {
 
   const body = {
     // CreateProjectRequest
-    createProjectRequest: {
-      name: "analytics",
-      description: "Analytics workspace",
-    },
+    createProjectRequest: ...,
   } satisfies CreateProjectProjectsPostRequest;
 
   try {
@@ -60,7 +57,7 @@ example().catch(console.error);
 
 ### Return type
 
-**any**
+[**CreateProjectResponse**](CreateProjectResponse.md)
 
 ### Authorization
 
@@ -75,7 +72,7 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Successful Response |  -  |
+| **201** | Successful Response |  -  |
 | **422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
@@ -83,7 +80,7 @@ No authorization required
 
 ## deleteProjectProjectsProjectIdDelete
 
-> any deleteProjectProjectsProjectIdDelete(projectId)
+> MessageResponse deleteProjectProjectsProjectIdDelete(projectId)
 
 Delete Project
 
@@ -126,7 +123,7 @@ example().catch(console.error);
 
 ### Return type
 
-**any**
+[**MessageResponse**](MessageResponse.md)
 
 ### Authorization
 

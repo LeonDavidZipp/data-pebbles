@@ -1,26 +1,24 @@
 
-# CreateGoldResourceRequest
+# CreateProjectResponse
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`name` | string
+`message` | string
 `project_id` | number
-`description` | string
 
 ## Example
 
 ```typescript
-import type { CreateGoldResourceRequest } from ''
+import type { CreateProjectResponse } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "name": null,
+  "message": null,
   "project_id": null,
-  "description": null,
-} satisfies CreateGoldResourceRequest
+} satisfies CreateProjectResponse
 
 console.log(example)
 
@@ -29,7 +27,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as CreateGoldResourceRequest
+const exampleParsed = JSON.parse(exampleJSON) as CreateProjectResponse
 console.log(exampleParsed)
 ```
 

@@ -8,6 +8,7 @@ All URIs are relative to *http://localhost*
 | [**deleteResourceSilverResourceIdDelete**](APIEndpointsForInteractingWithTheSilverLayerApi.md#deleteresourcesilverresourceiddelete) | **DELETE** /silver/{resource_id} | Delete Resource |
 | [**downloadVersionSilverResourceIdVersionsVersionGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#downloadversionsilverresourceidversionsversionget) | **GET** /silver/{resource_id}/versions/{version} | Download Version |
 | [**getResourceSilverResourceIdGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#getresourcesilverresourceidget) | **GET** /silver/{resource_id} | Get Resource |
+| [**getSchemaSilverResourceIdVersionsVersionSchemaGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#getschemasilverresourceidversionsversionschemaget) | **GET** /silver/{resource_id}/versions/{version}/schema | Get Schema |
 | [**listResourcesSilverGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#listresourcessilverget) | **GET** /silver/ | List Resources |
 | [**listVersionsSilverResourceIdVersionsGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#listversionssilverresourceidversionsget) | **GET** /silver/{resource_id}/versions | List Versions |
 | [**updateResourceSilverResourceIdPatch**](APIEndpointsForInteractingWithTheSilverLayerApi.md#updateresourcesilverresourceidpatch) | **PATCH** /silver/{resource_id} | Update Resource |
@@ -17,7 +18,7 @@ All URIs are relative to *http://localhost*
 
 ## createResourceSilverPost
 
-> any createResourceSilverPost(createSilverResourceRequest)
+> CreateResourceResponse createResourceSilverPost(createSilverResourceRequest)
 
 Create Resource
 
@@ -60,7 +61,7 @@ example().catch(console.error);
 
 ### Return type
 
-**any**
+[**CreateResourceResponse**](CreateResourceResponse.md)
 
 ### Authorization
 
@@ -75,7 +76,7 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Successful Response |  -  |
+| **201** | Successful Response |  -  |
 | **422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
@@ -83,7 +84,7 @@ No authorization required
 
 ## deleteResourceSilverResourceIdDelete
 
-> any deleteResourceSilverResourceIdDelete(resourceId)
+> MessageResponse deleteResourceSilverResourceIdDelete(resourceId)
 
 Delete Resource
 
@@ -126,7 +127,7 @@ example().catch(console.error);
 
 ### Return type
 
-**any**
+[**MessageResponse**](MessageResponse.md)
 
 ### Authorization
 
@@ -262,6 +263,75 @@ example().catch(console.error);
 ### Return type
 
 [**SilverMetadataResponse**](SilverMetadataResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getSchemaSilverResourceIdVersionsVersionSchemaGet
+
+> SchemaResponse getSchemaSilverResourceIdVersionsVersionSchemaGet(resourceId, version)
+
+Get Schema
+
+### Example
+
+```ts
+import {
+  Configuration,
+  APIEndpointsForInteractingWithTheSilverLayerApi,
+} from '';
+import type { GetSchemaSilverResourceIdVersionsVersionSchemaGetRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const api = new APIEndpointsForInteractingWithTheSilverLayerApi();
+
+  const body = {
+    // number
+    resourceId: 56,
+    // number
+    version: 56,
+  } satisfies GetSchemaSilverResourceIdVersionsVersionSchemaGetRequest;
+
+  try {
+    const data = await api.getSchemaSilverResourceIdVersionsVersionSchemaGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
+| **version** | `number` |  | [Defaults to `undefined`] |
+
+### Return type
+
+[**SchemaResponse**](SchemaResponse.md)
 
 ### Authorization
 
@@ -476,7 +546,7 @@ No authorization required
 
 ## uploadVersionSilverResourceIdVersionsPost
 
-> any uploadVersionSilverResourceIdVersionsPost(resourceId, fromResourceId, file)
+> MessageResponse uploadVersionSilverResourceIdVersionsPost(resourceId, fromResourceId, file)
 
 Upload Version
 
@@ -525,7 +595,7 @@ example().catch(console.error);
 
 ### Return type
 
-**any**
+[**MessageResponse**](MessageResponse.md)
 
 ### Authorization
 
@@ -540,7 +610,7 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Successful Response |  -  |
+| **201** | Successful Response |  -  |
 | **422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)

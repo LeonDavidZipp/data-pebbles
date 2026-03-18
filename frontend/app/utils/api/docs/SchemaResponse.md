@@ -1,26 +1,24 @@
 
-# CreateGoldResourceRequest
+# SchemaResponse
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`name` | string
-`project_id` | number
-`description` | string
+`data_schema` | { [key: string]: string; }
+`data` | { [key: string]: Array&lt;DataValueInner&gt;; }
 
 ## Example
 
 ```typescript
-import type { CreateGoldResourceRequest } from ''
+import type { SchemaResponse } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "name": null,
-  "project_id": null,
-  "description": null,
-} satisfies CreateGoldResourceRequest
+  "data_schema": null,
+  "data": null,
+} satisfies SchemaResponse
 
 console.log(example)
 
@@ -29,7 +27,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as CreateGoldResourceRequest
+const exampleParsed = JSON.parse(exampleJSON) as SchemaResponse
 console.log(exampleParsed)
 ```
 

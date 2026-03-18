@@ -15,7 +15,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "openapi": "openapi-generator generate -i ../openapi.json -g typescript-fetch -o ./app/utils/api --additional-properties=supportsES6=true,modelPropertyNaming=original"
+    "openapi": "openapi-generator generate -i ../openapi.json -g typescript-fetch -o ./app/utils/api --additional-properties=supportsES6=true,modelPropertyNaming=original && find ./app/utils/api -name '*.ts' -exec sed -i '' 's/let useForm = false/let useForm = canConsumeForm/g' {} +"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.95",
