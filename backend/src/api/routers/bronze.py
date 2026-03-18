@@ -53,6 +53,12 @@ class MessageResponse(BaseModel):
 async def list_resources(
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> list[MetadataResponse]:
+	"""Return metadata for all Bronze layer resources across all projects.
+
+	Returns:
+		list[MetadataResponse]: All Bronze resources with id, name, description,
+			project_id, and created_at.
+	"""
 	resources = await bronze.metadata_interactor.get_all()
 	return [
 		MetadataResponse(
@@ -71,6 +77,15 @@ async def create_resource(
 	body: CreateResourceRequest,
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> CreateResourceResponse:
+	"""Create a new Bronze layer resource.
+
+	Args:
+		body (CreateResourceRequest): name (str), project_id (int),
+			description (str | None).
+
+	Returns:
+		CreateResourceResponse: Confirmation message and the new resource_id (int).
+	"""
 	res = await bronze.metadata_interactor.create(
 		body.name, body.project_id, body.description
 	)
@@ -85,6 +100,15 @@ async def get_resource(
 	resource_id: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> MetadataResponse:
+	"""Return metadata for a single Bronze layer resource.
+
+	Args:
+		resource_id (int): The id of the Bronze resource.
+
+	Returns:
+		MetadataResponse: Resource id, name, description, project_id, and created_at.
+			404 if not found.
+	"""
 	res = await bronze.get_metadata(resource_id)
 	if res is None:
 		raise ResourceNotFoundError(resource_id)
@@ -102,6 +126,14 @@ async def delete_resource(
 	resource_id: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> MessageResponse:
+	"""Delete a Bronze layer resource and all its associated versions.
+
+	Args:
+		resource_id (int): The id of the Bronze resource to delete.
+
+	Returns:
+		MessageResponse: Confirmation message.
+	"""
 	await bronze.metadata_interactor.delete(resource_id)
 	return MessageResponse(message="Resource deleted successfully.")
 
@@ -112,6 +144,15 @@ async def update_resource(
 	body: UpdateResourceRequest,
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> MetadataResponse:
+	"""Update the name and/or description of a Bronze layer resource.
+
+	Args:
+		resource_id (int): The id of the Bronze resource to update.
+		body (UpdateResourceRequest): name (str), description (str | None).
+
+	Returns:
+		MetadataResponse: Updated resource metadata. 404 if not found.
+	"""
 	res = await bronze.metadata_interactor.update(
 		resource_id, name=body.name, description=body.description
 	)
@@ -131,6 +172,15 @@ async def list_versions(
 	resource_id: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> list[VersionResponse]:
+	"""List all uploaded file versions for a Bronze layer resource.
+
+	Args:
+		resource_id (int): The id of the Bronze resource.
+
+	Returns:
+		list[VersionResponse]: Each entry contains id, resource_id, version (int),
+			status ('active'/'inactive'), s3_key, created_at, and updated_at.
+	"""
 	versions = await bronze.version_interactor.get_by_resource(resource_id)
 	return [
 		VersionResponse(
@@ -154,6 +204,15 @@ async def activate_version(
 	version: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> MessageResponse:
+	"""Set a specific version of a Bronze layer resource as the active version.
+
+	Args:
+		resource_id (int): The id of the Bronze resource.
+		version (int): The version number to activate.
+
+	Returns:
+		MessageResponse: Confirmation message. 404 if the version does not exist.
+	"""
 	rows = await bronze.version_interactor.activate_version(resource_id, version)
 	if rows == 0:
 		raise VersionNotFoundError(resource_id, version)
@@ -169,6 +228,17 @@ async def delete_version(
 	version: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> MessageResponse:
+	"""
+	Delete a specific version of a Bronze layer resource, removing it from S3 and
+	the database.
+
+	Args:
+		resource_id (int): The id of the Bronze resource.
+		version (int): The version number to delete.
+
+	Returns:
+		MessageResponse: Confirmation message. 404 if the version does not exist.
+	"""
 	rows = await bronze.delete_version(resource_id, version)
 	if rows == 0:
 		raise VersionNotFoundError(resource_id, version)
@@ -181,6 +251,17 @@ async def upload_version(
 	file: Annotated[UploadFile, Depends(validate_file)],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> MessageResponse:
+	"""
+	Upload a new raw file as a new version of a Bronze layer resource. Stored in S3;
+	a version record is created in the database.
+
+	Args:
+		resource_id (int): The id of the Bronze resource to upload to.
+		file (UploadFile): The raw file to upload.
+
+	Returns:
+		MessageResponse: Confirmation message.
+	"""
 	content = await file.read()
 	await bronze.upload(resource_id, content, file.filename)  # type: ignore
 	return MessageResponse(message="File uploaded successfully.")
@@ -192,6 +273,17 @@ async def download_version(
 	version: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
 ) -> StreamingResponse:
+	"""
+	Download the raw file for a specific version of a Bronze layer resource.
+
+	Args:
+		resource_id (int): The id of the Bronze resource.
+		version (int): The version number to download.
+
+	Returns:
+		StreamingResponse: The raw file as an octet-stream attachment. 404 if the file
+			is not found.
+	"""
 	result = await bronze.download_version(resource_id, version)
 	if result is None:
 		raise HTTPException(

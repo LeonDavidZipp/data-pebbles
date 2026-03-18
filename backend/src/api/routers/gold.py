@@ -56,6 +56,12 @@ class SchemaResponse(BaseModel):
 async def list_resources(
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
 ) -> list[GoldMetadataResponse]:
+	"""Return metadata for all Gold layer resources across all projects.
+
+	Returns:
+		list[GoldMetadataResponse]: All Gold resources with id, name, description,
+			project_id, and created_at.
+	"""
 	resources = await gold.metadata_interactor.get_all()
 	return [
 		GoldMetadataResponse(
@@ -74,6 +80,15 @@ async def create_resource(
 	body: CreateGoldResourceRequest,
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
 ) -> CreateResourceResponse:
+	"""Create a new Gold layer resource.
+
+	Args:
+		body (CreateGoldResourceRequest): name (str), project_id (int),
+			description (str | None).
+
+	Returns:
+		CreateResourceResponse: Confirmation message and the new resource_id (int).
+	"""
 	res = await gold.metadata_interactor.create(
 		body.name, body.project_id, body.description
 	)
@@ -88,6 +103,15 @@ async def get_resource(
 	resource_id: Annotated[int, Path()],
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
 ) -> GoldMetadataResponse:
+	"""Return metadata for a single Gold layer resource.
+
+	Args:
+		resource_id (int): The id of the Gold resource.
+
+	Returns:
+		GoldMetadataResponse: Resource id, name, description, project_id, and
+			created_at. 404 if not found.
+	"""
 	res = await gold.get_metadata(resource_id)
 	if res is None:
 		raise ResourceNotFoundError(resource_id)
@@ -105,6 +129,14 @@ async def delete_resource(
 	resource_id: Annotated[int, Path()],
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
 ) -> MessageResponse:
+	"""Delete a Gold layer resource and all its associated versions.
+
+	Args:
+		resource_id (int): The id of the Gold resource to delete.
+
+	Returns:
+		MessageResponse: Confirmation message.
+	"""
 	await gold.metadata_interactor.delete(resource_id)
 	return MessageResponse(message="Resource deleted successfully.")
 
@@ -115,6 +147,15 @@ async def update_resource(
 	body: UpdateGoldResourceRequest,
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
 ) -> GoldMetadataResponse:
+	"""Update the name and/or description of a Gold layer resource.
+
+	Args:
+		resource_id (int): The id of the Gold resource to update.
+		body (UpdateGoldResourceRequest): name (str), description (str | None).
+
+	Returns:
+		GoldMetadataResponse: Updated resource metadata. 404 if not found.
+	"""
 	res = await gold.metadata_interactor.update(
 		resource_id, name=body.name, description=body.description
 	)
@@ -134,6 +175,16 @@ async def list_versions(
 	resource_id: Annotated[int, Path()],
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
 ) -> list[GoldLineageResponse]:
+	"""List all versions (lineage entries) for a Gold layer resource.
+
+	Args:
+		resource_id (int): The id of the Gold resource.
+
+	Returns:
+		list[GoldLineageResponse]: Each entry contains id, resource_id,
+			delta_version (int), from_resource_id (int, one of the source
+			Silver resources), and created_at.
+	"""
 	entries = await gold.get_lineage(resource_id)
 	return [
 		GoldLineageResponse(
@@ -154,6 +205,17 @@ async def upload_version(
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
 	resources: Annotated[list[int], Query()],
 ) -> MessageResponse:
+	"""Upload a Parquet file as a new version of a Gold layer resource.
+
+	Args:
+		resource_id (int): The id of the Gold resource to upload to.
+		file (UploadFile): The Parquet file to upload.
+		resources (list[int]): Query parameter (repeatable). The source Silver resource
+			ids used to record lineage.
+
+	Returns:
+		MessageResponse: Confirmation message.
+	"""
 	content = await file.read()
 	lf = pl.scan_parquet(content)
 	await gold.upload(
@@ -171,6 +233,15 @@ def download_version(
 	version: Annotated[int, Path()],
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
 ) -> StreamingResponse:
+	"""Download a specific version of a Gold layer resource.
+
+	Args:
+		resource_id (int): The id of the Gold resource.
+		version (int): The Delta Lake version number to download.
+
+	Returns:
+		StreamingResponse: The data as an Arrow IPC stream file (octet-stream).
+	"""
 	df = gold.get(resource_id=resource_id, version=version).collect()
 	buf = df.write_ipc_stream(None)
 	buf.seek(0)
@@ -189,6 +260,19 @@ async def get_schema(
 	version: Annotated[int, Path()],
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
 ) -> SchemaResponse:
+	"""
+	Return the column schema and up to the first 5 rows of data for a specific version
+	of a Gold layer resource.
+
+	Args:
+		resource_id (int): The id of the Gold resource.
+		version (int): The Delta Lake version number.
+
+	Returns:
+		SchemaResponse: data_schema (dict[str, str]) maps column names to lowercase
+			type strings (e.g. 'int64', 'string', 'boolean'). data (dict[str, list])
+			contains up to 5 rows keyed by column name.
+	"""
 	df = gold.get(resource_id=resource_id, version=version).head(5).collect()
 	schema = {col: type(dtype).__name__.lower() for col, dtype in df.schema.items()}
 	return SchemaResponse(data_schema=schema, data=df.to_dict(as_series=False))

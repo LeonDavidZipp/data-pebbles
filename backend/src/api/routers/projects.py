@@ -39,6 +39,13 @@ class MessageResponse(BaseModel):
 async def list_projects(
 	interactor: Annotated[ProjectMetadataInteractor, Depends(projects_dep)],
 ) -> list[ProjectResponse]:
+	"""
+	Return all projects. Use project_id from the results to scope Bronze, Silver, and
+	Gold resource operations.
+
+	Returns:
+		list[ProjectResponse]: All projects with id, name, description, and created_at.
+	"""
 	projects = await interactor.get_all()
 	return [
 		ProjectResponse(
@@ -56,6 +63,14 @@ async def create_project(
 	body: CreateProjectRequest,
 	interactor: Annotated[ProjectMetadataInteractor, Depends(projects_dep)],
 ) -> CreateProjectResponse:
+	"""Create a new project.
+
+	Args:
+		body (CreateProjectRequest): name (str), description (str | None).
+
+	Returns:
+		CreateProjectResponse: Confirmation message and the new project_id (int).
+	"""
 	res = await interactor.create(body.name, body.description)
 	return CreateProjectResponse(
 		message="Project created successfully.",
@@ -68,6 +83,15 @@ async def get_project(
 	project_id: Annotated[int, Path()],
 	interactor: Annotated[ProjectMetadataInteractor, Depends(projects_dep)],
 ) -> ProjectResponse:
+	"""Return a single project by its id.
+
+	Args:
+		project_id (int): The id of the project.
+
+	Returns:
+		ProjectResponse: Project id, name, description, and created_at. 404 if
+			not found.
+	"""
 	res = await interactor.get(project_id)
 	if res is None:
 		raise ResourceNotFoundError(project_id)
@@ -85,6 +109,16 @@ async def update_project(
 	body: UpdateProjectRequest,
 	interactor: Annotated[ProjectMetadataInteractor, Depends(projects_dep)],
 ) -> ProjectResponse:
+	"""Update the name and/or description of a project.
+
+	Args:
+		project_id (int): The id of the project to update.
+		body (UpdateProjectRequest): name (str | None), description (str | None).
+			Both fields are optional.
+
+	Returns:
+		ProjectResponse: Updated project data. 404 if not found.
+	"""
 	res = await interactor.update(
 		project_id, name=body.name, description=body.description
 	)
@@ -103,5 +137,15 @@ async def delete_project(
 	project_id: Annotated[int, Path()],
 	interactor: Annotated[ProjectMetadataInteractor, Depends(projects_dep)],
 ) -> MessageResponse:
+	"""
+	Delete a project by its id. Does not automatically delete associated Bronze,
+	Silver, or Gold resources.
+
+	Args:
+		project_id (int): The id of the project to delete.
+
+	Returns:
+		MessageResponse: Confirmation message.
+	"""
 	await interactor.delete(project_id)
 	return MessageResponse(message="Project deleted successfully.")

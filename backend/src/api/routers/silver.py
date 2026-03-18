@@ -56,6 +56,12 @@ class SchemaResponse(BaseModel):
 async def list_resources(
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
 ) -> list[SilverMetadataResponse]:
+	"""Return metadata for all Silver layer resources across all projects.
+
+	Returns:
+		list[SilverMetadataResponse]: All Silver resources with id, name, description,
+			project_id, and created_at.
+	"""
 	resources = await silver.metadata_interactor.get_all()
 	return [
 		SilverMetadataResponse(
@@ -74,6 +80,15 @@ async def create_resource(
 	body: CreateSilverResourceRequest,
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
 ) -> CreateResourceResponse:
+	"""Create a new Silver layer resource.
+
+	Args:
+		body (CreateSilverResourceRequest): name (str), project_id (int),
+			description (str | None).
+
+	Returns:
+		CreateResourceResponse: Confirmation message and the new resource_id (int).
+	"""
 	res = await silver.metadata_interactor.create(
 		body.name, body.project_id, body.description
 	)
@@ -88,6 +103,15 @@ async def get_resource(
 	resource_id: Annotated[int, Path()],
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
 ) -> SilverMetadataResponse:
+	"""Return metadata for a single Silver layer resource.
+
+	Args:
+		resource_id (int): The id of the Silver resource.
+
+	Returns:
+		SilverMetadataResponse: Resource id, name, description, project_id, and
+			created_at. 404 if not found.
+	"""
 	res = await silver.get_metadata(resource_id)
 	if res is None:
 		raise ResourceNotFoundError(resource_id)
@@ -105,6 +129,14 @@ async def delete_resource(
 	resource_id: Annotated[int, Path()],
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
 ) -> MessageResponse:
+	"""Delete a Silver layer resource and all its associated versions.
+
+	Args:
+		resource_id (int): The id of the Silver resource to delete.
+
+	Returns:
+		MessageResponse: Confirmation message.
+	"""
 	await silver.metadata_interactor.delete(resource_id)
 	return MessageResponse(message="Resource deleted successfully.")
 
@@ -115,6 +147,15 @@ async def update_resource(
 	body: UpdateSilverResourceRequest,
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
 ) -> SilverMetadataResponse:
+	"""Update the name and/or description of a Silver layer resource.
+
+	Args:
+		resource_id (int): The id of the Silver resource to update.
+		body (UpdateSilverResourceRequest): name (str), description (str | None).
+
+	Returns:
+		SilverMetadataResponse: Updated resource metadata. 404 if not found.
+	"""
 	res = await silver.metadata_interactor.update(
 		resource_id, name=body.name, description=body.description
 	)
@@ -134,6 +175,15 @@ async def list_versions(
 	resource_id: Annotated[int, Path()],
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
 ) -> list[SilverLineageResponse]:
+	"""List all versions (lineage entries) for a Silver layer resource.
+
+	Args:
+		resource_id (int): The id of the Silver resource.
+
+	Returns:
+		list[SilverLineageResponse]: Each entry contains id, resource_id, delta_version
+			(int), from_resource_id (int, the source Bronze resource), and created_at.
+	"""
 	entries = await silver.get_lineage(resource_id)
 	return [
 		SilverLineageResponse(
@@ -154,6 +204,17 @@ async def upload_version(
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
 	from_resource_id: Annotated[int, Query()],
 ) -> MessageResponse:
+	"""Upload a Parquet file as a new version of a Silver layer resource.
+
+	Args:
+		resource_id (int): The id of the Silver resource to upload to.
+		file (UploadFile): The Parquet file to upload.
+		from_resource_id (int): Query parameter. The source Bronze resource id used to
+			record lineage.
+
+	Returns:
+		MessageResponse: Confirmation message.
+	"""
 	content = await file.read()
 	lf = pl.scan_parquet(content)
 	await silver.upload(
@@ -171,6 +232,15 @@ def download_version(
 	version: Annotated[int, Path()],
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
 ) -> StreamingResponse:
+	"""Download a specific version of a Silver layer resource.
+
+	Args:
+		resource_id (int): The id of the Silver resource.
+		version (int): The Delta Lake version number to download.
+
+	Returns:
+		StreamingResponse: The data as an Arrow IPC stream file (octet-stream).
+	"""
 	df = silver.get(resource_id=resource_id, version=version).collect()
 	buf = df.write_ipc_stream(None)
 	buf.seek(0)
@@ -189,6 +259,19 @@ async def get_schema(
 	version: Annotated[int, Path()],
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
 ) -> SchemaResponse:
+	"""
+	Return the column schema and up to the first 5 rows of data for a specific version
+	of a Silver layer resource.
+
+	Args:
+		resource_id (int): The id of the Silver resource.
+		version (int): The Delta Lake version number.
+
+	Returns:
+		SchemaResponse: data_schema (dict[str, str]) maps column names to lowercase type
+			strings (e.g. 'int64', 'string', 'boolean'). data (dict[str, list]) contains
+			up to 5 rows keyed by column name.
+	"""
 	df = silver.get(resource_id=resource_id, version=version).head(5).collect()
 	schema = {col: type(dtype).__name__.lower() for col, dtype in df.schema.items()}
 	return SchemaResponse(data_schema=schema, data=df.to_dict(as_series=False))
