@@ -1,0 +1,35 @@
+name: frontend-test
+
+on:
+    pull_request:
+        paths:
+            - "frontend/**"
+            - ".github/workflows/frontend-test.yml"
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+defaults:
+    run:
+        working-directory: frontend
+
+jobs:
+    test:
+        name: Test
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+
+        steps:
+            - uses: actions/checkout@v5
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+            - uses: actions/setup-node@v5
+              with:
+                  node-version: 22
+                  cache: pnpm
+                  cache-dependency-path: frontend/pnpm-lock.yaml
+            - run: pnpm install --frozen-lockfile
+            - run: pnpm run test:run

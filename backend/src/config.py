@@ -1,0 +1,6 @@
+import os
+
+S3_URL = os.environ["MLFLOW_S3_ENDPOINT_URL"]
+POSTGRES_URI = os.environ["POSTGRES_URI"]
+AWS_ACCESS_KEY_ID = os.environ["AWS_ACCESS_KEY_ID"]
+AWS_SECRET_ACCESS_KEY = os.environ["AWS_SECRET_ACCESS_KEY"]
