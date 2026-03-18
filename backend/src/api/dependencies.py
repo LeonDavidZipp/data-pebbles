@@ -54,8 +54,8 @@ opts_ = {
 	"endpoint_url": S3_URL,
 	"AWS_ACCESS_KEY_ID": AWS_ACCESS_KEY_ID,
 	"AWS_SECRET_ACCESS_KEY": AWS_SECRET_ACCESS_KEY,
-	"AWS_ALLOW_HTTP": True,
-	"AWS_S3_ALLOW_UNSAFE_RENAME": True,
+	"AWS_ALLOW_HTTP": "true",
+	"AWS_S3_ALLOW_UNSAFE_RENAME": "true",
 }
 
 engine_ = create_async_engine(POSTGRES_URI)
