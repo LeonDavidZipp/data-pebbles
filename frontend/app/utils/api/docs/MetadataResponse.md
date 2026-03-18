@@ -8,6 +8,8 @@ Name | Type
 ------------ | -------------
 `id` | number
 `name` | string
+`description` | string
+`project_id` | number
 `created_at` | string
 
 ## Example
@@ -19,6 +21,8 @@ import type { MetadataResponse } from ''
 const example = {
   "id": null,
   "name": null,
+  "description": null,
+  "project_id": null,
   "created_at": null,
 } satisfies MetadataResponse
 

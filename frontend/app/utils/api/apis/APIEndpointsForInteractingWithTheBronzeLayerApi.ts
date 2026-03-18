@@ -16,7 +16,9 @@
 import * as runtime from '../runtime';
 import type {
   CreateResourceRequest,
+  CreateResourceResponse,
   HTTPValidationError,
+  MessageResponse,
   MetadataResponse,
   UpdateResourceRequest,
   VersionResponse,
@@ -24,8 +26,12 @@ import type {
 import {
     CreateResourceRequestFromJSON,
     CreateResourceRequestToJSON,
+    CreateResourceResponseFromJSON,
+    CreateResourceResponseToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
+    MessageResponseFromJSON,
+    MessageResponseToJSON,
     MetadataResponseFromJSON,
     MetadataResponseToJSON,
     UpdateResourceRequestFromJSON,
@@ -83,7 +89,7 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     /**
      * Activate Version
      */
-    async activateVersionBronzeResourceIdVersionsVersionPatchRaw(requestParameters: ActivateVersionBronzeResourceIdVersionsVersionPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+    async activateVersionBronzeResourceIdVersionsVersionPatchRaw(requestParameters: ActivateVersionBronzeResourceIdVersionsVersionPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MessageResponse>> {
         if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
                 'resourceId',
@@ -114,17 +120,13 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
             query: queryParameters,
         }, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<any>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => MessageResponseFromJSON(jsonValue));
     }
 
     /**
      * Activate Version
      */
-    async activateVersionBronzeResourceIdVersionsVersionPatch(requestParameters: ActivateVersionBronzeResourceIdVersionsVersionPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+    async activateVersionBronzeResourceIdVersionsVersionPatch(requestParameters: ActivateVersionBronzeResourceIdVersionsVersionPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageResponse> {
         const response = await this.activateVersionBronzeResourceIdVersionsVersionPatchRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -132,7 +134,7 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     /**
      * Create Resource
      */
-    async createResourceBronzePostRaw(requestParameters: CreateResourceBronzePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+    async createResourceBronzePostRaw(requestParameters: CreateResourceBronzePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateResourceResponse>> {
         if (requestParameters['createResourceRequest'] == null) {
             throw new runtime.RequiredError(
                 'createResourceRequest',
@@ -157,17 +159,13 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
             body: CreateResourceRequestToJSON(requestParameters['createResourceRequest']),
         }, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<any>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => CreateResourceResponseFromJSON(jsonValue));
     }
 
     /**
      * Create Resource
      */
-    async createResourceBronzePost(requestParameters: CreateResourceBronzePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+    async createResourceBronzePost(requestParameters: CreateResourceBronzePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateResourceResponse> {
         const response = await this.createResourceBronzePostRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -175,7 +173,7 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     /**
      * Delete Resource
      */
-    async deleteResourceBronzeResourceIdDeleteRaw(requestParameters: DeleteResourceBronzeResourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+    async deleteResourceBronzeResourceIdDeleteRaw(requestParameters: DeleteResourceBronzeResourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MessageResponse>> {
         if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
                 'resourceId',
@@ -198,17 +196,13 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
             query: queryParameters,
         }, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<any>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => MessageResponseFromJSON(jsonValue));
     }
 
     /**
      * Delete Resource
      */
-    async deleteResourceBronzeResourceIdDelete(requestParameters: DeleteResourceBronzeResourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+    async deleteResourceBronzeResourceIdDelete(requestParameters: DeleteResourceBronzeResourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageResponse> {
         const response = await this.deleteResourceBronzeResourceIdDeleteRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -216,7 +210,7 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     /**
      * Delete Version
      */
-    async deleteVersionBronzeResourceIdVersionsVersionDeleteRaw(requestParameters: DeleteVersionBronzeResourceIdVersionsVersionDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+    async deleteVersionBronzeResourceIdVersionsVersionDeleteRaw(requestParameters: DeleteVersionBronzeResourceIdVersionsVersionDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MessageResponse>> {
         if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
                 'resourceId',
@@ -247,17 +241,13 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
             query: queryParameters,
         }, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<any>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => MessageResponseFromJSON(jsonValue));
     }
 
     /**
      * Delete Version
      */
-    async deleteVersionBronzeResourceIdVersionsVersionDelete(requestParameters: DeleteVersionBronzeResourceIdVersionsVersionDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+    async deleteVersionBronzeResourceIdVersionsVersionDelete(requestParameters: DeleteVersionBronzeResourceIdVersionsVersionDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageResponse> {
         const response = await this.deleteVersionBronzeResourceIdVersionsVersionDeleteRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -464,7 +454,7 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
     /**
      * Upload Version
      */
-    async uploadVersionBronzeResourceIdVersionsPostRaw(requestParameters: UploadVersionBronzeResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+    async uploadVersionBronzeResourceIdVersionsPostRaw(requestParameters: UploadVersionBronzeResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MessageResponse>> {
         if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
                 'resourceId',
@@ -513,17 +503,13 @@ export class APIEndpointsForInteractingWithTheBronzeLayerApi extends runtime.Bas
             body: formParams,
         }, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<any>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => MessageResponseFromJSON(jsonValue));
     }
 
     /**
      * Upload Version
      */
-    async uploadVersionBronzeResourceIdVersionsPost(requestParameters: UploadVersionBronzeResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+    async uploadVersionBronzeResourceIdVersionsPost(requestParameters: UploadVersionBronzeResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageResponse> {
         const response = await this.uploadVersionBronzeResourceIdVersionsPostRaw(requestParameters, initOverrides);
         return await response.value();
     }

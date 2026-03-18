@@ -15,17 +15,26 @@
 
 import * as runtime from '../runtime';
 import type {
+  CreateResourceResponse,
   CreateSilverResourceRequest,
   HTTPValidationError,
+  MessageResponse,
+  SchemaResponse,
   SilverLineageResponse,
   SilverMetadataResponse,
   UpdateSilverResourceRequest,
 } from '../models/index';
 import {
+    CreateResourceResponseFromJSON,
+    CreateResourceResponseToJSON,
     CreateSilverResourceRequestFromJSON,
     CreateSilverResourceRequestToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
+    MessageResponseFromJSON,
+    MessageResponseToJSON,
+    SchemaResponseFromJSON,
+    SchemaResponseToJSON,
     SilverLineageResponseFromJSON,
     SilverLineageResponseToJSON,
     SilverMetadataResponseFromJSON,
@@ -51,6 +60,11 @@ export interface GetResourceSilverResourceIdGetRequest {
     resourceId: number;
 }
 
+export interface GetSchemaSilverResourceIdVersionsVersionSchemaGetRequest {
+    resourceId: number;
+    version: number;
+}
+
 export interface ListVersionsSilverResourceIdVersionsGetRequest {
     resourceId: number;
 }
@@ -74,7 +88,7 @@ export class APIEndpointsForInteractingWithTheSilverLayerApi extends runtime.Bas
     /**
      * Create Resource
      */
-    async createResourceSilverPostRaw(requestParameters: CreateResourceSilverPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+    async createResourceSilverPostRaw(requestParameters: CreateResourceSilverPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateResourceResponse>> {
         if (requestParameters['createSilverResourceRequest'] == null) {
             throw new runtime.RequiredError(
                 'createSilverResourceRequest',
@@ -99,17 +113,13 @@ export class APIEndpointsForInteractingWithTheSilverLayerApi extends runtime.Bas
             body: CreateSilverResourceRequestToJSON(requestParameters['createSilverResourceRequest']),
         }, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<any>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => CreateResourceResponseFromJSON(jsonValue));
     }
 
     /**
      * Create Resource
      */
-    async createResourceSilverPost(requestParameters: CreateResourceSilverPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+    async createResourceSilverPost(requestParameters: CreateResourceSilverPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateResourceResponse> {
         const response = await this.createResourceSilverPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -117,7 +127,7 @@ export class APIEndpointsForInteractingWithTheSilverLayerApi extends runtime.Bas
     /**
      * Delete Resource
      */
-    async deleteResourceSilverResourceIdDeleteRaw(requestParameters: DeleteResourceSilverResourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+    async deleteResourceSilverResourceIdDeleteRaw(requestParameters: DeleteResourceSilverResourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MessageResponse>> {
         if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
                 'resourceId',
@@ -140,17 +150,13 @@ export class APIEndpointsForInteractingWithTheSilverLayerApi extends runtime.Bas
             query: queryParameters,
         }, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<any>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => MessageResponseFromJSON(jsonValue));
     }
 
     /**
      * Delete Resource
      */
-    async deleteResourceSilverResourceIdDelete(requestParameters: DeleteResourceSilverResourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+    async deleteResourceSilverResourceIdDelete(requestParameters: DeleteResourceSilverResourceIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageResponse> {
         const response = await this.deleteResourceSilverResourceIdDeleteRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -238,6 +244,51 @@ export class APIEndpointsForInteractingWithTheSilverLayerApi extends runtime.Bas
      */
     async getResourceSilverResourceIdGet(requestParameters: GetResourceSilverResourceIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SilverMetadataResponse> {
         const response = await this.getResourceSilverResourceIdGetRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Get Schema
+     */
+    async getSchemaSilverResourceIdVersionsVersionSchemaGetRaw(requestParameters: GetSchemaSilverResourceIdVersionsVersionSchemaGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SchemaResponse>> {
+        if (requestParameters['resourceId'] == null) {
+            throw new runtime.RequiredError(
+                'resourceId',
+                'Required parameter "resourceId" was null or undefined when calling getSchemaSilverResourceIdVersionsVersionSchemaGet().'
+            );
+        }
+
+        if (requestParameters['version'] == null) {
+            throw new runtime.RequiredError(
+                'version',
+                'Required parameter "version" was null or undefined when calling getSchemaSilverResourceIdVersionsVersionSchemaGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/silver/{resource_id}/versions/{version}/schema`;
+        urlPath = urlPath.replace(`{${"resource_id"}}`, encodeURIComponent(String(requestParameters['resourceId'])));
+        urlPath = urlPath.replace(`{${"version"}}`, encodeURIComponent(String(requestParameters['version'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => SchemaResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Get Schema
+     */
+    async getSchemaSilverResourceIdVersionsVersionSchemaGet(requestParameters: GetSchemaSilverResourceIdVersionsVersionSchemaGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SchemaResponse> {
+        const response = await this.getSchemaSilverResourceIdVersionsVersionSchemaGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -357,7 +408,7 @@ export class APIEndpointsForInteractingWithTheSilverLayerApi extends runtime.Bas
     /**
      * Upload Version
      */
-    async uploadVersionSilverResourceIdVersionsPostRaw(requestParameters: UploadVersionSilverResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+    async uploadVersionSilverResourceIdVersionsPostRaw(requestParameters: UploadVersionSilverResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MessageResponse>> {
         if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
                 'resourceId',
@@ -417,17 +468,13 @@ export class APIEndpointsForInteractingWithTheSilverLayerApi extends runtime.Bas
             body: formParams,
         }, initOverrides);
 
-        if (this.isJsonMime(response.headers.get('content-type'))) {
-            return new runtime.JSONApiResponse<any>(response);
-        } else {
-            return new runtime.TextApiResponse(response) as any;
-        }
+        return new runtime.JSONApiResponse(response, (jsonValue) => MessageResponseFromJSON(jsonValue));
     }
 
     /**
      * Upload Version
      */
-    async uploadVersionSilverResourceIdVersionsPost(requestParameters: UploadVersionSilverResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+    async uploadVersionSilverResourceIdVersionsPost(requestParameters: UploadVersionSilverResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageResponse> {
         const response = await this.uploadVersionSilverResourceIdVersionsPostRaw(requestParameters, initOverrides);
         return await response.value();
     }

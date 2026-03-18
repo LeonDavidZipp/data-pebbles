@@ -5,6 +5,7 @@ const sections = [
   { id: 'cursor', label: 'Cursor' },
   { id: 'vscode', label: 'VS Code' },
   { id: 'claude', label: 'Claude Desktop' },
+  { id: 'projects', label: 'Projects' },
   { id: 'tools', label: 'Available Tools' }
 ]
 
@@ -104,6 +105,26 @@ onMounted(() => {
               <div class="flex items-center gap-2 text-sm mt-2">
                 <span class="text-gray-500 dark:text-gray-400">Transport:</span>
                 <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono">Streamable HTTP</code>
+              </div>
+            </div>
+          </section>
+
+          <!-- Projects -->
+          <section id="projects">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              Projects
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+              The backend exposes project management endpoints. These are available as MCP tools and allow the assistant to create, list, update, and delete projects which group related resources.
+            </p>
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                Example tool names:
+              </p>
+              <div class="mt-3">
+                <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono">create_project_projects_post</code>
+                <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono ml-2">list_projects_projects_get</code>
+                <code class="text-xs bg-gray-200 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono ml-2">get_project_projects_project_id_get</code>
               </div>
             </div>
           </section>

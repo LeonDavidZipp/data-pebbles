@@ -19,7 +19,7 @@ All URIs are relative to *http://localhost*
 
 ## activateVersionBronzeResourceIdVersionsVersionPatch
 
-> any activateVersionBronzeResourceIdVersionsVersionPatch(resourceId, version)
+> MessageResponse activateVersionBronzeResourceIdVersionsVersionPatch(resourceId, version)
 
 Activate Version
 
@@ -65,7 +65,7 @@ example().catch(console.error);
 
 ### Return type
 
-**any**
+[**MessageResponse**](MessageResponse.md)
 
 ### Authorization
 
@@ -88,7 +88,7 @@ No authorization required
 
 ## createResourceBronzePost
 
-> any createResourceBronzePost(createResourceRequest)
+> CreateResourceResponse createResourceBronzePost(createResourceRequest)
 
 Create Resource
 
@@ -131,7 +131,7 @@ example().catch(console.error);
 
 ### Return type
 
-**any**
+[**CreateResourceResponse**](CreateResourceResponse.md)
 
 ### Authorization
 
@@ -146,7 +146,7 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Successful Response |  -  |
+| **201** | Successful Response |  -  |
 | **422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
@@ -154,7 +154,7 @@ No authorization required
 
 ## deleteResourceBronzeResourceIdDelete
 
-> any deleteResourceBronzeResourceIdDelete(resourceId)
+> MessageResponse deleteResourceBronzeResourceIdDelete(resourceId)
 
 Delete Resource
 
@@ -197,7 +197,7 @@ example().catch(console.error);
 
 ### Return type
 
-**any**
+[**MessageResponse**](MessageResponse.md)
 
 ### Authorization
 
@@ -220,7 +220,7 @@ No authorization required
 
 ## deleteVersionBronzeResourceIdVersionsVersionDelete
 
-> any deleteVersionBronzeResourceIdVersionsVersionDelete(resourceId, version)
+> MessageResponse deleteVersionBronzeResourceIdVersionsVersionDelete(resourceId, version)
 
 Delete Version
 
@@ -266,7 +266,7 @@ example().catch(console.error);
 
 ### Return type
 
-**any**
+[**MessageResponse**](MessageResponse.md)
 
 ### Authorization
 
@@ -616,7 +616,7 @@ No authorization required
 
 ## uploadVersionBronzeResourceIdVersionsPost
 
-> any uploadVersionBronzeResourceIdVersionsPost(resourceId, file)
+> MessageResponse uploadVersionBronzeResourceIdVersionsPost(resourceId, file)
 
 Upload Version
 
@@ -662,7 +662,7 @@ example().catch(console.error);
 
 ### Return type
 
-**any**
+[**MessageResponse**](MessageResponse.md)
 
 ### Authorization
 
@@ -677,7 +677,7 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Successful Response |  -  |
+| **201** | Successful Response |  -  |
 | **422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)

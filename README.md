@@ -47,6 +47,7 @@ That's it. All services will build and start automatically. Once the containers 
 | URL | What's there |
 | --- | --- |
 | <http://localhost:3000> | Web UI — browse resources, manage layers, SDK & MCP docs |
+| <http://localhost:3000/projects> | Projects UI — create and manage projects |
 | <http://localhost:8000/docs> | Swagger UI — interactive API documentation |
 | <http://localhost:8000/mcp> | MCP endpoint — Streamable HTTP transport for AI assistants |
 | <http://localhost:5001> | MLflow UI — experiment tracking dashboard |
@@ -341,6 +342,11 @@ The API is organised by layer:
 | `/gold/{resource_id}/versions` | `GET` | List versions with lineage |
 | `/gold/{resource_id}/versions` | `POST` | Upload a version (with silver lineage) |
 | `/gold/{resource_id}/versions/{version}` | `GET` | Download a version |
+| `/projects/` | `GET` | List all projects |
+| `/projects/` | `POST` | Create a project |
+| `/projects/{project_id}` | `GET` | Get project metadata |
+| `/projects/{project_id}` | `PATCH` | Update a project |
+| `/projects/{project_id}` | `DELETE` | Delete a project |
 
 ---
 

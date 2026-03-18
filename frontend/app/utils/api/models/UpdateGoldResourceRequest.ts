@@ -25,6 +25,12 @@ export interface UpdateGoldResourceRequest {
      * @memberof UpdateGoldResourceRequest
      */
     name: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateGoldResourceRequest
+     */
+    description?: string | null;
 }
 
 /**
@@ -46,6 +52,7 @@ export function UpdateGoldResourceRequestFromJSONTyped(json: any, ignoreDiscrimi
     return {
         
         'name': json['name'],
+        'description': json['description'] == null ? undefined : json['description'],
     };
 }
 
@@ -61,6 +68,7 @@ export function UpdateGoldResourceRequestToJSONTyped(value?: UpdateGoldResourceR
     return {
         
         'name': value['name'],
+        'description': value['description'],
     };
 }
 

@@ -2,6 +2,8 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from polars.exceptions import ComputeError, PolarsError, SchemaError, ShapeError
 
+from ..logger import logger
+
 # ============================================================================
 # Custom Exceptions
 # ============================================================================
@@ -54,45 +56,50 @@ class VersionNotFoundError(Exception):
 async def missing_file_name_handler(
 	request: Request, exc: MissingFileNameError
 ) -> JSONResponse:
+	logger.info("MissingFileNameError: %s", exc)
 	return JSONResponse(
 		status_code=status.HTTP_400_BAD_REQUEST,
-		content={"detail": str(exc)},
+		content={"detail": "Filename is required."},
 	)
 
 
 async def unsupported_file_extension_handler(
 	request: Request, exc: UnsupportedFileExtensionError
 ) -> JSONResponse:
+	logger.info("UnsupportedFileExtensionError: %s", exc)
 	return JSONResponse(
 		status_code=status.HTTP_400_BAD_REQUEST,
-		content={"detail": str(exc)},
+		content={"detail": "Unsupported file type."},
 	)
 
 
 async def unsupported_content_type_handler(
 	request: Request, exc: UnsupportedContentTypeError
 ) -> JSONResponse:
+	logger.info("UnsupportedContentTypeError: %s", exc)
 	return JSONResponse(
 		status_code=status.HTTP_400_BAD_REQUEST,
-		content={"detail": str(exc)},
+		content={"detail": "Unsupported content type."},
 	)
 
 
 async def resource_not_found_handler(
 	request: Request, exc: ResourceNotFoundError
 ) -> JSONResponse:
+	logger.info("ResourceNotFoundError: %s", exc)
 	return JSONResponse(
 		status_code=status.HTTP_404_NOT_FOUND,
-		content={"detail": str(exc)},
+		content={"detail": "Resource not found."},
 	)
 
 
 async def version_not_found_handler(
 	request: Request, exc: VersionNotFoundError
 ) -> JSONResponse:
+	logger.info("VersionNotFoundError: %s", exc)
 	return JSONResponse(
 		status_code=status.HTTP_404_NOT_FOUND,
-		content={"detail": str(exc)},
+		content={"detail": "Version not found."},
 	)
 
 
@@ -104,39 +111,44 @@ async def version_not_found_handler(
 async def polars_schema_error_handler(
 	request: Request, exc: SchemaError
 ) -> JSONResponse:
+	logger.warning("Polars SchemaError: %s", exc)
 	return JSONResponse(
 		status_code=status.HTTP_400_BAD_REQUEST,
-		content={"detail": f"Data schema error: {exc}"},
+		content={"detail": "Data processing error."},
 	)
 
 
 async def polars_shape_error_handler(request: Request, exc: ShapeError) -> JSONResponse:
+	logger.warning("Polars ShapeError: %s", exc)
 	return JSONResponse(
 		status_code=status.HTTP_400_BAD_REQUEST,
-		content={"detail": f"Data shape mismatch: {exc}"},
+		content={"detail": "Data processing error."},
 	)
 
 
 async def polars_compute_error_handler(
 	request: Request, exc: ComputeError
 ) -> JSONResponse:
+	logger.warning("Polars ComputeError: %s", exc)
 	return JSONResponse(
 		status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-		content={"detail": f"Data processing error: {exc}"},
+		content={"detail": "Data processing error."},
 	)
 
 
 async def polars_error_handler(request: Request, exc: PolarsError) -> JSONResponse:
+	logger.error("Polars error: %s", exc, exc_info=True)
 	return JSONResponse(
 		status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-		content={"detail": f"Data processing error: {exc}"},
+		content={"detail": "An unexpected error occurred."},
 	)
 
 
 async def fallback_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+	logger.error("Unhandled exception: %s", exc, exc_info=True)
 	return JSONResponse(
 		status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-		content={"detail": f"Uncaught exception: {exc}"},
+		content={"detail": "An unexpected error occurred."},
 	)
 
 

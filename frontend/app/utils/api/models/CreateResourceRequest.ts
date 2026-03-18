@@ -25,6 +25,18 @@ export interface CreateResourceRequest {
      * @memberof CreateResourceRequest
      */
     name: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateResourceRequest
+     */
+    project_id: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateResourceRequest
+     */
+    description?: string | null;
 }
 
 /**
@@ -32,6 +44,7 @@ export interface CreateResourceRequest {
  */
 export function instanceOfCreateResourceRequest(value: object): value is CreateResourceRequest {
     if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('project_id' in value) || value['project_id'] === undefined) return false;
     return true;
 }
 
@@ -46,6 +59,8 @@ export function CreateResourceRequestFromJSONTyped(json: any, ignoreDiscriminato
     return {
         
         'name': json['name'],
+        'project_id': json['project_id'],
+        'description': json['description'] == null ? undefined : json['description'],
     };
 }
 
@@ -61,6 +76,8 @@ export function CreateResourceRequestToJSONTyped(value?: CreateResourceRequest |
     return {
         
         'name': value['name'],
+        'project_id': value['project_id'],
+        'description': value['description'],
     };
 }
 

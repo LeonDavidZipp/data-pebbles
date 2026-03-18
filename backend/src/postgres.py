@@ -32,6 +32,137 @@ class Base(DeclarativeBase):
 	pass
 
 
+class ProjectMetadata(Base):
+	"""Project metadata database table model."""
+
+	__tablename__ = "project_metadata"
+	__table_args__ = {"schema": "projects"}
+
+	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+	name: Mapped[str] = mapped_column(String(256), nullable=False, unique=True)
+	description: Mapped[str | None] = mapped_column(String(512), nullable=True)
+	created_at: Mapped[datetime] = mapped_column(
+		DateTime(timezone=True),
+		insert_default=lambda: datetime.now(timezone.utc),
+	)
+	updated_at: Mapped[datetime] = mapped_column(
+		DateTime(timezone=True),
+		insert_default=lambda: datetime.now(timezone.utc),
+		onupdate=datetime.now(timezone.utc),
+	)
+
+
+class ProjectMetadataRead(BaseModel):
+	id: int
+	name: str
+	description: str | None
+	created_at: datetime
+	updated_at: datetime
+
+	model_config = {"from_attributes": True}
+
+
+class ProjectMetadataInteractor:
+	"""Async interactor for project metadata operations."""
+
+	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
+		self.session_maker = session_maker
+
+	async def get_all(self) -> list[ProjectMetadataRead]:
+		"""Get all project metadata entries.
+
+		Returns:
+			list[ProjectMetadataRead]: All project metadata entries.
+		"""
+		async with self.session_maker() as db:
+			result = await db.execute(
+				select(ProjectMetadata).order_by(ProjectMetadata.name)
+			)
+			return [
+				ProjectMetadataRead.model_validate(s) for s in result.scalars().all()
+			]
+
+	async def create(
+		self, name: str, description: str | None = None
+	) -> ProjectMetadataRead:
+		"""Create a new project metadata entry.
+
+		Args:
+			name (str): Name of the project.
+			description (str | None): Description of the project.
+
+		Returns:
+			ProjectMetadataRead: The created project metadata.
+		"""
+		async with self.session_maker() as db:
+			resource = ProjectMetadata(name=name, description=description)
+			db.add(resource)
+			await db.commit()
+			await db.refresh(resource)
+			return ProjectMetadataRead.model_validate(resource)
+
+	async def get(self, id: int) -> ProjectMetadataRead | None:
+		"""Get a project metadata entry by ID.
+
+		Args:
+			id (int): ID of the project.
+
+		Returns:
+			ProjectMetadataRead | None: The project metadata if found,
+				else None.
+		"""
+		async with self.session_maker() as db:
+			resource = await db.get(ProjectMetadata, id)
+			if resource is None:
+				return None
+			return ProjectMetadataRead.model_validate(resource)
+
+	async def update(
+		self,
+		id: int,
+		name: str | None = None,
+		description: str | None = None,
+	) -> ProjectMetadataRead | None:
+		"""Update a project metadata entry.
+
+		Args:
+			id (int): ID of the project.
+			name (str | None): New name for the project.
+			description (str | None): New description for the project.
+
+		Returns:
+			ProjectMetadataRead | None: The updated project metadata if found,
+				else None.
+		"""
+		async with self.session_maker() as db:
+			resource = await db.get(ProjectMetadata, id)
+			if resource is None:
+				return None
+			if name is not None:
+				resource.name = name
+			if description is not None:
+				resource.description = description
+			await db.commit()
+			await db.refresh(resource)
+			return ProjectMetadataRead.model_validate(resource)
+
+	async def delete(self, id: int) -> int:
+		"""Delete a project metadata entry.
+
+		Args:
+			id (int): ID of the project.
+
+		Returns:
+			int: The number of rows deleted.
+		"""
+		async with self.session_maker() as db:
+			result: CursorResult = await db.execute(  # type: ignore
+				delete(ProjectMetadata).where(ProjectMetadata.id == id)
+			)
+			await db.commit()
+			return result.rowcount
+
+
 class BronzeResourceMetadata(Base):
 	"""Resource metadata database table model."""
 
@@ -39,7 +170,12 @@ class BronzeResourceMetadata(Base):
 	__table_args__ = {"schema": "bronze"}
 
 	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	name: Mapped[str] = mapped_column(String, nullable=False)
+	name: Mapped[str] = mapped_column(String(256), nullable=False)
+	description: Mapped[str | None] = mapped_column(String(512), nullable=True)
+	project_id: Mapped[int] = mapped_column(
+		ForeignKey("projects.project_metadata.id", ondelete="CASCADE"),
+		index=True,
+	)
 	created_at: Mapped[datetime] = mapped_column(
 		DateTime(timezone=True),
 		insert_default=lambda: datetime.now(timezone.utc),
@@ -54,6 +190,8 @@ class BronzeResourceMetadata(Base):
 class BronzeResourceMetadataRead(BaseModel):
 	id: int
 	name: str
+	description: str | None
+	project_id: int
 	created_at: datetime
 	updated_at: datetime
 
@@ -128,17 +266,23 @@ class BronzeResourceMetadataInteractor:
 				for s in result.scalars().all()
 			]
 
-	async def create(self, name: str) -> BronzeResourceMetadataRead:
+	async def create(
+		self, name: str, project_id: int, description: str | None = None
+	) -> BronzeResourceMetadataRead:
 		"""Create a new bronze resource metadata entry.
 
 		Args:
 			name (str): Name of the resource.
+			project_id (int): ID of the project this resource belongs to.
+			description (str | None): Description of the resource.
 
 		Returns:
 			BronzeResourceMetadataRead: The created resource metadata.
 		"""
 		async with self.session_maker() as db:
-			resource = BronzeResourceMetadata(name=name)
+			resource = BronzeResourceMetadata(
+				name=name, project_id=project_id, description=description
+			)
 			db.add(resource)
 			await db.commit()
 			await db.refresh(resource)
@@ -161,13 +305,17 @@ class BronzeResourceMetadataInteractor:
 			return BronzeResourceMetadataRead.model_validate(resource)
 
 	async def update(
-		self, id: int, name: str | None = None
+		self,
+		id: int,
+		name: str | None = None,
+		description: str | None = None,
 	) -> BronzeResourceMetadataRead | None:
 		"""Update a bronze resource metadata entry.
 
 		Args:
 			id (int): ID of the resource.
 			name (str | None): New name for the resource.
+			description (str | None): New description for the resource.
 
 		Returns:
 			BronzeResourceMetadataRead | None: The updated resource metadata if found,
@@ -179,6 +327,8 @@ class BronzeResourceMetadataInteractor:
 				return None
 			if name is not None:
 				resource.name = name
+			if description is not None:
+				resource.description = description
 			await db.commit()
 			await db.refresh(resource)
 			return BronzeResourceMetadataRead.model_validate(resource)
@@ -442,7 +592,12 @@ class SilverResourceMetadata(Base):
 	__table_args__ = {"schema": "silver"}
 
 	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	name: Mapped[str] = mapped_column(String, nullable=False)
+	name: Mapped[str] = mapped_column(String(256), nullable=False)
+	description: Mapped[str | None] = mapped_column(String(512), nullable=True)
+	project_id: Mapped[int] = mapped_column(
+		ForeignKey("projects.project_metadata.id", ondelete="CASCADE"),
+		index=True,
+	)
 	created_at: Mapped[datetime] = mapped_column(
 		DateTime(timezone=True),
 		insert_default=lambda: datetime.now(timezone.utc),
@@ -457,6 +612,8 @@ class SilverResourceMetadata(Base):
 class SilverResourceMetadataRead(BaseModel):
 	id: int
 	name: str
+	description: str | None
+	project_id: int
 	created_at: datetime
 	updated_at: datetime
 
@@ -518,17 +675,23 @@ class SilverResourceMetadataInteractor:
 				for s in result.scalars().all()
 			]
 
-	async def create(self, name: str) -> SilverResourceMetadataRead:
+	async def create(
+		self, name: str, project_id: int, description: str | None = None
+	) -> SilverResourceMetadataRead:
 		"""Create a new silver resource metadata entry.
 
 		Args:
 			name (str): Name of the resource.
+			project_id (int): ID of the project this resource belongs to.
+			description (str | None): Description of the resource.
 
 		Returns:
 			SilverResourceMetadataRead: The created resource metadata.
 		"""
 		async with self.session_maker() as db:
-			resource = SilverResourceMetadata(name=name)
+			resource = SilverResourceMetadata(
+				name=name, project_id=project_id, description=description
+			)
 			db.add(resource)
 			await db.commit()
 			await db.refresh(resource)
@@ -551,13 +714,17 @@ class SilverResourceMetadataInteractor:
 			return SilverResourceMetadataRead.model_validate(resource)
 
 	async def update(
-		self, id: int, name: str | None = None
+		self,
+		id: int,
+		name: str | None = None,
+		description: str | None = None,
 	) -> SilverResourceMetadataRead | None:
 		"""Update a silver resource metadata entry.
 
 		Args:
 			id (int): ID of the resource.
 			name (str | None): New name for the resource.
+			description (str | None): New description for the resource.
 
 		Returns:
 			SilverResourceMetadataRead | None: The updated resource metadata if found,
@@ -569,6 +736,8 @@ class SilverResourceMetadataInteractor:
 				return None
 			if name is not None:
 				resource.name = name
+			if description is not None:
+				resource.description = description
 			await db.commit()
 			await db.refresh(resource)
 			return SilverResourceMetadataRead.model_validate(resource)
@@ -704,7 +873,12 @@ class GoldResourceMetadata(Base):
 	__table_args__ = {"schema": "gold"}
 
 	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	name: Mapped[str] = mapped_column(String, nullable=False)
+	name: Mapped[str] = mapped_column(String(256), nullable=False)
+	description: Mapped[str | None] = mapped_column(String(512), nullable=True)
+	project_id: Mapped[int] = mapped_column(
+		ForeignKey("projects.project_metadata.id", ondelete="CASCADE"),
+		index=True,
+	)
 	created_at: Mapped[datetime] = mapped_column(
 		DateTime(timezone=True),
 		insert_default=lambda: datetime.now(timezone.utc),
@@ -719,6 +893,8 @@ class GoldResourceMetadata(Base):
 class GoldResourceMetadataRead(BaseModel):
 	id: int
 	name: str
+	description: str | None
+	project_id: int
 	created_at: datetime
 	updated_at: datetime
 
@@ -780,17 +956,23 @@ class GoldResourceMetadataInteractor:
 				for s in result.scalars().all()
 			]
 
-	async def create(self, name: str) -> GoldResourceMetadataRead:
+	async def create(
+		self, name: str, project_id: int, description: str | None = None
+	) -> GoldResourceMetadataRead:
 		"""Create a new gold resource metadata entry.
 
 		Args:
 			name (str): Name of the resource.
+			project_id (int): ID of the project this resource belongs to.
+			description (str | None): Description of the resource.
 
 		Returns:
 			GoldResourceMetadataRead: The created resource metadata.
 		"""
 		async with self.session_maker() as db:
-			resource = GoldResourceMetadata(name=name)
+			resource = GoldResourceMetadata(
+				name=name, project_id=project_id, description=description
+			)
 			db.add(resource)
 			await db.commit()
 			await db.refresh(resource)
@@ -812,13 +994,17 @@ class GoldResourceMetadataInteractor:
 			return GoldResourceMetadataRead.model_validate(resource)
 
 	async def update(
-		self, id: int, name: str | None = None
+		self,
+		id: int,
+		name: str | None = None,
+		description: str | None = None,
 	) -> GoldResourceMetadataRead | None:
 		"""Update a gold resource metadata entry.
 
 		Args:
 			id (int): ID of the resource.
 			name (str | None): New name for the resource.
+			description (str | None): New description for the resource.
 
 		Returns:
 			GoldResourceMetadataRead | None: The updated resource metadata if found,
@@ -830,6 +1016,8 @@ class GoldResourceMetadataInteractor:
 				return None
 			if name is not None:
 				resource.name = name
+			if description is not None:
+				resource.description = description
 			await db.commit()
 			await db.refresh(resource)
 			return GoldResourceMetadataRead.model_validate(resource)

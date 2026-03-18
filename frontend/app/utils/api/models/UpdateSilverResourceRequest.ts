@@ -25,6 +25,12 @@ export interface UpdateSilverResourceRequest {
      * @memberof UpdateSilverResourceRequest
      */
     name: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateSilverResourceRequest
+     */
+    description?: string | null;
 }
 
 /**
@@ -46,6 +52,7 @@ export function UpdateSilverResourceRequestFromJSONTyped(json: any, ignoreDiscri
     return {
         
         'name': json['name'],
+        'description': json['description'] == null ? undefined : json['description'],
     };
 }
 
@@ -61,6 +68,7 @@ export function UpdateSilverResourceRequestToJSONTyped(value?: UpdateSilverResou
     return {
         
         'name': value['name'],
+        'description': value['description'],
     };
 }
 

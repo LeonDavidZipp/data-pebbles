@@ -25,6 +25,18 @@ export interface CreateGoldResourceRequest {
      * @memberof CreateGoldResourceRequest
      */
     name: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof CreateGoldResourceRequest
+     */
+    project_id: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateGoldResourceRequest
+     */
+    description?: string | null;
 }
 
 /**
@@ -32,6 +44,7 @@ export interface CreateGoldResourceRequest {
  */
 export function instanceOfCreateGoldResourceRequest(value: object): value is CreateGoldResourceRequest {
     if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('project_id' in value) || value['project_id'] === undefined) return false;
     return true;
 }
 
@@ -46,6 +59,8 @@ export function CreateGoldResourceRequestFromJSONTyped(json: any, ignoreDiscrimi
     return {
         
         'name': json['name'],
+        'project_id': json['project_id'],
+        'description': json['description'] == null ? undefined : json['description'],
     };
 }
 
@@ -61,6 +76,8 @@ export function CreateGoldResourceRequestToJSONTyped(value?: CreateGoldResourceR
     return {
         
         'name': value['name'],
+        'project_id': value['project_id'],
+        'description': value['description'],
     };
 }
 

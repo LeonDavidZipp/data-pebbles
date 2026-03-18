@@ -7,6 +7,8 @@
 Name | Type
 ------------ | -------------
 `name` | string
+`project_id` | number
+`description` | string
 
 ## Example
 
@@ -16,6 +18,8 @@ import type { CreateResourceRequest } from ''
 // TODO: Update the object below with actual values
 const example = {
   "name": null,
+  "project_id": null,
+  "description": null,
 } satisfies CreateResourceRequest
 
 console.log(example)

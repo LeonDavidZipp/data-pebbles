@@ -2,6 +2,7 @@
 const sections = [
   { id: 'installation', label: 'Installation' },
   { id: 'quickstart', label: 'Quick Start' },
+  { id: 'projects', label: 'Projects' },
   { id: 'bronze', label: 'Bronze Layer' },
   { id: 'silver', label: 'Silver Layer' },
   { id: 'gold', label: 'Gold Layer' },
@@ -97,6 +98,72 @@ onMounted(() => {
             </p>
           </section>
 
+          <!-- Projects -->
+          <section id="projects">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+              Projects
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Projects group related resources (bronze/silver/gold). Use the `projects` layer in the SDK to create and manage projects.
+            </p>
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+                    <th class="text-left py-2 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase">
+                      Method
+                    </th>
+                    <th class="text-left py-2 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase">
+                      Description
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                  <tr>
+                    <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
+                      create_project(name, description=None)
+                    </td>
+                    <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
+                      Create a new project
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
+                      list_projects()
+                    </td>
+                    <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
+                      List all projects
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
+                      get_project(project_id)
+                    </td>
+                    <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
+                      Get project metadata
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
+                      update_project(project_id, name=None, description=None)
+                    </td>
+                    <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
+                      Update project fields
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-4 font-mono text-xs text-gray-900 dark:text-white">
+                      delete_project(project_id)
+                    </td>
+                    <td class="py-2 px-4 text-gray-600 dark:text-gray-400">
+                      Delete a project
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
           <!-- Quick Start -->
           <section id="quickstart">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
@@ -110,17 +177,17 @@ onMounted(() => {
 
 dp = DataPebbles(&quot;http://localhost:8000&quot;, token=&quot;your-token&quot;)
 
-# List bronze resources
-resources = dp.bronze.list_resources()
+# Projects: create and list projects
+dp.projects.create_project(&quot;analytics&quot;, description=&quot;Analytics workspace&quot;)
+projects = dp.projects.list_projects()
 
-# Upload a file to bronze (.csv, .parquet, .json, .xlsx)
-dp.bronze.create_resource(&quot;raw_sales&quot;)
-dp.bronze.upload(1, file_path=&quot;sales.csv&quot;)
+# Bronze: create a resource in a project and upload (.csv, .parquet, .json, .xlsx)
+dp.bronze.create_resource(&quot;raw_sales&quot;, project_id=projects[0].id)
+dp.bronze.upload(projects[0].id, file_path=&quot;sales.csv&quot;)
 
-# Download and transform through the layers
-raw = dp.bronze.download(1)
-lf  = dp.silver.download(2)
-dp.gold.upload(3, lf, from_resource_ids=[2])"
+# Silver / Gold examples
+dp.silver.create_resource(&quot;clean_sales&quot;, project_id=projects[0].id)
+dp.gold.create_resource(&quot;sales_summary&quot;, project_id=projects[0].id)"
             />
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-3">
               The client can also be used as a context manager:

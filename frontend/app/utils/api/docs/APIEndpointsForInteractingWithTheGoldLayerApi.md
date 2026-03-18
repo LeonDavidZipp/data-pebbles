@@ -8,6 +8,7 @@ All URIs are relative to *http://localhost*
 | [**deleteResourceGoldResourceIdDelete**](APIEndpointsForInteractingWithTheGoldLayerApi.md#deleteresourcegoldresourceiddelete) | **DELETE** /gold/{resource_id} | Delete Resource |
 | [**downloadVersionGoldResourceIdVersionsVersionGet**](APIEndpointsForInteractingWithTheGoldLayerApi.md#downloadversiongoldresourceidversionsversionget) | **GET** /gold/{resource_id}/versions/{version} | Download Version |
 | [**getResourceGoldResourceIdGet**](APIEndpointsForInteractingWithTheGoldLayerApi.md#getresourcegoldresourceidget) | **GET** /gold/{resource_id} | Get Resource |
+| [**getSchemaGoldResourceIdVersionsVersionSchemaGet**](APIEndpointsForInteractingWithTheGoldLayerApi.md#getschemagoldresourceidversionsversionschemaget) | **GET** /gold/{resource_id}/versions/{version}/schema | Get Schema |
 | [**listResourcesGoldGet**](APIEndpointsForInteractingWithTheGoldLayerApi.md#listresourcesgoldget) | **GET** /gold/ | List Resources |
 | [**listVersionsGoldResourceIdVersionsGet**](APIEndpointsForInteractingWithTheGoldLayerApi.md#listversionsgoldresourceidversionsget) | **GET** /gold/{resource_id}/versions | List Versions |
 | [**updateResourceGoldResourceIdPatch**](APIEndpointsForInteractingWithTheGoldLayerApi.md#updateresourcegoldresourceidpatch) | **PATCH** /gold/{resource_id} | Update Resource |
@@ -17,7 +18,7 @@ All URIs are relative to *http://localhost*
 
 ## createResourceGoldPost
 
-> any createResourceGoldPost(createGoldResourceRequest)
+> CreateResourceResponse createResourceGoldPost(createGoldResourceRequest)
 
 Create Resource
 
@@ -60,7 +61,7 @@ example().catch(console.error);
 
 ### Return type
 
-**any**
+[**CreateResourceResponse**](CreateResourceResponse.md)
 
 ### Authorization
 
@@ -75,7 +76,7 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Successful Response |  -  |
+| **201** | Successful Response |  -  |
 | **422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
@@ -83,7 +84,7 @@ No authorization required
 
 ## deleteResourceGoldResourceIdDelete
 
-> any deleteResourceGoldResourceIdDelete(resourceId)
+> MessageResponse deleteResourceGoldResourceIdDelete(resourceId)
 
 Delete Resource
 
@@ -126,7 +127,7 @@ example().catch(console.error);
 
 ### Return type
 
-**any**
+[**MessageResponse**](MessageResponse.md)
 
 ### Authorization
 
@@ -262,6 +263,75 @@ example().catch(console.error);
 ### Return type
 
 [**GoldMetadataResponse**](GoldMetadataResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
+## getSchemaGoldResourceIdVersionsVersionSchemaGet
+
+> SchemaResponse getSchemaGoldResourceIdVersionsVersionSchemaGet(resourceId, version)
+
+Get Schema
+
+### Example
+
+```ts
+import {
+  Configuration,
+  APIEndpointsForInteractingWithTheGoldLayerApi,
+} from '';
+import type { GetSchemaGoldResourceIdVersionsVersionSchemaGetRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const api = new APIEndpointsForInteractingWithTheGoldLayerApi();
+
+  const body = {
+    // number
+    resourceId: 56,
+    // number
+    version: 56,
+  } satisfies GetSchemaGoldResourceIdVersionsVersionSchemaGetRequest;
+
+  try {
+    const data = await api.getSchemaGoldResourceIdVersionsVersionSchemaGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
+| **version** | `number` |  | [Defaults to `undefined`] |
+
+### Return type
+
+[**SchemaResponse**](SchemaResponse.md)
 
 ### Authorization
 
@@ -476,7 +546,7 @@ No authorization required
 
 ## uploadVersionGoldResourceIdVersionsPost
 
-> any uploadVersionGoldResourceIdVersionsPost(resourceId, resources, file)
+> MessageResponse uploadVersionGoldResourceIdVersionsPost(resourceId, resources, file)
 
 Upload Version
 
@@ -525,7 +595,7 @@ example().catch(console.error);
 
 ### Return type
 
-**any**
+[**MessageResponse**](MessageResponse.md)
 
 ### Authorization
 
@@ -540,7 +610,7 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Successful Response |  -  |
+| **201** | Successful Response |  -  |
 | **422** | Validation Error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)

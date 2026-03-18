@@ -207,7 +207,7 @@ class TestSilverLoader:
 
 		result = await loader.upload(resource_id=1, lf=lf, from_resource_id=10)
 		assert result == silver_lineage_read
-		delta_loader.upload.assert_called_once_with(table="1", lf=lf, mode="append")
+		delta_loader.upload.assert_called_once_with(table="1", lf=lf, mode="overwrite")
 		lineage_interactor.create.assert_awaited_once_with(
 			resource_id=1, delta_version=3, from_resource_id=10
 		)
@@ -298,7 +298,7 @@ class TestGoldLoader:
 
 		result = await loader.upload(resource_id=1, lf=lf, resources=[10, 20])
 		assert result == [gold_lineage_read]
-		delta_loader.upload.assert_called_once_with(table="1", lf=lf, mode="append")
+		delta_loader.upload.assert_called_once_with(table="1", lf=lf, mode="overwrite")
 		lineage_interactor.create_many.assert_awaited_once_with(
 			resource_id=1, delta_version=5, resources=[10, 20]
 		)
