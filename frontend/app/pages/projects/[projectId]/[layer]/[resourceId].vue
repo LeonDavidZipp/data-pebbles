@@ -215,6 +215,14 @@ function getSchemaRows(schema: SchemaResponse) {
   )
 }
 
+function formatCell(value: unknown): string {
+  if (value == null) return '\u2014'
+  if (typeof value === 'number' && !Number.isInteger(value)) {
+    return value.toFixed(3)
+  }
+  return String(value)
+}
+
 function getVersionNumber(
   v: VersionResponse | SilverLineageResponse | GoldLineageResponse
 ): number {
@@ -515,22 +523,22 @@ fetchAll()
                 >
                   <td
                     :colspan="layer === 'bronze' ? 4 : 4"
-                    class="p-0"
+                    class="p-4"
                   >
-                    <div class="bg-gray-50 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800">
+                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                       <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
+                        <table class="text-sm min-w-max">
                           <thead>
-                            <tr class="bg-gray-100 dark:bg-gray-900">
+                            <tr class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                               <th
                                 v-for="col in getSchemaColumns(schemaMap.get(getVersionNumber(v))!)"
                                 :key="col"
-                                class="text-left py-2 px-3 font-medium text-xs"
+                                class="text-left py-2.5 px-4 font-medium text-xs border-r border-gray-200 dark:border-gray-700"
                               >
-                                <div class="text-gray-900 dark:text-white">
+                                <div class="text-gray-900 dark:text-white whitespace-nowrap">
                                   {{ col }}
                                 </div>
-                                <div class="text-gray-400 font-normal">
+                                <div class="text-gray-400 font-normal whitespace-nowrap">
                                   {{ schemaMap.get(getVersionNumber(v))!.data_schema[col] }}
                                 </div>
                               </th>
@@ -540,20 +548,20 @@ fetchAll()
                             <tr
                               v-for="(row, i) in getSchemaRows(schemaMap.get(getVersionNumber(v))!)"
                               :key="i"
-                              class="border-b border-gray-200 dark:border-gray-800 last:border-0"
+                              class="border-b border-gray-200 dark:border-gray-700 last:border-0"
                             >
                               <td
                                 v-for="col in getSchemaColumns(schemaMap.get(getVersionNumber(v))!)"
                                 :key="col"
-                                class="py-1.5 px-3 text-gray-700 dark:text-gray-300 font-mono text-xs"
+                                class="py-2 px-4 text-gray-700 dark:text-gray-300 font-mono text-xs whitespace-nowrap border-r border-gray-200 dark:border-gray-700"
                               >
-                                {{ row[col] ?? '—' }}
+                                {{ formatCell(row[col]) }}
                               </td>
                             </tr>
                             <tr v-if="getSchemaRows(schemaMap.get(getVersionNumber(v))!).length === 0">
                               <td
                                 :colspan="getSchemaColumns(schemaMap.get(getVersionNumber(v))!).length"
-                                class="py-3 px-3 text-center text-gray-400 text-xs"
+                                class="py-3 px-4 text-center text-gray-400 text-xs"
                               >
                                 No data rows available.
                               </td>
