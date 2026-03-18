@@ -11,7 +11,7 @@ import {
 } from '~/utils/api/models/VersionResponse'
 
 describe('MetadataResponse', () => {
-  const validJson = { id: 1, name: 'test_resource', created_at: '2025-01-01T00:00:00Z' }
+  const validJson = { id: 1, name: 'test_resource', description: null, project_id: 1, created_at: '2025-01-01T00:00:00Z' }
 
   it('deserializes from JSON', () => {
     const result = MetadataResponseFromJSON(validJson)

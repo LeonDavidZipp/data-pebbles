@@ -80,7 +80,7 @@ describe('GoldLineageResponse', () => {
 
 describe('SilverMetadataResponse', () => {
   it('validates correct object', () => {
-    expect(instanceOfSilverMetadataResponse({ id: 1, name: 'x', created_at: 'y' })).toBe(true)
+    expect(instanceOfSilverMetadataResponse({ id: 1, name: 'x', description: null, project_id: 1, created_at: 'y' })).toBe(true)
   })
 
   it('rejects incomplete object', () => {
@@ -90,7 +90,7 @@ describe('SilverMetadataResponse', () => {
 
 describe('GoldMetadataResponse', () => {
   it('validates correct object', () => {
-    expect(instanceOfGoldMetadataResponse({ id: 1, name: 'x', created_at: 'y' })).toBe(true)
+    expect(instanceOfGoldMetadataResponse({ id: 1, name: 'x', description: null, project_id: 1, created_at: 'y' })).toBe(true)
   })
 
   it('rejects incomplete object', () => {
