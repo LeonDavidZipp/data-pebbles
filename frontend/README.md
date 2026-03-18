@@ -1,6 +1,6 @@
 # Data Pebbles — Frontend
 
-Nuxt-based web UI for the Data Pebbles platform. Browse and manage resources across the bronze, silver, and gold layers, and view documentation for the Python SDK and MCP server.
+Nuxt-based web UI for the Data Pebbles platform. Manage projects and resources across the bronze, silver, and gold layers, preview schemas and data, and view documentation for the Python SDK and MCP server.
 
 ## Tech Stack
 
@@ -15,15 +15,11 @@ Nuxt-based web UI for the Data Pebbles platform. Browse and manage resources acr
 | Route | Description |
 | --- | --- |
 | `/` | Home / redirect |
-| `/bronze` | List and manage bronze resources |
-| `/silver` | List and manage silver resources |
-| `/gold` | List and manage gold resources |
-| `/bronze/:resourceId` | Bronze resource detail — versions, upload, rename |
-| `/silver/:resourceId` | Silver resource detail |
-| `/gold/:resourceId` | Gold resource detail |
+| `/projects` | Projects list — create, rename, delete projects |
+| `/projects/:projectId` | Project detail — resource list with bronze/silver/gold tabs, rename project |
+| `/projects/:projectId/:layer/:resourceId` | Resource detail — versions, upload, rename, schema & data preview |
 | `/sdk` | Python SDK documentation |
 | `/mcp` | MCP server setup & tool reference |
-| `/projects` | Projects list and management |
 
 ## Setup
 

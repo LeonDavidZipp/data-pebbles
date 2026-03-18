@@ -97,10 +97,10 @@ See the [frontend README](../frontend/README.md) for development details.
 
 The API is organized by data layer:
 
+- `/projects` — Create, list, update (rename), and delete projects (used to group resources)
 - `/bronze` — Upload and manage raw resource files
-- `/silver` — Upload, download, and batch-download cleaned data (Parquet/Arrow)
-- `/gold` — Access aggregated data
- - `/projects` — Create, list, update, and delete projects (used to group resources)
+- `/silver` — Upload, download, and batch-download cleaned data (Parquet/Arrow); fetch schema & data preview
+- `/gold` — Access aggregated data; fetch schema & data preview
 
 API docs are available at `localhost:8000/docs` when the backend is running.
 

@@ -109,12 +109,15 @@ app/
 │   └── src/
 │       ├── main.py              # FastAPI app, routers, MCP mount
 │       ├── config.py            # environment variable config
+│       ├── logger.py            # logging setup
 │       ├── postgres.py          # SQLAlchemy async engine
 │       ├── s3.py                # boto3 S3/MinIO client
 │       ├── loaders.py           # file loading utilities
 │       └── api/
 │           ├── dependencies.py  # FastAPI dependency injection
+│           ├── exceptions.py    # shared error handlers
 │           └── routers/
+│               ├── projects.py  # /projects endpoints
 │               ├── bronze.py    # /bronze endpoints
 │               ├── silver.py    # /silver endpoints
 │               └── gold.py      # /gold endpoints
@@ -129,15 +132,18 @@ app/
 │       │   ├── index.vue        # home / redirect
 │       │   ├── sdk.vue          # Python SDK documentation
 │       │   ├── mcp.vue          # MCP server setup guide
-│       │   └── [layer]/
-│       │       ├── index.vue    # resource list per layer
-│       │       └── [resourceId].vue  # resource detail
+│       │   └── projects/
+│       │       ├── index.vue               # projects list
+│       │       └── [projectId]/
+│       │           ├── index.vue           # project detail, resource list per layer
+│       │           └── [layer]/
+│       │               └── [resourceId].vue # resource detail, versions, schema preview
 │       ├── composables/
 │       │   └── useApi.ts        # generated API client wrapper
 │       └── utils/api/           # generated TypeScript API client
 ├── db/
 │   ├── Dockerfile               # PostgreSQL with tuned settings
-│   └── init.sql                 # schema: bronze, silver, gold tables + lineage
+│   └── init.sql                 # schema: projects, bronze, silver, gold tables + lineage
 └── mlflow/
     └── Dockerfile               # MLflow server with S3/PostgreSQL backends
 ```
@@ -195,15 +201,16 @@ Endpoints are organised by layer:
 
 | Prefix | Layer | Operations |
 | --- | --- | --- |
+| `/projects` | Projects | Create, list, get, update (rename), delete projects |
 | `/bronze` | Bronze | Create, list, get, update, delete resources; upload, download, activate, delete versions |
-| `/silver` | Silver | Create, list, get, update, delete resources; upload, download versions with lineage |
-| `/gold` | Gold | Create, list, get, update, delete resources; upload, download versions with multi-source lineage |
+| `/silver` | Silver | Create, list, get, update, delete resources; upload, download versions with lineage; schema & data preview |
+| `/gold` | Gold | Create, list, get, update, delete resources; upload, download versions with multi-source lineage; schema & data preview |
 
 See the [backend README](backend/README.md) for more detail.
 
 ### Frontend (Nuxt)
 
-A web UI for managing resources, uploading files, and browsing data across all layers.
+A web UI for managing projects and resources, uploading files, browsing data, and previewing schemas across all layers.
 
 - [Nuxt 4](https://nuxt.com/) + [Vue 3](https://vuejs.org/)
 - [Nuxt UI](https://ui.nuxt.com/) component library
@@ -211,10 +218,13 @@ A web UI for managing resources, uploading files, and browsing data across all l
 - [Shiki](https://shiki.style/) for syntax-highlighted code blocks
 - Auto-generated TypeScript API client from `openapi.json`
 
-The frontend also includes built-in documentation pages for:
+Key features:
 
-- **Python SDK** (`/sdk`) — installation, quick start, method reference, transform decorators
-- **MCP Server** (`/mcp`) — setup guides for Cursor, VS Code, Claude Desktop, and tool reference
+- **Project management** — create, rename, and delete projects
+- **Resource management** — create, rename, and delete resources per layer within a project
+- **Version management** — upload (bronze), download, activate, and delete versions
+- **Schema & data preview** — view column schemas and first 5 rows inline for silver/gold versions
+- **Built-in documentation** — Python SDK (`/sdk`) and MCP server setup (`/mcp`)
 
 See the [frontend README](frontend/README.md) for more detail.
 
@@ -224,6 +234,7 @@ PostgreSQL stores all metadata and lineage. The schema is initialised automatica
 
 | Schema | Tables | Purpose |
 | --- | --- | --- |
+| `projects` | `project_metadata` | Project names, descriptions, timestamps |
 | `bronze` | `resource_metadata`, `resource_versions` | Resource names + version tracking with S3 keys |
 | `silver` | `resource_metadata`, `version_lineage` | Resource names + lineage to bronze versions |
 | `gold` | `resource_metadata`, `version_lineage` | Resource names + lineage to silver versions |
@@ -237,9 +248,11 @@ The Dockerfile applies performance tuning (`shared_buffers`, `work_mem`, `effect
 | Bucket | Purpose |
 | --- | --- |
 | `bronze` | Raw file storage for bronze layer |
+| `silver` | Delta Lake tables for silver layer |
+| `gold` | Delta Lake tables for gold layer |
 | `mlflow` | MLflow artifact storage |
 
-Silver and gold data is stored as Delta Lake tables under `s3://silver/` and `s3://gold/` respectively (created on demand by the backend).
+Silver and gold buckets are created automatically on first boot alongside bronze and mlflow.
 
 > **Warning:** The MinIO Console (`localhost:8900`) is exposed for visibility, but **do not manually create, rename, or delete buckets or objects** through it. The application tracks state in PostgreSQL — manual changes in MinIO will cause metadata to go out of sync.
 
@@ -316,37 +329,39 @@ The API is organised by layer:
 
 | Endpoint | Method | Description |
 | --- | --- | --- |
-| `/bronze` | `POST` | Create a bronze resource |
-| `/bronze` | `GET` | List all bronze resources |
+| `/projects/` | `GET` | List all projects |
+| `/projects/` | `POST` | Create a project |
+| `/projects/{project_id}` | `GET` | Get project metadata |
+| `/projects/{project_id}` | `PATCH` | Update a project (rename, change description) |
+| `/projects/{project_id}` | `DELETE` | Delete a project |
+| `/bronze/` | `POST` | Create a bronze resource |
+| `/bronze/` | `GET` | List all bronze resources |
 | `/bronze/{resource_id}` | `GET` | Get bronze resource metadata |
-| `/bronze/{resource_id}` | `PUT` | Update a bronze resource |
+| `/bronze/{resource_id}` | `PATCH` | Update a bronze resource |
 | `/bronze/{resource_id}` | `DELETE` | Delete a bronze resource |
 | `/bronze/{resource_id}/versions` | `GET` | List versions |
 | `/bronze/{resource_id}/versions` | `POST` | Upload a new version |
 | `/bronze/{resource_id}/versions/{version}` | `GET` | Download a version |
+| `/bronze/{resource_id}/versions/{version}` | `PATCH` | Activate a version |
 | `/bronze/{resource_id}/versions/{version}` | `DELETE` | Delete a version |
-| `/bronze/{resource_id}/versions/{version}/activate` | `POST` | Activate a version |
-| `/silver` | `POST` | Create a silver resource |
-| `/silver` | `GET` | List all silver resources |
+| `/silver/` | `POST` | Create a silver resource |
+| `/silver/` | `GET` | List all silver resources |
 | `/silver/{resource_id}` | `GET` | Get silver resource metadata |
-| `/silver/{resource_id}` | `PUT` | Update a silver resource |
+| `/silver/{resource_id}` | `PATCH` | Update a silver resource |
 | `/silver/{resource_id}` | `DELETE` | Delete a silver resource |
 | `/silver/{resource_id}/versions` | `GET` | List versions with lineage |
 | `/silver/{resource_id}/versions` | `POST` | Upload a version (with bronze lineage) |
 | `/silver/{resource_id}/versions/{version}` | `GET` | Download a version |
-| `/gold` | `POST` | Create a gold resource |
-| `/gold` | `GET` | List all gold resources |
+| `/silver/{resource_id}/versions/{version}/schema` | `GET` | Get schema and first 5 rows of data |
+| `/gold/` | `POST` | Create a gold resource |
+| `/gold/` | `GET` | List all gold resources |
 | `/gold/{resource_id}` | `GET` | Get gold resource metadata |
-| `/gold/{resource_id}` | `PUT` | Update a gold resource |
+| `/gold/{resource_id}` | `PATCH` | Update a gold resource |
 | `/gold/{resource_id}` | `DELETE` | Delete a gold resource |
 | `/gold/{resource_id}/versions` | `GET` | List versions with lineage |
 | `/gold/{resource_id}/versions` | `POST` | Upload a version (with silver lineage) |
 | `/gold/{resource_id}/versions/{version}` | `GET` | Download a version |
-| `/projects/` | `GET` | List all projects |
-| `/projects/` | `POST` | Create a project |
-| `/projects/{project_id}` | `GET` | Get project metadata |
-| `/projects/{project_id}` | `PATCH` | Update a project |
-| `/projects/{project_id}` | `DELETE` | Delete a project |
+| `/gold/{resource_id}/versions/{version}/schema` | `GET` | Get schema and first 5 rows of data |
 
 ---
 
