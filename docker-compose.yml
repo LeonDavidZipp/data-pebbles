@@ -124,6 +124,10 @@ services:
       mc anonymous set download myminio/mlflow;
       mc mb myminio/bronze --ignore-existing;
       mc anonymous set download myminio/bronze;
+      mc mb myminio/silver --ignore-existing;
+      mc anonymous set download myminio/silver;
+      mc mb myminio/gold --ignore-existing;
+      mc anonymous set download myminio/gold;
       exit 0;
       "
     restart: "no"
