@@ -47,6 +47,11 @@ class MessageResponse(BaseModel):
 	message: str
 
 
+class SchemaResponse(BaseModel):
+	data_schema: dict[str, str]
+	data: dict[str, list[int | float | str | bool | None]]
+
+
 @gold_router.get("/", status_code=status.HTTP_200_OK)
 async def list_resources(
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
@@ -174,3 +179,16 @@ def download_version(
 		media_type="application/octet-stream",
 		headers={"Content-Disposition": f"attachment; filename={resource_id}.parquet"},
 	)
+
+
+@gold_router.get(
+	"/{resource_id}/versions/{version}/schema", status_code=status.HTTP_200_OK
+)
+async def get_schema(
+	resource_id: Annotated[int, Path()],
+	version: Annotated[int, Path()],
+	gold: Annotated[GoldLoader, Depends(gold_dep)],
+) -> SchemaResponse:
+	df = gold.get(resource_id=resource_id, version=version).head(5).collect()
+	schema = {col: type(dtype).__name__.lower() for col, dtype in df.schema.items()}
+	return SchemaResponse(data_schema=schema, data=df.to_dict(as_series=False))
