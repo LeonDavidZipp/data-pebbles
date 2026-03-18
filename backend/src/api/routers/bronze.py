@@ -57,7 +57,7 @@ async def list_resources(
 	]
 
 
-@bronze_router.post("/")
+@bronze_router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_resource(
 	body: CreateResourceRequest,
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
@@ -88,7 +88,7 @@ async def get_resource(
 	)
 
 
-@bronze_router.delete("/{resource_id}")
+@bronze_router.delete("/{resource_id}", status_code=status.HTTP_200_OK)
 async def delete_resource(
 	resource_id: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
@@ -100,7 +100,7 @@ async def delete_resource(
 	)
 
 
-@bronze_router.patch("/{resource_id}")
+@bronze_router.patch("/{resource_id}", status_code=status.HTTP_200_OK)
 async def update_resource(
 	resource_id: Annotated[int, Path()],
 	body: UpdateResourceRequest,
@@ -140,7 +140,9 @@ async def list_versions(
 	]
 
 
-@bronze_router.patch("/{resource_id}/versions/{version}")
+@bronze_router.patch(
+	"/{resource_id}/versions/{version}", status_code=status.HTTP_200_OK
+)
 async def activate_version(
 	resource_id: Annotated[int, Path()],
 	version: Annotated[int, Path()],
@@ -155,7 +157,10 @@ async def activate_version(
 	)
 
 
-@bronze_router.delete("/{resource_id}/versions/{version}")
+@bronze_router.delete(
+	"/{resource_id}/versions/{version}",
+	status_code=status.HTTP_200_OK,
+)
 async def delete_version(
 	resource_id: Annotated[int, Path()],
 	version: Annotated[int, Path()],
@@ -170,7 +175,7 @@ async def delete_version(
 	)
 
 
-@bronze_router.post("/{resource_id}/versions")
+@bronze_router.post("/{resource_id}/versions", status_code=status.HTTP_201_CREATED)
 async def upload_version(
 	resource_id: Annotated[int, Path()],
 	file: Annotated[UploadFile, Depends(validate_file)],
@@ -184,7 +189,7 @@ async def upload_version(
 	)
 
 
-@bronze_router.get("/{resource_id}/versions/{version}")
+@bronze_router.get("/{resource_id}/versions/{version}", status_code=status.HTTP_200_OK)
 async def download_version(
 	resource_id: Annotated[int, Path()],
 	version: Annotated[int, Path()],

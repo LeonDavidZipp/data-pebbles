@@ -55,7 +55,7 @@ async def list_resources(
 	]
 
 
-@gold_router.post("/")
+@gold_router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_resource(
 	body: CreateGoldResourceRequest,
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
@@ -86,7 +86,7 @@ async def get_resource(
 	)
 
 
-@gold_router.delete("/{resource_id}")
+@gold_router.delete("/{resource_id}", status_code=status.HTTP_200_OK)
 async def delete_resource(
 	resource_id: Annotated[int, Path()],
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
@@ -98,7 +98,7 @@ async def delete_resource(
 	)
 
 
-@gold_router.patch("/{resource_id}")
+@gold_router.patch("/{resource_id}", status_code=status.HTTP_200_OK)
 async def update_resource(
 	resource_id: Annotated[int, Path()],
 	body: UpdateGoldResourceRequest,
@@ -136,7 +136,7 @@ async def list_versions(
 	]
 
 
-@gold_router.post("/{resource_id}/versions")
+@gold_router.post("/{resource_id}/versions", status_code=status.HTTP_201_CREATED)
 async def upload_version(
 	resource_id: Annotated[int, Path()],
 	file: Annotated[UploadFile, Depends(validate_file)],
@@ -153,7 +153,7 @@ async def upload_version(
 	)
 
 
-@gold_router.get("/{resource_id}/versions/{version}")
+@gold_router.get("/{resource_id}/versions/{version}", status_code=status.HTTP_200_OK)
 def download_version(
 	resource_id: Annotated[int, Path()],
 	version: Annotated[int, Path()],

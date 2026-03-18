@@ -43,7 +43,7 @@ async def list_projects(
 	]
 
 
-@projects_router.post("/")
+@projects_router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_project(
 	body: CreateProjectRequest,
 	interactor: Annotated[ProjectMetadataInteractor, Depends(projects_dep)],
@@ -71,7 +71,7 @@ async def get_project(
 	)
 
 
-@projects_router.patch("/{project_id}")
+@projects_router.patch("/{project_id}", status_code=status.HTTP_200_OK)
 async def update_project(
 	project_id: Annotated[int, Path()],
 	body: UpdateProjectRequest,
@@ -90,7 +90,7 @@ async def update_project(
 	)
 
 
-@projects_router.delete("/{project_id}")
+@projects_router.delete("/{project_id}", status_code=status.HTTP_200_OK)
 async def delete_project(
 	project_id: Annotated[int, Path()],
 	interactor: Annotated[ProjectMetadataInteractor, Depends(projects_dep)],

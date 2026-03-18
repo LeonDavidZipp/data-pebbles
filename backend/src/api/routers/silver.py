@@ -55,7 +55,7 @@ async def list_resources(
 	]
 
 
-@silver_router.post("/")
+@silver_router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_resource(
 	body: CreateSilverResourceRequest,
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
@@ -86,7 +86,7 @@ async def get_resource(
 	)
 
 
-@silver_router.delete("/{resource_id}")
+@silver_router.delete("/{resource_id}", status_code=status.HTTP_200_OK)
 async def delete_resource(
 	resource_id: Annotated[int, Path()],
 	silver: Annotated[SilverLoader, Depends(silver_dep)],
@@ -98,7 +98,7 @@ async def delete_resource(
 	)
 
 
-@silver_router.patch("/{resource_id}")
+@silver_router.patch("/{resource_id}", status_code=status.HTTP_200_OK)
 async def update_resource(
 	resource_id: Annotated[int, Path()],
 	body: UpdateSilverResourceRequest,
@@ -136,7 +136,7 @@ async def list_versions(
 	]
 
 
-@silver_router.post("/{resource_id}/versions")
+@silver_router.post("/{resource_id}/versions", status_code=status.HTTP_201_CREATED)
 async def upload_version(
 	resource_id: Annotated[int, Path()],
 	file: Annotated[UploadFile, Depends(validate_file)],
@@ -150,7 +150,7 @@ async def upload_version(
 	)
 
 
-@silver_router.get("/{resource_id}/versions/{version}")
+@silver_router.get("/{resource_id}/versions/{version}", status_code=status.HTTP_200_OK)
 def download_version(
 	resource_id: Annotated[int, Path()],
 	version: Annotated[int, Path()],
