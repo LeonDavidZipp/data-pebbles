@@ -2,7 +2,7 @@ from typing import Annotated
 
 import polars as pl
 from fastapi import APIRouter, Depends, Path, Query, UploadFile, status
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from ..dependencies import GoldLoader, gold_dep, validate_file
@@ -38,6 +38,15 @@ class GoldLineageResponse(BaseModel):
 	created_at: str
 
 
+class CreateResourceResponse(BaseModel):
+	message: str
+	resource_id: int
+
+
+class MessageResponse(BaseModel):
+	message: str
+
+
 @gold_router.get("/", status_code=status.HTTP_200_OK)
 async def list_resources(
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
@@ -59,13 +68,13 @@ async def list_resources(
 async def create_resource(
 	body: CreateGoldResourceRequest,
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
-) -> JSONResponse:
+) -> CreateResourceResponse:
 	res = await gold.metadata_interactor.create(
 		body.name, body.project_id, body.description
 	)
-	return JSONResponse(
-		content={"message": "Resource created successfully.", "resource_id": res.id},
-		status_code=status.HTTP_201_CREATED,
+	return CreateResourceResponse(
+		message="Resource created successfully.",
+		resource_id=res.id,
 	)
 
 
@@ -90,12 +99,9 @@ async def get_resource(
 async def delete_resource(
 	resource_id: Annotated[int, Path()],
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
-) -> JSONResponse:
+) -> MessageResponse:
 	await gold.metadata_interactor.delete(resource_id)
-	return JSONResponse(
-		content={"message": "Resource deleted successfully."},
-		status_code=status.HTTP_200_OK,
-	)
+	return MessageResponse(message="Resource deleted successfully.")
 
 
 @gold_router.patch("/{resource_id}", status_code=status.HTTP_200_OK)
@@ -142,7 +148,7 @@ async def upload_version(
 	file: Annotated[UploadFile, Depends(validate_file)],
 	gold: Annotated[GoldLoader, Depends(gold_dep)],
 	resources: Annotated[list[int], Query()],
-):
+) -> MessageResponse:
 	content = await file.read()
 	lf = pl.scan_parquet(content)
 	await gold.upload(
@@ -151,6 +157,7 @@ async def upload_version(
 		resources=resources,
 		mode="append",
 	)
+	return MessageResponse(message="File uploaded successfully.")
 
 
 @gold_router.get("/{resource_id}/versions/{version}", status_code=status.HTTP_200_OK)

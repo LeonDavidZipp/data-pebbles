@@ -2,7 +2,7 @@ from io import BytesIO
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path, UploadFile, status
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from ..dependencies import BronzeLoader, bronze_dep, validate_file
@@ -40,6 +40,15 @@ class VersionResponse(BaseModel):
 	updated_at: str
 
 
+class CreateResourceResponse(BaseModel):
+	message: str
+	resource_id: int
+
+
+class MessageResponse(BaseModel):
+	message: str
+
+
 @bronze_router.get("/", status_code=status.HTTP_200_OK)
 async def list_resources(
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
@@ -61,13 +70,13 @@ async def list_resources(
 async def create_resource(
 	body: CreateResourceRequest,
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
-) -> JSONResponse:
+) -> CreateResourceResponse:
 	res = await bronze.metadata_interactor.create(
 		body.name, body.project_id, body.description
 	)
-	return JSONResponse(
-		content={"message": "Resource created successfully.", "resource_id": res.id},
-		status_code=status.HTTP_201_CREATED,
+	return CreateResourceResponse(
+		message="Resource created successfully.",
+		resource_id=res.id,
 	)
 
 
@@ -92,12 +101,9 @@ async def get_resource(
 async def delete_resource(
 	resource_id: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
-) -> JSONResponse:
+) -> MessageResponse:
 	await bronze.metadata_interactor.delete(resource_id)
-	return JSONResponse(
-		content={"message": "Resource deleted successfully."},
-		status_code=status.HTTP_200_OK,
-	)
+	return MessageResponse(message="Resource deleted successfully.")
 
 
 @bronze_router.patch("/{resource_id}", status_code=status.HTTP_200_OK)
@@ -147,14 +153,11 @@ async def activate_version(
 	resource_id: Annotated[int, Path()],
 	version: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
-) -> JSONResponse:
+) -> MessageResponse:
 	rows = await bronze.version_interactor.activate_version(resource_id, version)
 	if rows == 0:
 		raise VersionNotFoundError(resource_id, version)
-	return JSONResponse(
-		content={"message": "Version activated successfully."},
-		status_code=status.HTTP_200_OK,
-	)
+	return MessageResponse(message="Version activated successfully.")
 
 
 @bronze_router.delete(
@@ -165,14 +168,11 @@ async def delete_version(
 	resource_id: Annotated[int, Path()],
 	version: Annotated[int, Path()],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
-) -> JSONResponse:
+) -> MessageResponse:
 	rows = await bronze.delete_version(resource_id, version)
 	if rows == 0:
 		raise VersionNotFoundError(resource_id, version)
-	return JSONResponse(
-		content={"message": "Version deleted successfully."},
-		status_code=status.HTTP_200_OK,
-	)
+	return MessageResponse(message="Version deleted successfully.")
 
 
 @bronze_router.post("/{resource_id}/versions", status_code=status.HTTP_201_CREATED)
@@ -180,13 +180,10 @@ async def upload_version(
 	resource_id: Annotated[int, Path()],
 	file: Annotated[UploadFile, Depends(validate_file)],
 	bronze: Annotated[BronzeLoader, Depends(bronze_dep)],
-) -> JSONResponse:
+) -> MessageResponse:
 	content = await file.read()
 	await bronze.upload(resource_id, content, file.filename)  # type: ignore
-	return JSONResponse(
-		content={"message": "File uploaded successfully."},
-		status_code=status.HTTP_201_CREATED,
-	)
+	return MessageResponse(message="File uploaded successfully.")
 
 
 @bronze_router.get("/{resource_id}/versions/{version}", status_code=status.HTTP_200_OK)

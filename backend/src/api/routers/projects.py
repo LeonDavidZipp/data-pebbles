@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Path, status
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from ..dependencies import ProjectMetadataInteractor, projects_dep
@@ -27,6 +26,15 @@ class ProjectResponse(BaseModel):
 	created_at: str
 
 
+class CreateProjectResponse(BaseModel):
+	message: str
+	project_id: int
+
+
+class MessageResponse(BaseModel):
+	message: str
+
+
 @projects_router.get("/", status_code=status.HTTP_200_OK)
 async def list_projects(
 	interactor: Annotated[ProjectMetadataInteractor, Depends(projects_dep)],
@@ -47,11 +55,11 @@ async def list_projects(
 async def create_project(
 	body: CreateProjectRequest,
 	interactor: Annotated[ProjectMetadataInteractor, Depends(projects_dep)],
-) -> JSONResponse:
+) -> CreateProjectResponse:
 	res = await interactor.create(body.name, body.description)
-	return JSONResponse(
-		content={"message": "Project created successfully.", "project_id": res.id},
-		status_code=status.HTTP_201_CREATED,
+	return CreateProjectResponse(
+		message="Project created successfully.",
+		project_id=res.id,
 	)
 
 
@@ -94,9 +102,6 @@ async def update_project(
 async def delete_project(
 	project_id: Annotated[int, Path()],
 	interactor: Annotated[ProjectMetadataInteractor, Depends(projects_dep)],
-) -> JSONResponse:
+) -> MessageResponse:
 	await interactor.delete(project_id)
-	return JSONResponse(
-		content={"message": "Project deleted successfully."},
-		status_code=status.HTTP_200_OK,
-	)
+	return MessageResponse(message="Project deleted successfully.")
