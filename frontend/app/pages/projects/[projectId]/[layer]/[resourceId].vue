@@ -33,6 +33,7 @@ const showUploadModal = ref(false)
 const showRenameModal = ref(false)
 const uploading = ref(false)
 const renameName = ref('')
+const renameDescription = ref('')
 const renaming = ref(false)
 
 const schemaMap = ref<Map<number, SchemaResponse>>(new Map())
@@ -149,20 +150,21 @@ async function renameResource() {
   if (!renameName.value.trim()) return
   renaming.value = true
   try {
+    const desc = renameDescription.value || null
     if (layer.value === 'bronze') {
       resource.value = await bronze.updateResourceBronzeResourceIdPatch({
         resourceId: resourceId.value,
-        updateResourceRequest: { name: renameName.value }
+        updateResourceRequest: { name: renameName.value, description: desc }
       })
     } else if (layer.value === 'silver') {
       resource.value = await silver.updateResourceSilverResourceIdPatch({
         resourceId: resourceId.value,
-        updateSilverResourceRequest: { name: renameName.value }
+        updateSilverResourceRequest: { name: renameName.value, description: desc }
       })
     } else {
       resource.value = await gold.updateResourceGoldResourceIdPatch({
         resourceId: resourceId.value,
-        updateGoldResourceRequest: { name: renameName.value }
+        updateGoldResourceRequest: { name: renameName.value, description: desc }
       })
     }
     showRenameModal.value = false
@@ -173,6 +175,7 @@ async function renameResource() {
 
 function openRename() {
   renameName.value = resource.value?.name ?? ''
+  renameDescription.value = resource.value?.description ?? ''
   showRenameModal.value = true
 }
 
@@ -317,7 +320,7 @@ fetchAll()
         >
           <UButton
             icon="i-lucide-pencil"
-            label="Rename"
+            label="Edit"
             variant="outline"
             color="neutral"
             size="sm"
@@ -670,7 +673,7 @@ fetchAll()
       </template>
     </UModal>
 
-    <!-- Rename Modal -->
+    <!-- Edit Modal -->
     <UModal
       v-model:open="showRenameModal"
       class="max-w-sm"
@@ -678,14 +681,20 @@ fetchAll()
       <template #content>
         <div class="p-6">
           <h2 class="text-lg font-semibold mb-4">
-            Rename Resource
+            Edit Resource
           </h2>
           <UInput
             v-model="renameName"
-            placeholder="New name"
+            placeholder="Name"
+            color="neutral"
+            class="mb-3 w-full"
+          />
+          <UTextarea
+            v-model="renameDescription"
+            placeholder="Description (optional)"
             color="neutral"
             class="mb-4 w-full"
-            @keyup.enter="renameResource"
+            :rows="3"
           />
           <div class="flex justify-end gap-2">
             <UButton

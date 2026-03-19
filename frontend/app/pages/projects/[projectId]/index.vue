@@ -25,6 +25,7 @@ const creating = ref(false)
 
 const showRenameModal = ref(false)
 const renameName = ref('')
+const renameDescription = ref('')
 const renaming = ref(false)
 
 const tabs = [
@@ -49,6 +50,7 @@ async function fetchResources() {
       all = await gold.listResourcesGoldGet()
     }
     resources.value = all.filter(r => r.project_id === projectId.value)
+    resources.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
   } finally {
     resourcesLoading.value = false
   }
@@ -125,7 +127,10 @@ async function renameProject() {
   try {
     project.value = await projects.updateProjectProjectsProjectIdPatch({
       projectId: projectId.value,
-      updateProjectRequest: { name: renameName.value }
+      updateProjectRequest: {
+        name: renameName.value,
+        description: renameDescription.value || null
+      }
     })
     showRenameModal.value = false
   } finally {
@@ -135,6 +140,7 @@ async function renameProject() {
 
 function openRename() {
   renameName.value = project.value?.name ?? ''
+  renameDescription.value = project.value?.description ?? ''
   showRenameModal.value = true
 }
 
@@ -197,7 +203,7 @@ init()
       <div class="flex items-center gap-2">
         <UButton
           icon="i-lucide-pencil"
-          label="Rename"
+          label="Edit"
           variant="outline"
           color="neutral"
           size="sm"
@@ -355,7 +361,7 @@ init()
       </div>
     </div>
 
-    <!-- Rename Modal -->
+    <!-- Edit Modal -->
     <UModal
       v-model:open="showRenameModal"
       class="max-w-sm"
@@ -363,14 +369,20 @@ init()
       <template #content>
         <div class="p-6">
           <h2 class="text-lg font-semibold mb-4">
-            Rename Project
+            Edit Project
           </h2>
           <UInput
             v-model="renameName"
-            placeholder="New name"
+            placeholder="Name"
+            color="neutral"
+            class="mb-3 w-full"
+          />
+          <UTextarea
+            v-model="renameDescription"
+            placeholder="Description (optional)"
             color="neutral"
             class="mb-4 w-full"
-            @keyup.enter="renameProject"
+            :rows="3"
           />
           <div class="flex justify-end gap-2">
             <UButton
