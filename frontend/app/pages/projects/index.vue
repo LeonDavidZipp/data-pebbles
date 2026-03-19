@@ -15,6 +15,7 @@ async function fetchProjects() {
   loading.value = true
   try {
     projectList.value = await projects.listProjectsProjectsGet()
+    projectList.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
   } finally {
     loading.value = false
   }
