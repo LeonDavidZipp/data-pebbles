@@ -8,6 +8,7 @@ import type {
 
 const route = useRoute()
 const { projects, bronze, silver, gold } = useApi()
+const { copiedId, copyId } = useCopyId()
 
 const projectId = computed(() => Number(route.params.projectId))
 
@@ -171,6 +172,20 @@ init()
           <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
             {{ project?.name ?? '...' }}
           </h1>
+          <div
+            v-if="project"
+            class="flex items-center gap-0.5 text-xs text-gray-400"
+          >
+            <span class="font-mono">ID: {{ project.id }}</span>
+            <UButton
+              :icon="copiedId === `project-${project.id}` ? 'i-lucide-check' : 'i-lucide-copy'"
+              variant="ghost"
+              color="neutral"
+              size="xs"
+              class="size-5 cursor-pointer"
+              @click="copyId(`project-${project.id}`, project.id)"
+            />
+          </div>
         </div>
         <p
           v-if="project?.description"
@@ -254,6 +269,9 @@ init()
           <thead>
             <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
               <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                ID
+              </th>
+              <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
                 Name
               </th>
               <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
@@ -274,6 +292,22 @@ init()
               class="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
               @click="navigateTo(`/projects/${projectId}/${activeTab}/${resource.id}`)"
             >
+              <td class="py-3 px-4">
+                <div
+                  class="flex items-center gap-1"
+                  @click.stop
+                >
+                  <span class="font-mono text-gray-500 dark:text-gray-400 text-xs">{{ resource.id }}</span>
+                  <UButton
+                    :icon="copiedId === `resource-${resource.id}` ? 'i-lucide-check' : 'i-lucide-copy'"
+                    variant="ghost"
+                    color="neutral"
+                    size="xs"
+                    class="size-5 cursor-pointer"
+                    @click="copyId(`resource-${resource.id}`, resource.id)"
+                  />
+                </div>
+              </td>
               <td class="py-3 px-4">
                 <div class="flex items-center gap-2.5">
                   <div

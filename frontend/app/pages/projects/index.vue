@@ -2,6 +2,7 @@
 import type { ProjectResponse } from '~/utils/api'
 
 const { projects } = useApi()
+const { copiedId, copyId } = useCopyId()
 
 const projectList = ref<ProjectResponse[]>([])
 const loading = ref(true)
@@ -100,6 +101,9 @@ fetchProjects()
           <thead>
             <tr class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
               <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                ID
+              </th>
+              <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
                 Name
               </th>
               <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
@@ -120,6 +124,22 @@ fetchProjects()
               class="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
               @click="navigateTo(`/projects/${project.id}`)"
             >
+              <td class="py-3 px-4">
+                <div
+                  class="flex items-center gap-1"
+                  @click.stop
+                >
+                  <span class="font-mono text-gray-500 dark:text-gray-400 text-xs">{{ project.id }}</span>
+                  <UButton
+                    :icon="copiedId === `project-${project.id}` ? 'i-lucide-check' : 'i-lucide-copy'"
+                    variant="ghost"
+                    color="neutral"
+                    size="xs"
+                    class="size-5 cursor-pointer"
+                    @click="copyId(`project-${project.id}`, project.id)"
+                  />
+                </div>
+              </td>
               <td class="py-3 px-4">
                 <div class="flex items-center gap-2.5">
                   <div class="size-8 rounded flex items-center justify-center bg-indigo-500/10 text-indigo-500">
