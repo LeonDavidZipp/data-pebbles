@@ -11,6 +11,7 @@ import type {
 
 const route = useRoute()
 const { bronze, silver, gold } = useApi()
+const { copiedId, copyId } = useCopyId()
 
 const projectId = computed(() => Number(route.params.projectId))
 const layer = computed(() => route.params.layer as string)
@@ -229,6 +230,12 @@ function getVersionNumber(
   return 'version' in v ? v.version : v.delta_version
 }
 
+function getDisplayVersion(
+  v: VersionResponse | SilverLineageResponse | GoldLineageResponse
+): number {
+  return 'version' in v ? v.version : v.delta_version + 1
+}
+
 function getStatus(
   v: VersionResponse | SilverLineageResponse | GoldLineageResponse
 ): string | null {
@@ -350,9 +357,19 @@ fetchAll()
           <div class="grid grid-cols-3 gap-4 text-sm">
             <div>
               <span class="text-gray-500 dark:text-gray-400">Resource ID</span>
-              <p class="font-medium text-gray-900 dark:text-white mt-0.5">
-                {{ resource.id }}
-              </p>
+              <div class="flex items-center gap-1 mt-0.5">
+                <p class="font-medium text-gray-900 dark:text-white">
+                  {{ resource.id }}
+                </p>
+                <UButton
+                  :icon="copiedId === `resource-${resource.id}` ? 'i-lucide-check' : 'i-lucide-copy'"
+                  variant="ghost"
+                  color="neutral"
+                  size="xs"
+                  class="size-5 cursor-pointer"
+                  @click="copyId(`resource-${resource.id}`, resource.id)"
+                />
+              </div>
             </div>
             <div>
               <span class="text-gray-500 dark:text-gray-400">Layer</span>
@@ -414,6 +431,9 @@ fetchAll()
                 <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
                   Version
                 </th>
+                <th class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                  ID
+                </th>
                 <th
                   v-if="layer === 'bronze'"
                   class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider"
@@ -451,7 +471,23 @@ fetchAll()
                         :name="schemaMap.has(getVersionNumber(v)) ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'"
                         class="size-3.5 text-gray-400 shrink-0"
                       />
-                      v{{ getVersionNumber(v) }}
+                      v{{ getDisplayVersion(v) }}
+                    </div>
+                  </td>
+                  <td class="py-2.5 px-4">
+                    <div
+                      class="flex items-center gap-1"
+                      @click.stop
+                    >
+                      <span class="font-mono text-gray-500 dark:text-gray-400 text-xs">{{ v.id }}</span>
+                      <UButton
+                        :icon="copiedId === `version-${v.id}` ? 'i-lucide-check' : 'i-lucide-copy'"
+                        variant="ghost"
+                        color="neutral"
+                        size="xs"
+                        class="size-5 cursor-pointer"
+                        @click.stop="copyId(`version-${v.id}`, v.id)"
+                      />
                     </div>
                   </td>
                   <td
@@ -522,7 +558,7 @@ fetchAll()
                   class="border-b border-gray-100 dark:border-gray-800"
                 >
                   <td
-                    :colspan="layer === 'bronze' ? 4 : 4"
+                    :colspan="layer === 'bronze' ? 5 : 5"
                     class="p-4"
                   >
                     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
