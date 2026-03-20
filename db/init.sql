@@ -11,13 +11,45 @@ CREATE TABLE IF NOT EXISTS projects.project_metadata (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- raw layer
+
+CREATE SCHEMA IF NOT EXISTS raw;
+
+CREATE TYPE raw.file_status AS ENUM ('active', 'archived', 'deleted');
+
+-- stores metadata about the resource, e.g. "customer_data", "sales_data", etc.
+CREATE TABLE IF NOT EXISTS raw.resource_metadata (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(256) NOT NULL,
+    description VARCHAR(512),
+    project_id BIGINT NOT NULL REFERENCES projects.project_metadata (id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_resource_metadata_name ON raw.resource_metadata (name);
+
+-- stores metadata about each version of the resource, e.g. version number, S3 key, etc. This allows us to keep track of multiple versions of the same resource and their statuses (active, archived, deleted).
+CREATE TABLE IF NOT EXISTS raw.resource_versions (
+    id BIGSERIAL PRIMARY KEY,
+    resource_id BIGINT NOT NULL REFERENCES raw.resource_metadata (id) ON DELETE CASCADE,
+    version BIGINT NOT NULL,
+    status raw.file_status NOT NULL DEFAULT 'active',
+    s3_key TEXT UNIQUE NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (resource_id, version)
+);
+
+CREATE INDEX IF NOT EXISTS idx_resource_versions_resource_id ON raw.resource_versions (resource_id);
+
+CREATE INDEX IF NOT EXISTS idx_resource_versions_status ON raw.resource_versions (status);
+
 -- bronze layer
 
 CREATE SCHEMA IF NOT EXISTS bronze;
 
-CREATE TYPE bronze.file_status AS ENUM ('active', 'archived', 'deleted');
-
--- stores metadata about the resource, e.g. "customer_data", "sales_data", etc.
+-- stores metadata about the resource in the bronze layer, e.g. "customer_data", "sales_data", etc. This allows us to keep track of the lineage from silver to bronze, and also to store any additional metadata specific to the bronze layer if needed.
 CREATE TABLE IF NOT EXISTS bronze.resource_metadata (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(256) NOT NULL,
@@ -27,23 +59,20 @@ CREATE TABLE IF NOT EXISTS bronze.resource_metadata (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_resource_metadata_name ON bronze.resource_metadata (name);
+CREATE INDEX IF NOT EXISTS idx_bronze_resource_metadata_name ON bronze.resource_metadata (name);
 
--- stores metadata about each version of the resource, e.g. version number, S3 key, etc. This allows us to keep track of multiple versions of the same resource and their statuses (active, archived, deleted).
-CREATE TABLE IF NOT EXISTS bronze.resource_versions (
+-- stores the lineage information from raw to bronze, i.e. which version of the raw resource was used to create which version of the bronze resource. This allows us to trace back the lineage and also to keep track of multiple versions of the bronze resource and their corresponding raw versions.
+CREATE TABLE bronze.version_lineage (
     id BIGSERIAL PRIMARY KEY,
     resource_id BIGINT NOT NULL REFERENCES bronze.resource_metadata (id) ON DELETE CASCADE,
-    version BIGINT NOT NULL,
-    status bronze.file_status NOT NULL DEFAULT 'active',
-    s3_key TEXT UNIQUE NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE (resource_id, version)
+    delta_version BIGINT NOT NULL, -- bronze's Delta Lake version
+    from_resource_id BIGINT NOT NULL REFERENCES raw.resource_versions (id) ON DELETE RESTRICT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_resource_versions_resource_id ON bronze.resource_versions (resource_id);
+CREATE INDEX IF NOT EXISTS idx_bronze_version_lineage_resource_id ON bronze.version_lineage (resource_id);
 
-CREATE INDEX IF NOT EXISTS idx_resource_versions_status ON bronze.resource_versions (status);
+CREATE INDEX IF NOT EXISTS idx_bronze_version_lineage_from_resource_id ON bronze.version_lineage (from_resource_id);
 
 -- silver layer
 
@@ -66,7 +95,7 @@ CREATE TABLE silver.version_lineage (
     id BIGSERIAL PRIMARY KEY,
     resource_id BIGINT NOT NULL REFERENCES silver.resource_metadata (id) ON DELETE CASCADE,
     delta_version BIGINT NOT NULL,
-    from_resource_id BIGINT NOT NULL REFERENCES bronze.resource_versions (id) ON DELETE RESTRICT, -- TODO: is this actually correct?
+    from_resource_id BIGINT NOT NULL REFERENCES bronze.version_lineage (id) ON DELETE RESTRICT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
