@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS raw.resource_metadata (
 CREATE INDEX IF NOT EXISTS idx_resource_metadata_name ON raw.resource_metadata (name);
 
 -- stores metadata about each version of the resource, e.g. version number, S3 key, etc. This allows us to keep track of multiple versions of the same resource and their statuses (active, archived, deleted).
-CREATE TABLE IF NOT EXISTS raw.resource_versions (
+CREATE TABLE IF NOT EXISTS raw.version_lineage (
     id BIGSERIAL PRIMARY KEY,
     resource_id BIGINT NOT NULL REFERENCES raw.resource_metadata (id) ON DELETE CASCADE,
     version BIGINT NOT NULL,
@@ -41,9 +41,9 @@ CREATE TABLE IF NOT EXISTS raw.resource_versions (
     UNIQUE (resource_id, version)
 );
 
-CREATE INDEX IF NOT EXISTS idx_resource_versions_resource_id ON raw.resource_versions (resource_id);
+CREATE INDEX IF NOT EXISTS idx_version_lineage_resource_id ON raw.version_lineage (resource_id);
 
-CREATE INDEX IF NOT EXISTS idx_resource_versions_status ON raw.resource_versions (status);
+CREATE INDEX IF NOT EXISTS idx_version_lineage_status ON raw.version_lineage (status);
 
 -- bronze layer
 
@@ -66,7 +66,7 @@ CREATE TABLE bronze.version_lineage (
     id BIGSERIAL PRIMARY KEY,
     resource_id BIGINT NOT NULL REFERENCES bronze.resource_metadata (id) ON DELETE CASCADE,
     delta_version BIGINT NOT NULL, -- bronze's Delta Lake version
-    from_resource_id BIGINT NOT NULL REFERENCES raw.resource_versions (id) ON DELETE RESTRICT,
+    from_resource_id BIGINT NOT NULL REFERENCES raw.version_lineage (id) ON DELETE RESTRICT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
