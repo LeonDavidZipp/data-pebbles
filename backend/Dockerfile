@@ -23,10 +23,8 @@ RUN pip install uv \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./pyproject.toml ./pyproject.toml
-RUN pip install uv && \
-    uv venv && \
-    uv pip install --upgrade pip && \
-    uv pip install -r pyproject.toml
+RUN pip install uv \
+    && uv sync
 
 
 # #################################################################### #
