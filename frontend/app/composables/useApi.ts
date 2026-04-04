@@ -1,4 +1,5 @@
 import {
+  APIEndpointsForInteractingWithTheRawLayerApi,
   APIEndpointsForInteractingWithTheBronzeLayerApi,
   APIEndpointsForInteractingWithTheSilverLayerApi,
   APIEndpointsForInteractingWithTheGoldLayerApi,
@@ -9,9 +10,10 @@ import {
 export function useApi() {
   const config = new Configuration({ basePath: '/api' })
   const projects = new APIEndpointsForManagingProjectsApi(config)
+  const raw = new APIEndpointsForInteractingWithTheRawLayerApi(config)
   const bronze = new APIEndpointsForInteractingWithTheBronzeLayerApi(config)
   const silver = new APIEndpointsForInteractingWithTheSilverLayerApi(config)
   const gold = new APIEndpointsForInteractingWithTheGoldLayerApi(config)
 
-  return { projects, bronze, silver, gold }
+  return { projects, raw, bronze, silver, gold }
 }
