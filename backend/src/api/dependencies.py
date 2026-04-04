@@ -5,13 +5,15 @@ from fastapi import File, UploadFile
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from ..config import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, POSTGRES_URI, S3_URL
-from ..loaders import BronzeLoader, DeltaLoader, GoldLoader, SilverLoader
+from ..loaders import BronzeLoader, DeltaLoader, GoldLoader, RawLoader, SilverLoader
 from ..postgres import (
 	BronzeResourceMetadataInteractor,
-	BronzeResourceVersionInteractor,
+	BronzeVersionLineageInteractor,
 	GoldResourceMetadataInteractor,
 	GoldVersionLineageInteractor,
 	ProjectMetadataInteractor,
+	RawResourceMetadataInteractor,
+	RawVersionLineageInteractor,
 	SilverResourceMetadataInteractor,
 	SilverVersionLineageInteractor,
 )
@@ -68,13 +70,22 @@ s3_ = boto3.client(  # type: ignore
 	aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
 )
 
-bronze_resource_metadata_interactor_ = BronzeResourceMetadataInteractor(session_maker_)
-bronze_resource_version_interactor_ = BronzeResourceVersionInteractor(session_maker_)
-bronze_s3_interactor_ = S3Interactor("bronze", s3_)
+raw_resource_metadata_interactor_ = RawResourceMetadataInteractor(session_maker_)
+raw_resource_version_interactor_ = RawVersionLineageInteractor(session_maker_)
+raw_s3_interactor_ = S3Interactor("raw", s3_)
+raw_loader_ = RawLoader(
+	raw_resource_metadata_interactor_,
+	raw_resource_version_interactor_,
+	raw_s3_interactor_,
+)
+
+bronze_metadata_interactor_ = BronzeResourceMetadataInteractor(session_maker_)
+bronze_lineage_interactor_ = BronzeVersionLineageInteractor(session_maker_)
+bronze_delta_loader_ = DeltaLoader("bronze", storage_options=opts_)
 bronze_loader_ = BronzeLoader(
-	bronze_resource_metadata_interactor_,
-	bronze_resource_version_interactor_,
-	bronze_s3_interactor_,
+	bronze_metadata_interactor_,
+	bronze_lineage_interactor_,
+	bronze_delta_loader_,
 )
 
 silver_metadata_interactor_ = SilverResourceMetadataInteractor(session_maker_)
@@ -96,6 +107,10 @@ gold_loader_ = GoldLoader(
 )
 
 project_metadata_interactor_ = ProjectMetadataInteractor(session_maker_)
+
+
+def raw_dep() -> RawLoader:
+	return raw_loader_
 
 
 def bronze_dep() -> BronzeLoader:
