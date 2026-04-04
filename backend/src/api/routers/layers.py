@@ -7,7 +7,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from ...loaders import BronzeLoader, GoldLoader, SilverLoader
-from ..dependencies import validate_file
+from ..dependencies import bronze_dep, gold_dep, silver_dep, validate_file
 from ..exceptions import ResourceNotFoundError
 
 Loader = BronzeLoader | SilverLoader | GoldLoader
@@ -217,3 +217,8 @@ def create_layer_router(
 		return SchemaResponse(data_schema=schema, data=df.to_dict(as_series=False))
 
 	return router
+
+
+bronze_router = create_layer_router(bronze_dep)
+silver_router = create_layer_router(silver_dep)
+gold_router = create_layer_router(gold_dep, multi_source=True)
