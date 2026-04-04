@@ -4,86 +4,16 @@ All URIs are relative to *http://localhost*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**activateVersionBronzeResourceIdVersionsVersionPatch**](APIEndpointsForInteractingWithTheBronzeLayerApi.md#activateversionbronzeresourceidversionsversionpatch) | **PATCH** /bronze/{resource_id}/versions/{version} | Activate Version |
 | [**createResourceBronzePost**](APIEndpointsForInteractingWithTheBronzeLayerApi.md#createresourcebronzepost) | **POST** /bronze/ | Create Resource |
 | [**deleteResourceBronzeResourceIdDelete**](APIEndpointsForInteractingWithTheBronzeLayerApi.md#deleteresourcebronzeresourceiddelete) | **DELETE** /bronze/{resource_id} | Delete Resource |
-| [**deleteVersionBronzeResourceIdVersionsVersionDelete**](APIEndpointsForInteractingWithTheBronzeLayerApi.md#deleteversionbronzeresourceidversionsversiondelete) | **DELETE** /bronze/{resource_id}/versions/{version} | Delete Version |
 | [**downloadVersionBronzeResourceIdVersionsVersionGet**](APIEndpointsForInteractingWithTheBronzeLayerApi.md#downloadversionbronzeresourceidversionsversionget) | **GET** /bronze/{resource_id}/versions/{version} | Download Version |
 | [**getResourceBronzeResourceIdGet**](APIEndpointsForInteractingWithTheBronzeLayerApi.md#getresourcebronzeresourceidget) | **GET** /bronze/{resource_id} | Get Resource |
+| [**getSchemaBronzeResourceIdVersionsVersionSchemaGet**](APIEndpointsForInteractingWithTheBronzeLayerApi.md#getschemabronzeresourceidversionsversionschemaget) | **GET** /bronze/{resource_id}/versions/{version}/schema | Get Schema |
 | [**listResourcesBronzeGet**](APIEndpointsForInteractingWithTheBronzeLayerApi.md#listresourcesbronzeget) | **GET** /bronze/ | List Resources |
 | [**listVersionsBronzeResourceIdVersionsGet**](APIEndpointsForInteractingWithTheBronzeLayerApi.md#listversionsbronzeresourceidversionsget) | **GET** /bronze/{resource_id}/versions | List Versions |
 | [**updateResourceBronzeResourceIdPatch**](APIEndpointsForInteractingWithTheBronzeLayerApi.md#updateresourcebronzeresourceidpatch) | **PATCH** /bronze/{resource_id} | Update Resource |
-| [**uploadVersionBronzeResourceIdVersionsPost**](APIEndpointsForInteractingWithTheBronzeLayerApi.md#uploadversionbronzeresourceidversionspost) | **POST** /bronze/{resource_id}/versions | Upload Version |
+| [**uploadVersionSingleBronzeResourceIdVersionsPost**](APIEndpointsForInteractingWithTheBronzeLayerApi.md#uploadversionsinglebronzeresourceidversionspost) | **POST** /bronze/{resource_id}/versions | Upload Version Single |
 
-
-
-## activateVersionBronzeResourceIdVersionsVersionPatch
-
-> MessageResponse activateVersionBronzeResourceIdVersionsVersionPatch(resourceId, version)
-
-Activate Version
-
-### Example
-
-```ts
-import {
-  Configuration,
-  APIEndpointsForInteractingWithTheBronzeLayerApi,
-} from '';
-import type { ActivateVersionBronzeResourceIdVersionsVersionPatchRequest } from '';
-
-async function example() {
-  console.log("🚀 Testing  SDK...");
-  const api = new APIEndpointsForInteractingWithTheBronzeLayerApi();
-
-  const body = {
-    // number
-    resourceId: 56,
-    // number
-    version: 56,
-  } satisfies ActivateVersionBronzeResourceIdVersionsVersionPatchRequest;
-
-  try {
-    const data = await api.activateVersionBronzeResourceIdVersionsVersionPatch(body);
-    console.log(data);
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-// Run the test
-example().catch(console.error);
-```
-
-### Parameters
-
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **resourceId** | `number` |  | [Defaults to `undefined`] |
-| **version** | `number` |  | [Defaults to `undefined`] |
-
-### Return type
-
-[**MessageResponse**](MessageResponse.md)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: `application/json`
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **200** | Successful Response |  -  |
-| **422** | Validation Error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## createResourceBronzePost
@@ -194,75 +124,6 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **resourceId** | `number` |  | [Defaults to `undefined`] |
-
-### Return type
-
-[**MessageResponse**](MessageResponse.md)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: `application/json`
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **200** | Successful Response |  -  |
-| **422** | Validation Error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
-
-
-## deleteVersionBronzeResourceIdVersionsVersionDelete
-
-> MessageResponse deleteVersionBronzeResourceIdVersionsVersionDelete(resourceId, version)
-
-Delete Version
-
-### Example
-
-```ts
-import {
-  Configuration,
-  APIEndpointsForInteractingWithTheBronzeLayerApi,
-} from '';
-import type { DeleteVersionBronzeResourceIdVersionsVersionDeleteRequest } from '';
-
-async function example() {
-  console.log("🚀 Testing  SDK...");
-  const api = new APIEndpointsForInteractingWithTheBronzeLayerApi();
-
-  const body = {
-    // number
-    resourceId: 56,
-    // number
-    version: 56,
-  } satisfies DeleteVersionBronzeResourceIdVersionsVersionDeleteRequest;
-
-  try {
-    const data = await api.deleteVersionBronzeResourceIdVersionsVersionDelete(body);
-    console.log(data);
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-// Run the test
-example().catch(console.error);
-```
-
-### Parameters
-
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **resourceId** | `number` |  | [Defaults to `undefined`] |
-| **version** | `number` |  | [Defaults to `undefined`] |
 
 ### Return type
 
@@ -422,6 +283,75 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
+## getSchemaBronzeResourceIdVersionsVersionSchemaGet
+
+> SchemaResponse getSchemaBronzeResourceIdVersionsVersionSchemaGet(resourceId, version)
+
+Get Schema
+
+### Example
+
+```ts
+import {
+  Configuration,
+  APIEndpointsForInteractingWithTheBronzeLayerApi,
+} from '';
+import type { GetSchemaBronzeResourceIdVersionsVersionSchemaGetRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const api = new APIEndpointsForInteractingWithTheBronzeLayerApi();
+
+  const body = {
+    // number
+    resourceId: 56,
+    // number
+    version: 56,
+  } satisfies GetSchemaBronzeResourceIdVersionsVersionSchemaGetRequest;
+
+  try {
+    const data = await api.getSchemaBronzeResourceIdVersionsVersionSchemaGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **resourceId** | `number` |  | [Defaults to `undefined`] |
+| **version** | `number` |  | [Defaults to `undefined`] |
+
+### Return type
+
+[**SchemaResponse**](SchemaResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | Successful Response |  -  |
+| **422** | Validation Error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+
 ## listResourcesBronzeGet
 
 > Array&lt;MetadataResponse&gt; listResourcesBronzeGet()
@@ -481,7 +411,7 @@ No authorization required
 
 ## listVersionsBronzeResourceIdVersionsGet
 
-> Array&lt;VersionResponse&gt; listVersionsBronzeResourceIdVersionsGet(resourceId)
+> Array&lt;LineageResponse&gt; listVersionsBronzeResourceIdVersionsGet(resourceId)
 
 List Versions
 
@@ -524,7 +454,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;VersionResponse&gt;**](VersionResponse.md)
+[**Array&lt;LineageResponse&gt;**](LineageResponse.md)
 
 ### Authorization
 
@@ -614,11 +544,11 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## uploadVersionBronzeResourceIdVersionsPost
+## uploadVersionSingleBronzeResourceIdVersionsPost
 
-> MessageResponse uploadVersionBronzeResourceIdVersionsPost(resourceId, file)
+> MessageResponse uploadVersionSingleBronzeResourceIdVersionsPost(resourceId, fromResourceId, file)
 
-Upload Version
+Upload Version Single
 
 ### Example
 
@@ -627,7 +557,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheBronzeLayerApi,
 } from '';
-import type { UploadVersionBronzeResourceIdVersionsPostRequest } from '';
+import type { UploadVersionSingleBronzeResourceIdVersionsPostRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -636,12 +566,14 @@ async function example() {
   const body = {
     // number
     resourceId: 56,
+    // number
+    fromResourceId: 56,
     // string
     file: file_example,
-  } satisfies UploadVersionBronzeResourceIdVersionsPostRequest;
+  } satisfies UploadVersionSingleBronzeResourceIdVersionsPostRequest;
 
   try {
-    const data = await api.uploadVersionBronzeResourceIdVersionsPost(body);
+    const data = await api.uploadVersionSingleBronzeResourceIdVersionsPost(body);
     console.log(data);
   } catch (error) {
     console.error(error);
@@ -658,6 +590,7 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **resourceId** | `number` |  | [Defaults to `undefined`] |
+| **fromResourceId** | `number` |  | [Defaults to `undefined`] |
 | **file** | `string` |  | [Defaults to `undefined`] |
 
 ### Return type

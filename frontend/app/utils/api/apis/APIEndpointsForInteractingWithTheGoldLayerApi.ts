@@ -15,36 +15,36 @@
 
 import * as runtime from '../runtime';
 import type {
-  CreateGoldResourceRequest,
+  CreateResourceRequest,
   CreateResourceResponse,
-  GoldLineageResponse,
-  GoldMetadataResponse,
   HTTPValidationError,
+  LineageResponse,
   MessageResponse,
+  MetadataResponse,
   SchemaResponse,
-  UpdateGoldResourceRequest,
+  UpdateResourceRequest,
 } from '../models/index';
 import {
-    CreateGoldResourceRequestFromJSON,
-    CreateGoldResourceRequestToJSON,
+    CreateResourceRequestFromJSON,
+    CreateResourceRequestToJSON,
     CreateResourceResponseFromJSON,
     CreateResourceResponseToJSON,
-    GoldLineageResponseFromJSON,
-    GoldLineageResponseToJSON,
-    GoldMetadataResponseFromJSON,
-    GoldMetadataResponseToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
+    LineageResponseFromJSON,
+    LineageResponseToJSON,
     MessageResponseFromJSON,
     MessageResponseToJSON,
+    MetadataResponseFromJSON,
+    MetadataResponseToJSON,
     SchemaResponseFromJSON,
     SchemaResponseToJSON,
-    UpdateGoldResourceRequestFromJSON,
-    UpdateGoldResourceRequestToJSON,
+    UpdateResourceRequestFromJSON,
+    UpdateResourceRequestToJSON,
 } from '../models/index';
 
 export interface CreateResourceGoldPostRequest {
-    createGoldResourceRequest: CreateGoldResourceRequest;
+    createResourceRequest: CreateResourceRequest;
 }
 
 export interface DeleteResourceGoldResourceIdDeleteRequest {
@@ -71,10 +71,10 @@ export interface ListVersionsGoldResourceIdVersionsGetRequest {
 
 export interface UpdateResourceGoldResourceIdPatchRequest {
     resourceId: number;
-    updateGoldResourceRequest: UpdateGoldResourceRequest;
+    updateResourceRequest: UpdateResourceRequest;
 }
 
-export interface UploadVersionGoldResourceIdVersionsPostRequest {
+export interface UploadVersionMultiGoldResourceIdVersionsPostRequest {
     resourceId: number;
     resources: Array<number>;
     file: string;
@@ -89,10 +89,10 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
      * Create Resource
      */
     async createResourceGoldPostRaw(requestParameters: CreateResourceGoldPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateResourceResponse>> {
-        if (requestParameters['createGoldResourceRequest'] == null) {
+        if (requestParameters['createResourceRequest'] == null) {
             throw new runtime.RequiredError(
-                'createGoldResourceRequest',
-                'Required parameter "createGoldResourceRequest" was null or undefined when calling createResourceGoldPost().'
+                'createResourceRequest',
+                'Required parameter "createResourceRequest" was null or undefined when calling createResourceGoldPost().'
             );
         }
 
@@ -110,7 +110,7 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CreateGoldResourceRequestToJSON(requestParameters['createGoldResourceRequest']),
+            body: CreateResourceRequestToJSON(requestParameters['createResourceRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => CreateResourceResponseFromJSON(jsonValue));
@@ -213,7 +213,7 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
     /**
      * Get Resource
      */
-    async getResourceGoldResourceIdGetRaw(requestParameters: GetResourceGoldResourceIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GoldMetadataResponse>> {
+    async getResourceGoldResourceIdGetRaw(requestParameters: GetResourceGoldResourceIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MetadataResponse>> {
         if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
                 'resourceId',
@@ -236,13 +236,13 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => GoldMetadataResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => MetadataResponseFromJSON(jsonValue));
     }
 
     /**
      * Get Resource
      */
-    async getResourceGoldResourceIdGet(requestParameters: GetResourceGoldResourceIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GoldMetadataResponse> {
+    async getResourceGoldResourceIdGet(requestParameters: GetResourceGoldResourceIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MetadataResponse> {
         const response = await this.getResourceGoldResourceIdGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -295,7 +295,7 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
     /**
      * List Resources
      */
-    async listResourcesGoldGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<GoldMetadataResponse>>> {
+    async listResourcesGoldGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<MetadataResponse>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -310,13 +310,13 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GoldMetadataResponseFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(MetadataResponseFromJSON));
     }
 
     /**
      * List Resources
      */
-    async listResourcesGoldGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<GoldMetadataResponse>> {
+    async listResourcesGoldGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<MetadataResponse>> {
         const response = await this.listResourcesGoldGetRaw(initOverrides);
         return await response.value();
     }
@@ -324,7 +324,7 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
     /**
      * List Versions
      */
-    async listVersionsGoldResourceIdVersionsGetRaw(requestParameters: ListVersionsGoldResourceIdVersionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<GoldLineageResponse>>> {
+    async listVersionsGoldResourceIdVersionsGetRaw(requestParameters: ListVersionsGoldResourceIdVersionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<LineageResponse>>> {
         if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
                 'resourceId',
@@ -347,13 +347,13 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GoldLineageResponseFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(LineageResponseFromJSON));
     }
 
     /**
      * List Versions
      */
-    async listVersionsGoldResourceIdVersionsGet(requestParameters: ListVersionsGoldResourceIdVersionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<GoldLineageResponse>> {
+    async listVersionsGoldResourceIdVersionsGet(requestParameters: ListVersionsGoldResourceIdVersionsGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<LineageResponse>> {
         const response = await this.listVersionsGoldResourceIdVersionsGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -361,7 +361,7 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
     /**
      * Update Resource
      */
-    async updateResourceGoldResourceIdPatchRaw(requestParameters: UpdateResourceGoldResourceIdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GoldMetadataResponse>> {
+    async updateResourceGoldResourceIdPatchRaw(requestParameters: UpdateResourceGoldResourceIdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MetadataResponse>> {
         if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
                 'resourceId',
@@ -369,10 +369,10 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
             );
         }
 
-        if (requestParameters['updateGoldResourceRequest'] == null) {
+        if (requestParameters['updateResourceRequest'] == null) {
             throw new runtime.RequiredError(
-                'updateGoldResourceRequest',
-                'Required parameter "updateGoldResourceRequest" was null or undefined when calling updateResourceGoldResourceIdPatch().'
+                'updateResourceRequest',
+                'Required parameter "updateResourceRequest" was null or undefined when calling updateResourceGoldResourceIdPatch().'
             );
         }
 
@@ -391,42 +391,42 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
             method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: UpdateGoldResourceRequestToJSON(requestParameters['updateGoldResourceRequest']),
+            body: UpdateResourceRequestToJSON(requestParameters['updateResourceRequest']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => GoldMetadataResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => MetadataResponseFromJSON(jsonValue));
     }
 
     /**
      * Update Resource
      */
-    async updateResourceGoldResourceIdPatch(requestParameters: UpdateResourceGoldResourceIdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<GoldMetadataResponse> {
+    async updateResourceGoldResourceIdPatch(requestParameters: UpdateResourceGoldResourceIdPatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MetadataResponse> {
         const response = await this.updateResourceGoldResourceIdPatchRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
-     * Upload Version
+     * Upload Version Multi
      */
-    async uploadVersionGoldResourceIdVersionsPostRaw(requestParameters: UploadVersionGoldResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MessageResponse>> {
+    async uploadVersionMultiGoldResourceIdVersionsPostRaw(requestParameters: UploadVersionMultiGoldResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MessageResponse>> {
         if (requestParameters['resourceId'] == null) {
             throw new runtime.RequiredError(
                 'resourceId',
-                'Required parameter "resourceId" was null or undefined when calling uploadVersionGoldResourceIdVersionsPost().'
+                'Required parameter "resourceId" was null or undefined when calling uploadVersionMultiGoldResourceIdVersionsPost().'
             );
         }
 
         if (requestParameters['resources'] == null) {
             throw new runtime.RequiredError(
                 'resources',
-                'Required parameter "resources" was null or undefined when calling uploadVersionGoldResourceIdVersionsPost().'
+                'Required parameter "resources" was null or undefined when calling uploadVersionMultiGoldResourceIdVersionsPost().'
             );
         }
 
         if (requestParameters['file'] == null) {
             throw new runtime.RequiredError(
                 'file',
-                'Required parameter "file" was null or undefined when calling uploadVersionGoldResourceIdVersionsPost().'
+                'Required parameter "file" was null or undefined when calling uploadVersionMultiGoldResourceIdVersionsPost().'
             );
         }
 
@@ -472,10 +472,10 @@ export class APIEndpointsForInteractingWithTheGoldLayerApi extends runtime.BaseA
     }
 
     /**
-     * Upload Version
+     * Upload Version Multi
      */
-    async uploadVersionGoldResourceIdVersionsPost(requestParameters: UploadVersionGoldResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageResponse> {
-        const response = await this.uploadVersionGoldResourceIdVersionsPostRaw(requestParameters, initOverrides);
+    async uploadVersionMultiGoldResourceIdVersionsPost(requestParameters: UploadVersionMultiGoldResourceIdVersionsPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MessageResponse> {
+        const response = await this.uploadVersionMultiGoldResourceIdVersionsPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

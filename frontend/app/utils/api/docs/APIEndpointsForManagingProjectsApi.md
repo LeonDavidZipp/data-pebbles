@@ -18,6 +18,8 @@ All URIs are relative to *http://localhost*
 
 Create Project
 
+Create a new project.  Args:         body (CreateProjectRequest): name (str), description (str | None).  Returns:         CreateProjectResponse: Confirmation message and the new project_id (int).
+
 ### Example
 
 ```ts
@@ -83,6 +85,8 @@ No authorization required
 > MessageResponse deleteProjectProjectsProjectIdDelete(projectId)
 
 Delete Project
+
+Delete a project by its id. Does not automatically delete associated Bronze, Silver, or Gold resources.  Args:         project_id (int): The id of the project to delete.  Returns:         MessageResponse: Confirmation message.
 
 ### Example
 
@@ -150,6 +154,8 @@ No authorization required
 
 Get Project
 
+Return a single project by its id.  Args:         project_id (int): The id of the project.  Returns:         ProjectResponse: Project id, name, description, and created_at. 404 if                 not found.
+
 ### Example
 
 ```ts
@@ -216,6 +222,8 @@ No authorization required
 
 List Projects
 
+Return all projects. Use project_id from the results to scope Bronze, Silver, and Gold resource operations.  Returns:         list[ProjectResponse]: All projects with id, name, description, and created_at.
+
 ### Example
 
 ```ts
@@ -272,6 +280,8 @@ No authorization required
 > ProjectResponse updateProjectProjectsProjectIdPatch(projectId, updateProjectRequest)
 
 Update Project
+
+Update the name and/or description of a project.  Args:         project_id (int): The id of the project to update.         body (UpdateProjectRequest): name (str | None), description (str | None).                 Both fields are optional.  Returns:         ProjectResponse: Updated project data. 404 if not found.
 
 ### Example
 

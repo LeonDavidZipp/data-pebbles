@@ -12,13 +12,13 @@ All URIs are relative to *http://localhost*
 | [**listResourcesSilverGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#listresourcessilverget) | **GET** /silver/ | List Resources |
 | [**listVersionsSilverResourceIdVersionsGet**](APIEndpointsForInteractingWithTheSilverLayerApi.md#listversionssilverresourceidversionsget) | **GET** /silver/{resource_id}/versions | List Versions |
 | [**updateResourceSilverResourceIdPatch**](APIEndpointsForInteractingWithTheSilverLayerApi.md#updateresourcesilverresourceidpatch) | **PATCH** /silver/{resource_id} | Update Resource |
-| [**uploadVersionSilverResourceIdVersionsPost**](APIEndpointsForInteractingWithTheSilverLayerApi.md#uploadversionsilverresourceidversionspost) | **POST** /silver/{resource_id}/versions | Upload Version |
+| [**uploadVersionSingleSilverResourceIdVersionsPost**](APIEndpointsForInteractingWithTheSilverLayerApi.md#uploadversionsinglesilverresourceidversionspost) | **POST** /silver/{resource_id}/versions | Upload Version Single |
 
 
 
 ## createResourceSilverPost
 
-> CreateResourceResponse createResourceSilverPost(createSilverResourceRequest)
+> CreateResourceResponse createResourceSilverPost(createResourceRequest)
 
 Create Resource
 
@@ -36,8 +36,8 @@ async function example() {
   const api = new APIEndpointsForInteractingWithTheSilverLayerApi();
 
   const body = {
-    // CreateSilverResourceRequest
-    createSilverResourceRequest: ...,
+    // CreateResourceRequest
+    createResourceRequest: ...,
   } satisfies CreateResourceSilverPostRequest;
 
   try {
@@ -57,7 +57,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **createSilverResourceRequest** | [CreateSilverResourceRequest](CreateSilverResourceRequest.md) |  | |
+| **createResourceRequest** | [CreateResourceRequest](CreateResourceRequest.md) |  | |
 
 ### Return type
 
@@ -219,7 +219,7 @@ No authorization required
 
 ## getResourceSilverResourceIdGet
 
-> SilverMetadataResponse getResourceSilverResourceIdGet(resourceId)
+> MetadataResponse getResourceSilverResourceIdGet(resourceId)
 
 Get Resource
 
@@ -262,7 +262,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**SilverMetadataResponse**](SilverMetadataResponse.md)
+[**MetadataResponse**](MetadataResponse.md)
 
 ### Authorization
 
@@ -354,7 +354,7 @@ No authorization required
 
 ## listResourcesSilverGet
 
-> Array&lt;SilverMetadataResponse&gt; listResourcesSilverGet()
+> Array&lt;MetadataResponse&gt; listResourcesSilverGet()
 
 List Resources
 
@@ -389,7 +389,7 @@ This endpoint does not need any parameter.
 
 ### Return type
 
-[**Array&lt;SilverMetadataResponse&gt;**](SilverMetadataResponse.md)
+[**Array&lt;MetadataResponse&gt;**](MetadataResponse.md)
 
 ### Authorization
 
@@ -411,7 +411,7 @@ No authorization required
 
 ## listVersionsSilverResourceIdVersionsGet
 
-> Array&lt;SilverLineageResponse&gt; listVersionsSilverResourceIdVersionsGet(resourceId)
+> Array&lt;LineageResponse&gt; listVersionsSilverResourceIdVersionsGet(resourceId)
 
 List Versions
 
@@ -454,7 +454,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**Array&lt;SilverLineageResponse&gt;**](SilverLineageResponse.md)
+[**Array&lt;LineageResponse&gt;**](LineageResponse.md)
 
 ### Authorization
 
@@ -477,7 +477,7 @@ No authorization required
 
 ## updateResourceSilverResourceIdPatch
 
-> SilverMetadataResponse updateResourceSilverResourceIdPatch(resourceId, updateSilverResourceRequest)
+> MetadataResponse updateResourceSilverResourceIdPatch(resourceId, updateResourceRequest)
 
 Update Resource
 
@@ -497,8 +497,8 @@ async function example() {
   const body = {
     // number
     resourceId: 56,
-    // UpdateSilverResourceRequest
-    updateSilverResourceRequest: ...,
+    // UpdateResourceRequest
+    updateResourceRequest: ...,
   } satisfies UpdateResourceSilverResourceIdPatchRequest;
 
   try {
@@ -519,11 +519,11 @@ example().catch(console.error);
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **resourceId** | `number` |  | [Defaults to `undefined`] |
-| **updateSilverResourceRequest** | [UpdateSilverResourceRequest](UpdateSilverResourceRequest.md) |  | |
+| **updateResourceRequest** | [UpdateResourceRequest](UpdateResourceRequest.md) |  | |
 
 ### Return type
 
-[**SilverMetadataResponse**](SilverMetadataResponse.md)
+[**MetadataResponse**](MetadataResponse.md)
 
 ### Authorization
 
@@ -544,11 +544,11 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
-## uploadVersionSilverResourceIdVersionsPost
+## uploadVersionSingleSilverResourceIdVersionsPost
 
-> MessageResponse uploadVersionSilverResourceIdVersionsPost(resourceId, fromResourceId, file)
+> MessageResponse uploadVersionSingleSilverResourceIdVersionsPost(resourceId, fromResourceId, file)
 
-Upload Version
+Upload Version Single
 
 ### Example
 
@@ -557,7 +557,7 @@ import {
   Configuration,
   APIEndpointsForInteractingWithTheSilverLayerApi,
 } from '';
-import type { UploadVersionSilverResourceIdVersionsPostRequest } from '';
+import type { UploadVersionSingleSilverResourceIdVersionsPostRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -570,10 +570,10 @@ async function example() {
     fromResourceId: 56,
     // string
     file: file_example,
-  } satisfies UploadVersionSilverResourceIdVersionsPostRequest;
+  } satisfies UploadVersionSingleSilverResourceIdVersionsPostRequest;
 
   try {
-    const data = await api.uploadVersionSilverResourceIdVersionsPost(body);
+    const data = await api.uploadVersionSingleSilverResourceIdVersionsPost(body);
     console.log(data);
   } catch (error) {
     console.error(error);
