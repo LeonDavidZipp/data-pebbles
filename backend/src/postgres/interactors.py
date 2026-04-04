@@ -265,7 +265,7 @@ class RawVersionLineageInteractor:
 		async with self.session_maker() as db:
 			status = VersionStatus.ACTIVE if set_as_active else VersionStatus.ARCHIVED
 			next_version = (
-				select(func.coalesce(func.max(RawVersionLineage.delta_version), 0) + 1)
+				select(func.coalesce(func.max(RawVersionLineage.version), 0) + 1)
 				.where(RawVersionLineage.resource_id == resource_id)
 				.scalar_subquery()
 			)
