@@ -5,12 +5,14 @@ import pytest
 
 from src.loaders import BronzeLoader, GoldLoader, SilverLoader
 from src.postgres import (
-	BronzeResourceMetadataRead,
-	BronzeResourceVersionRead,
-	GoldResourceMetadataRead,
-	GoldVersionLineageRead,
-	SilverResourceMetadataRead,
-	SilverVersionLineageRead,
+	BronzeResourceMetadata,
+	BronzeVersionLineage,
+	GoldResourceMetadata,
+	GoldVersionLineage,
+	RawResourceMetadata,
+	RawVersionLineage,
+	SilverResourceMetadata,
+	SilverVersionLineage,
 	VersionStatus,
 )
 
@@ -18,8 +20,8 @@ NOW = datetime.now(timezone.utc)
 
 
 @pytest.fixture
-def bronze_metadata_read() -> BronzeResourceMetadataRead:
-	return BronzeResourceMetadataRead(
+def raw_metadata() -> RawResourceMetadata:
+	return RawResourceMetadata(
 		id=1,
 		name="test_resource",
 		description=None,
@@ -30,21 +32,40 @@ def bronze_metadata_read() -> BronzeResourceMetadataRead:
 
 
 @pytest.fixture
-def bronze_version_read() -> BronzeResourceVersionRead:
-	return BronzeResourceVersionRead(
+def raw_version() -> RawVersionLineage:
+	return RawVersionLineage(
 		id=1,
 		resource_id=1,
 		version=1,
 		status=VersionStatus.ACTIVE,
-		s3_key="bronze/test_20250101T000000_abc.csv",
+		s3_key="raw/test_20250101T000000_abc.csv",
 		created_at=NOW,
 		updated_at=NOW,
 	)
 
 
 @pytest.fixture
-def silver_metadata_read() -> SilverResourceMetadataRead:
-	return SilverResourceMetadataRead(
+def bronze_metadata() -> BronzeResourceMetadata:
+	return BronzeResourceMetadata(
+		id=1,
+		name="bronze_resource",
+		description=None,
+		project_id=1,
+		created_at=NOW,
+		updated_at=NOW,
+	)
+
+
+@pytest.fixture
+def bronze_lineage() -> BronzeVersionLineage:
+	return BronzeVersionLineage(
+		id=1, resource_id=1, delta_version=0, from_resource_id=1, created_at=NOW
+	)
+
+
+@pytest.fixture
+def silver_metadata() -> SilverResourceMetadata:
+	return SilverResourceMetadata(
 		id=1,
 		name="silver_resource",
 		description=None,
@@ -55,15 +76,15 @@ def silver_metadata_read() -> SilverResourceMetadataRead:
 
 
 @pytest.fixture
-def silver_lineage_read() -> SilverVersionLineageRead:
-	return SilverVersionLineageRead(
+def silver_lineage() -> SilverVersionLineage:
+	return SilverVersionLineage(
 		id=1, resource_id=1, delta_version=0, from_resource_id=1, created_at=NOW
 	)
 
 
 @pytest.fixture
-def gold_metadata_read() -> GoldResourceMetadataRead:
-	return GoldResourceMetadataRead(
+def gold_metadata() -> GoldResourceMetadata:
+	return GoldResourceMetadata(
 		id=1,
 		name="gold_resource",
 		description=None,
@@ -74,8 +95,8 @@ def gold_metadata_read() -> GoldResourceMetadataRead:
 
 
 @pytest.fixture
-def gold_lineage_read() -> GoldVersionLineageRead:
-	return GoldVersionLineageRead(
+def gold_lineage() -> GoldVersionLineage:
+	return GoldVersionLineage(
 		id=1, resource_id=1, delta_version=0, from_resource_id=1, created_at=NOW
 	)
 
