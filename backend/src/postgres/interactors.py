@@ -1,21 +1,25 @@
-from datetime import datetime, timezone
 from enum import StrEnum
 
-from pydantic import BaseModel
 from sqlalchemy import (
-	BigInteger,
 	CursorResult,
-	DateTime,
-	Enum,
-	ForeignKey,
-	String,
 	delete,
 	func,
 	select,
 	update,
 )
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+from .models import (
+	BronzeResourceMetadata,
+	BronzeVersionLineage,
+	GoldResourceMetadata,
+	GoldVersionLineage,
+	ProjectMetadata,
+	RawResourceMetadata,
+	RawVersionLineage,
+	SilverResourceMetadata,
+	SilverVersionLineage,
+)
 
 
 class VersionStatus(StrEnum):
@@ -24,67 +28,27 @@ class VersionStatus(StrEnum):
 	DELETED = "deleted"
 
 
-def _version_status_values(_: object) -> list[str]:
-	return [s.value for s in VersionStatus]
-
-
-class Base(DeclarativeBase):
-	pass
-
-
-class ProjectMetadata(Base):
-	"""Project metadata database table model."""
-
-	__tablename__ = "project_metadata"
-	__table_args__ = {"schema": "projects"}
-
-	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	name: Mapped[str] = mapped_column(String(256), nullable=False, unique=True)
-	description: Mapped[str | None] = mapped_column(String(512), nullable=True)
-	created_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-	)
-	updated_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-		onupdate=datetime.now(timezone.utc),
-	)
-
-
-class ProjectMetadataRead(BaseModel):
-	id: int
-	name: str
-	description: str | None
-	created_at: datetime
-	updated_at: datetime
-
-	model_config = {"from_attributes": True}
-
-
 class ProjectMetadataInteractor:
 	"""Async interactor for project metadata operations."""
 
 	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
 		self.session_maker = session_maker
 
-	async def get_all(self) -> list[ProjectMetadataRead]:
+	async def get_all(self) -> list[ProjectMetadata]:
 		"""Get all project metadata entries.
 
 		Returns:
-			list[ProjectMetadataRead]: All project metadata entries.
+			list[ProjectMetadata]: All project metadata entries.
 		"""
 		async with self.session_maker() as db:
 			result = await db.execute(
 				select(ProjectMetadata).order_by(ProjectMetadata.name)
 			)
-			return [
-				ProjectMetadataRead.model_validate(s) for s in result.scalars().all()
-			]
+			return list(result.scalars().all())
 
 	async def create(
 		self, name: str, description: str | None = None
-	) -> ProjectMetadataRead:
+	) -> ProjectMetadata:
 		"""Create a new project metadata entry.
 
 		Args:
@@ -92,37 +56,34 @@ class ProjectMetadataInteractor:
 			description (str | None): Description of the project.
 
 		Returns:
-			ProjectMetadataRead: The created project metadata.
+			ProjectMetadata: The created project metadata.
 		"""
 		async with self.session_maker() as db:
 			resource = ProjectMetadata(name=name, description=description)
 			db.add(resource)
 			await db.commit()
 			await db.refresh(resource)
-			return ProjectMetadataRead.model_validate(resource)
+			return resource
 
-	async def get(self, id: int) -> ProjectMetadataRead | None:
+	async def get(self, id: int) -> ProjectMetadata | None:
 		"""Get a project metadata entry by ID.
 
 		Args:
 			id (int): ID of the project.
 
 		Returns:
-			ProjectMetadataRead | None: The project metadata if found,
+			ProjectMetadata | None: The project metadata if found,
 				else None.
 		"""
 		async with self.session_maker() as db:
-			resource = await db.get(ProjectMetadata, id)
-			if resource is None:
-				return None
-			return ProjectMetadataRead.model_validate(resource)
+			return await db.get(ProjectMetadata, id)
 
 	async def update(
 		self,
 		id: int,
 		name: str | None = None,
 		description: str | None = None,
-	) -> ProjectMetadataRead | None:
+	) -> ProjectMetadata | None:
 		"""Update a project metadata entry.
 
 		Args:
@@ -131,7 +92,7 @@ class ProjectMetadataInteractor:
 			description (str | None): New description for the project.
 
 		Returns:
-			ProjectMetadataRead | None: The updated project metadata if found,
+			ProjectMetadata | None: The updated project metadata if found,
 				else None.
 		"""
 		async with self.session_maker() as db:
@@ -144,7 +105,7 @@ class ProjectMetadataInteractor:
 				resource.description = description
 			await db.commit()
 			await db.refresh(resource)
-			return ProjectMetadataRead.model_validate(resource)
+			return resource
 
 	async def delete(self, id: int) -> int:
 		"""Delete a project metadata entry.
@@ -163,112 +124,27 @@ class ProjectMetadataInteractor:
 			return result.rowcount
 
 
-class BronzeResourceMetadata(Base):
-	"""Resource metadata database table model."""
-
-	__tablename__ = "resource_metadata"
-	__table_args__ = {"schema": "bronze"}
-
-	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	name: Mapped[str] = mapped_column(String(256), nullable=False)
-	description: Mapped[str | None] = mapped_column(String(512), nullable=True)
-	project_id: Mapped[int] = mapped_column(
-		ForeignKey("projects.project_metadata.id", ondelete="CASCADE"),
-		index=True,
-	)
-	created_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-	)
-	updated_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-		onupdate=datetime.now(timezone.utc),
-	)
-
-
-class BronzeResourceMetadataRead(BaseModel):
-	id: int
-	name: str
-	description: str | None
-	project_id: int
-	created_at: datetime
-	updated_at: datetime
-
-	model_config = {"from_attributes": True}
-
-
-class BronzeResourceVersion(Base):
-	"""Bronze resource version database table model."""
-
-	__tablename__ = "resource_versions"
-	__table_args__ = {"schema": "bronze"}
-
-	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	resource_id: Mapped[int] = mapped_column(
-		ForeignKey("bronze.resource_metadata.id", ondelete="CASCADE"),
-		index=True,
-	)
-	version: Mapped[int] = mapped_column(nullable=False)
-	status: Mapped[VersionStatus] = mapped_column(
-		Enum(
-			VersionStatus,
-			name="file_status",
-			create_type=False,
-			schema="bronze",
-			values_callable=_version_status_values,
-		),
-		nullable=False,
-		default=VersionStatus.ACTIVE,
-	)
-	s3_key: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-	created_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-	)
-	updated_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-		onupdate=datetime.now(timezone.utc),
-	)
-
-
-class BronzeResourceVersionRead(BaseModel):
-	id: int
-	resource_id: int
-	version: int
-	status: VersionStatus
-	s3_key: str
-	created_at: datetime
-	updated_at: datetime
-
-	model_config = {"from_attributes": True}
-
-
-class BronzeResourceMetadataInteractor:
+class RawResourceMetadataInteractor:
 	"""Async interactor for resource metadata operations."""
 
 	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
 		self.session_maker = session_maker
 
-	async def get_all(self) -> list[BronzeResourceMetadataRead]:
+	async def get_all(self) -> list[RawResourceMetadata]:
 		"""Get all bronze resource metadata entries.
 
 		Returns:
-			list[BronzeResourceMetadataRead]: All resource metadata entries.
+			list[RawResourceMetadata]: All resource metadata entries.
 		"""
 		async with self.session_maker() as db:
 			result = await db.execute(
-				select(BronzeResourceMetadata).order_by(BronzeResourceMetadata.name)
+				select(RawResourceMetadata).order_by(RawResourceMetadata.name)
 			)
-			return [
-				BronzeResourceMetadataRead.model_validate(s)
-				for s in result.scalars().all()
-			]
+			return list(result.scalars().all())
 
 	async def create(
 		self, name: str, project_id: int, description: str | None = None
-	) -> BronzeResourceMetadataRead:
+	) -> RawResourceMetadata:
 		"""Create a new bronze resource metadata entry.
 
 		Args:
@@ -277,39 +153,39 @@ class BronzeResourceMetadataInteractor:
 			description (str | None): Description of the resource.
 
 		Returns:
-			BronzeResourceMetadataRead: The created resource metadata.
+			RawResourceMetadata: The created resource metadata.
 		"""
 		async with self.session_maker() as db:
-			resource = BronzeResourceMetadata(
+			resource = RawResourceMetadata(
 				name=name, project_id=project_id, description=description
 			)
 			db.add(resource)
 			await db.commit()
 			await db.refresh(resource)
-			return BronzeResourceMetadataRead.model_validate(resource)
+			return resource
 
-	async def get(self, id: int) -> BronzeResourceMetadataRead | None:
+	async def get(self, id: int) -> RawResourceMetadata | None:
 		"""Get a bronze resource metadata entry by ID.
 
 		Args:
 			id (int): ID of the resource.
 
 		Returns:
-			BronzeResourceMetadataRead | None: The resource metadata if found,
+			RawResourceMetadata | None: The resource metadata if found,
 				else None.
 		"""
 		async with self.session_maker() as db:
-			resource = await db.get(BronzeResourceMetadata, id)
+			resource = await db.get(RawResourceMetadata, id)
 			if resource is None:
 				return None
-			return BronzeResourceMetadataRead.model_validate(resource)
+			return resource
 
 	async def update(
 		self,
 		id: int,
 		name: str | None = None,
 		description: str | None = None,
-	) -> BronzeResourceMetadataRead | None:
+	) -> RawResourceMetadata | None:
 		"""Update a bronze resource metadata entry.
 
 		Args:
@@ -318,11 +194,11 @@ class BronzeResourceMetadataInteractor:
 			description (str | None): New description for the resource.
 
 		Returns:
-			BronzeResourceMetadataRead | None: The updated resource metadata if found,
+			RawResourceMetadata | None: The updated resource metadata if found,
 				else None.
 		"""
 		async with self.session_maker() as db:
-			resource = await db.get(BronzeResourceMetadata, id)
+			resource = await db.get(RawResourceMetadata, id)
 			if resource is None:
 				return None
 			if name is not None:
@@ -331,7 +207,7 @@ class BronzeResourceMetadataInteractor:
 				resource.description = description
 			await db.commit()
 			await db.refresh(resource)
-			return BronzeResourceMetadataRead.model_validate(resource)
+			return resource
 
 	async def delete(self, id: int) -> int:
 		"""Delete a bronze resource metadata entry.
@@ -344,13 +220,13 @@ class BronzeResourceMetadataInteractor:
 		"""
 		async with self.session_maker() as db:
 			result: CursorResult = await db.execute(  # type: ignore
-				delete(BronzeResourceMetadata).where(BronzeResourceMetadata.id == id)
+				delete(RawResourceMetadata).where(RawResourceMetadata.id == id)
 			)
 			await db.commit()
 			return result.rowcount
 
 
-class BronzeResourceVersionInteractor:
+class RawVersionLineageInteractor:
 	"""Async interactor for bronze resource version operations."""
 
 	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
@@ -373,11 +249,11 @@ class BronzeResourceVersionInteractor:
 		async with self.session_maker() as db:
 			status = VersionStatus.ACTIVE if set_as_active else VersionStatus.ARCHIVED
 			next_version = (
-				select(func.coalesce(func.max(BronzeResourceVersion.version), 0) + 1)
-				.where(BronzeResourceVersion.resource_id == resource_id)
+				select(func.coalesce(func.max(RawVersionLineage.delta_version), 0) + 1)
+				.where(RawVersionLineage.resource_id == resource_id)
 				.scalar_subquery()
 			)
-			entry = BronzeResourceVersion(
+			entry = RawVersionLineage(
 				resource_id=resource_id,
 				version=next_version,
 				s3_key=s3_key,
@@ -401,21 +277,21 @@ class BronzeResourceVersionInteractor:
 		"""
 		async with self.session_maker() as db:
 			await db.execute(
-				update(BronzeResourceVersion)
+				update(RawVersionLineage)
 				.where(
-					BronzeResourceVersion.resource_id == resource_id,
-					BronzeResourceVersion.status == VersionStatus.ACTIVE,
+					RawVersionLineage.resource_id == resource_id,
+					RawVersionLineage.status == VersionStatus.ACTIVE,
 				)
 				.values(status=VersionStatus.ARCHIVED)
 			)
 			result = await db.execute(
-				update(BronzeResourceVersion)
+				update(RawVersionLineage)
 				.where(
-					BronzeResourceVersion.resource_id == resource_id,
-					BronzeResourceVersion.version == version,
+					RawVersionLineage.resource_id == resource_id,
+					RawVersionLineage.version == version,
 				)
 				.values(status=VersionStatus.ACTIVE)
-				.returning(BronzeResourceVersion)
+				.returning(RawVersionLineage)
 			)
 			entry = result.scalars().first()
 			if entry is None:
@@ -423,7 +299,7 @@ class BronzeResourceVersionInteractor:
 			await db.commit()
 			return 1
 
-	async def get(self, id: int) -> BronzeResourceVersionRead | None:
+	async def get(self, id: int) -> RawVersionLineage | None:
 		"""
 		Get a bronze resource version by ID.
 
@@ -431,18 +307,15 @@ class BronzeResourceVersionInteractor:
 			id (int): ID of the bronze resource version.
 
 		Returns:
-			BronzeResourceVersionRead | None: BronzeResourceVersionRead object if found,
+			RawVersionLineage | None: RawVersionLineage object if found,
 			else None.
 		"""
 		async with self.session_maker() as db:
-			entry = await db.get(BronzeResourceVersion, id)
-			if entry is None:
-				return None
-			return BronzeResourceVersionRead.model_validate(entry)
+			return await db.get(RawVersionLineage, id)
 
 	async def get_by_resource(
 		self, resource_id: int, limit: int | None = None
-	) -> list[BronzeResourceVersionRead]:
+	) -> list[RawVersionLineage]:
 		"""Get all versions for a bronze resource.
 
 		Args:
@@ -451,30 +324,27 @@ class BronzeResourceVersionInteractor:
 				returns all.
 
 		Returns:
-			list[BronzeResourceVersionRead]: List of version entries.
+			list[RawVersionLineage]: List of version entries.
 		"""
 		async with self.session_maker() as db:
 			if limit is None:
 				result = await db.execute(
-					select(BronzeResourceVersion)
-					.where(BronzeResourceVersion.resource_id == resource_id)
-					.order_by(BronzeResourceVersion.version)
+					select(RawVersionLineage)
+					.where(RawVersionLineage.resource_id == resource_id)
+					.order_by(RawVersionLineage.version)
 				)
 			else:
 				result = await db.execute(
-					select(BronzeResourceVersion)
-					.where(BronzeResourceVersion.resource_id == resource_id)
-					.order_by(BronzeResourceVersion.version.desc())
+					select(RawVersionLineage)
+					.where(RawVersionLineage.resource_id == resource_id)
+					.order_by(RawVersionLineage.version.desc())
 					.limit(limit)
 				)
-			return [
-				BronzeResourceVersionRead.model_validate(v)
-				for v in result.scalars().all()
-			]
+			return list(result.scalars().all())
 
 	async def get_version_by_resource(
 		self, resource_id: int, version: int | None = None
-	) -> BronzeResourceVersionRead | None:
+	) -> RawVersionLineage | None:
 		"""
 		Get a specific version of a bronze resource, or the latest version if no version
 		is specified.
@@ -485,7 +355,7 @@ class BronzeResourceVersionInteractor:
 				latest version.
 
 		Returns:
-			BronzeResourceVersionRead | None: BronzeResourceVersionRead object if found,
+			RawVersionLineage | None: RawVersionLineage object if found,
 				else None.
 		"""
 		if version is None:
@@ -493,19 +363,16 @@ class BronzeResourceVersionInteractor:
 
 		async with self.session_maker() as db:
 			result = await db.execute(
-				select(BronzeResourceVersion).where(
-					BronzeResourceVersion.resource_id == resource_id,
-					BronzeResourceVersion.version == version,
+				select(RawVersionLineage).where(
+					RawVersionLineage.resource_id == resource_id,
+					RawVersionLineage.version == version,
 				)
 			)
-			entry = result.scalars().first()
-			if entry is None:
-				return None
-			return BronzeResourceVersionRead.model_validate(entry)
+			return result.scalars().first()
 
 	async def get_latest_by_resource(
 		self, resource_id: int
-	) -> BronzeResourceVersionRead | None:
+	) -> RawVersionLineage | None:
 		"""
 		Get the latest version of a bronze resource.
 
@@ -513,20 +380,17 @@ class BronzeResourceVersionInteractor:
 			resource_id (int): ID of the resource.
 
 		Returns:
-			BronzeResourceVersionRead | None: BronzeResourceVersionRead object for the
+			RawVersionLineage | None: RawVersionLineage object for the
 				latest version if found, else None.
 		"""
 		async with self.session_maker() as db:
 			result = await db.execute(
-				select(BronzeResourceVersion)
-				.where(BronzeResourceVersion.resource_id == resource_id)
-				.order_by(BronzeResourceVersion.version.desc())
+				select(RawVersionLineage)
+				.where(RawVersionLineage.resource_id == resource_id)
+				.order_by(RawVersionLineage.version.desc())
 				.limit(1)
 			)
-			entry = result.scalars().first()
-			if entry is None:
-				return None
-			return BronzeResourceVersionRead.model_validate(entry)
+			return result.scalars().first()
 
 	async def update(self, id: int, s3_key: str | None = None) -> int:
 		"""
@@ -540,7 +404,7 @@ class BronzeResourceVersionInteractor:
 			int: The number of rows affected by the update operation.
 		"""
 		async with self.session_maker() as db:
-			entry = await db.get(BronzeResourceVersion, id)
+			entry = await db.get(RawVersionLineage, id)
 			if entry is None:
 				return 0
 			if s3_key is not None:
@@ -559,7 +423,7 @@ class BronzeResourceVersionInteractor:
 		"""
 		async with self.session_maker() as db:
 			result: CursorResult = await db.execute(  # type: ignore
-				delete(BronzeResourceVersion).where(BronzeResourceVersion.id == id)
+				delete(RawVersionLineage).where(RawVersionLineage.id == id)
 			)
 			await db.commit()
 			return result.rowcount
@@ -576,82 +440,210 @@ class BronzeResourceVersionInteractor:
 		"""
 		async with self.session_maker() as db:
 			result: CursorResult = await db.execute(  # type: ignore
-				delete(BronzeResourceVersion).where(
-					BronzeResourceVersion.resource_id == resource_id,
-					BronzeResourceVersion.version == version,
+				delete(RawVersionLineage).where(
+					RawVersionLineage.resource_id == resource_id,
+					RawVersionLineage.version == version,
 				)
 			)
 			await db.commit()
 			return result.rowcount
 
 
-class SilverResourceMetadata(Base):
-	"""Silver resource metadata database table model."""
+class BronzeResourceMetadataInteractor:
+	"""Async interactor for bronze resource metadata operations."""
 
-	__tablename__ = "resource_metadata"
-	__table_args__ = {"schema": "silver"}
+	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
+		self.session_maker = session_maker
 
-	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	name: Mapped[str] = mapped_column(String(256), nullable=False)
-	description: Mapped[str | None] = mapped_column(String(512), nullable=True)
-	project_id: Mapped[int] = mapped_column(
-		ForeignKey("projects.project_metadata.id", ondelete="CASCADE"),
-		index=True,
-	)
-	created_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-	)
-	updated_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-		onupdate=datetime.now(timezone.utc),
-	)
+	async def get_all(self) -> list[BronzeResourceMetadata]:
+		"""Get all bronze resource metadata entries.
+
+		Returns:
+			list[BronzeResourceMetadata]: All resource metadata entries.
+		"""
+		async with self.session_maker() as db:
+			result = await db.execute(
+				select(BronzeResourceMetadata).order_by(BronzeResourceMetadata.name)
+			)
+			return list(result.scalars().all())
+
+	async def create(
+		self, name: str, project_id: int, description: str | None = None
+	) -> BronzeResourceMetadata:
+		"""Create a new bronze resource metadata entry.
+
+		Args:
+			name (str): Name of the resource.
+			project_id (int): ID of the project this resource belongs to.
+			description (str | None): Description of the resource.
+
+		Returns:
+			BronzeResourceMetadata: The created resource metadata.
+		"""
+		async with self.session_maker() as db:
+			resource = BronzeResourceMetadata(
+				name=name, project_id=project_id, description=description
+			)
+			db.add(resource)
+			await db.commit()
+			await db.refresh(resource)
+			return resource
+
+	async def get(self, id: int) -> BronzeResourceMetadata | None:
+		"""Get a bronze resource metadata entry by ID.
+
+		Args:
+			id (int): ID of the resource.
+
+		Returns:
+			BronzeResourceMetadata | None: The resource metadata if found,
+				else None.
+		"""
+		async with self.session_maker() as db:
+			return await db.get(BronzeResourceMetadata, id)
+
+	async def update(
+		self,
+		id: int,
+		name: str | None = None,
+		description: str | None = None,
+	) -> BronzeResourceMetadata | None:
+		"""Update a bronze resource metadata entry.
+
+		Args:
+			id (int): ID of the resource.
+			name (str | None): New name for the resource.
+			description (str | None): New description for the resource.
+
+		Returns:
+			BronzeResourceMetadata | None: The updated resource metadata if found,
+				else None.
+		"""
+		async with self.session_maker() as db:
+			resource = await db.get(BronzeResourceMetadata, id)
+			if resource is None:
+				return None
+			if name is not None:
+				resource.name = name
+			if description is not None:
+				resource.description = description
+			await db.commit()
+			await db.refresh(resource)
+			return resource
+
+	async def delete(self, id: int) -> int:
+		"""Delete a bronze resource metadata entry.
+
+		Args:
+			id (int): ID of the resource.
+
+		Returns:
+			int: The number of rows deleted.
+		"""
+		async with self.session_maker() as db:
+			result: CursorResult = await db.execute(  # type: ignore
+				delete(BronzeResourceMetadata).where(BronzeResourceMetadata.id == id)
+			)
+			await db.commit()
+			return result.rowcount
 
 
-class SilverResourceMetadataRead(BaseModel):
-	id: int
-	name: str
-	description: str | None
-	project_id: int
-	created_at: datetime
-	updated_at: datetime
+class BronzeVersionLineageInteractor:
+	"""Async interactor for bronze version lineage operations."""
 
-	model_config = {"from_attributes": True}
+	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
+		self.session_maker = session_maker
 
+	async def create(
+		self, resource_id: int, delta_version: int, from_resource_id: int
+	) -> BronzeVersionLineage:
+		"""Create a new bronze version lineage entry.
 
-class SilverVersionLineage(Base):
-	"""Silver version lineage database table model."""
+		Args:
+			resource_id (int): Bronze resource metadata ID.
+			delta_version (int): Bronze Delta Lake version.
+			from_resource_id (int): Bronze resource version ID this derives from.
 
-	__tablename__ = "version_lineage"
-	__table_args__ = {"schema": "silver"}
+		Returns:
+			BronzeVersionLineage: The created lineage entry.
+		"""
+		async with self.session_maker() as db:
+			entry = BronzeVersionLineage(
+				resource_id=resource_id,
+				delta_version=delta_version,
+				from_resource_id=from_resource_id,
+			)
+			db.add(entry)
+			await db.commit()
+			await db.refresh(entry)
+			return entry
 
-	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	resource_id: Mapped[int] = mapped_column(
-		ForeignKey("silver.resource_metadata.id", ondelete="CASCADE"),
-		index=True,
-		nullable=False,
-	)
-	delta_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
-	from_resource_id: Mapped[int] = mapped_column(
-		ForeignKey("bronze.resource_versions.id", ondelete="RESTRICT"),
-		index=True,
-		nullable=False,
-	)
-	created_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-	)
+	async def get(self, id: int) -> BronzeVersionLineage | None:
+		"""Get a bronze version lineage entry by ID.
 
+		Args:
+			id (int): ID of the lineage entry.
 
-class SilverVersionLineageRead(BaseModel):
-	id: int
-	resource_id: int
-	delta_version: int
-	from_resource_id: int
-	created_at: datetime
+		Returns:
+			BronzeVersionLineage | None: The lineage entry if found, else None.
+		"""
+		async with self.session_maker() as db:
+			return await db.get(BronzeVersionLineage, id)
 
-	model_config = {"from_attributes": True}
+	async def get_by_resource(self, resource_id: int) -> list[BronzeVersionLineage]:
+		"""Get all lineage entries for a bronze resource.
+
+		Args:
+			resource_id (int): Bronze resource metadata ID.
+
+		Returns:
+			list[BronzeVersionLineage]: List of lineage entries ordered by delta
+				version.
+		"""
+		async with self.session_maker() as db:
+			result = await db.execute(
+				select(BronzeVersionLineage)
+				.where(BronzeVersionLineage.resource_id == resource_id)
+				.order_by(BronzeVersionLineage.delta_version)
+			)
+			return list(result.scalars().all())
+
+	async def get_by_delta_version(
+		self, resource_id: int, delta_version: int
+	) -> BronzeVersionLineage | None:
+		"""Get the lineage entry for a specific bronze delta version.
+
+		Args:
+			resource_id (int): Bronze resource metadata ID.
+			delta_version (int): Delta Lake version number.
+
+		Returns:
+			BronzeVersionLineage | None: The lineage entry if found, else None.
+		"""
+		async with self.session_maker() as db:
+			result = await db.execute(
+				select(BronzeVersionLineage).where(
+					BronzeVersionLineage.resource_id == resource_id,
+					BronzeVersionLineage.delta_version == delta_version,
+				)
+			)
+			return result.scalars().first()
+
+	async def delete(self, id: int) -> int:
+		"""Delete a bronze version lineage entry.
+
+		Args:
+			id (int): ID of the lineage entry.
+
+		Returns:
+			int: The number of rows deleted.
+		"""
+		async with self.session_maker() as db:
+			result: CursorResult = await db.execute(  # type: ignore
+				delete(BronzeVersionLineage).where(BronzeVersionLineage.id == id)
+			)
+			await db.commit()
+			return result.rowcount
 
 
 class SilverResourceMetadataInteractor:
@@ -660,24 +652,21 @@ class SilverResourceMetadataInteractor:
 	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
 		self.session_maker = session_maker
 
-	async def get_all(self) -> list[SilverResourceMetadataRead]:
+	async def get_all(self) -> list[SilverResourceMetadata]:
 		"""Get all silver resource metadata entries.
 
 		Returns:
-			list[SilverResourceMetadataRead]: All resource metadata entries.
+			list[SilverResourceMetadata]: All resource metadata entries.
 		"""
 		async with self.session_maker() as db:
 			result = await db.execute(
 				select(SilverResourceMetadata).order_by(SilverResourceMetadata.name)
 			)
-			return [
-				SilverResourceMetadataRead.model_validate(s)
-				for s in result.scalars().all()
-			]
+			return list(result.scalars().all())
 
 	async def create(
 		self, name: str, project_id: int, description: str | None = None
-	) -> SilverResourceMetadataRead:
+	) -> SilverResourceMetadata:
 		"""Create a new silver resource metadata entry.
 
 		Args:
@@ -686,7 +675,7 @@ class SilverResourceMetadataInteractor:
 			description (str | None): Description of the resource.
 
 		Returns:
-			SilverResourceMetadataRead: The created resource metadata.
+			SilverResourceMetadata: The created resource metadata.
 		"""
 		async with self.session_maker() as db:
 			resource = SilverResourceMetadata(
@@ -695,30 +684,27 @@ class SilverResourceMetadataInteractor:
 			db.add(resource)
 			await db.commit()
 			await db.refresh(resource)
-			return SilverResourceMetadataRead.model_validate(resource)
+			return resource
 
-	async def get(self, id: int) -> SilverResourceMetadataRead | None:
+	async def get(self, id: int) -> SilverResourceMetadata | None:
 		"""Get a silver resource metadata entry by ID.
 
 		Args:
 			id (int): ID of the resource.
 
 		Returns:
-			SilverResourceMetadataRead | None: The resource metadata if found,
+			SilverResourceMetadata | None: The resource metadata if found,
 				else None.
 		"""
 		async with self.session_maker() as db:
-			resource = await db.get(SilverResourceMetadata, id)
-			if resource is None:
-				return None
-			return SilverResourceMetadataRead.model_validate(resource)
+			return await db.get(SilverResourceMetadata, id)
 
 	async def update(
 		self,
 		id: int,
 		name: str | None = None,
 		description: str | None = None,
-	) -> SilverResourceMetadataRead | None:
+	) -> SilverResourceMetadata | None:
 		"""Update a silver resource metadata entry.
 
 		Args:
@@ -727,7 +713,7 @@ class SilverResourceMetadataInteractor:
 			description (str | None): New description for the resource.
 
 		Returns:
-			SilverResourceMetadataRead | None: The updated resource metadata if found,
+			SilverResourceMetadata | None: The updated resource metadata if found,
 				else None.
 		"""
 		async with self.session_maker() as db:
@@ -740,7 +726,7 @@ class SilverResourceMetadataInteractor:
 				resource.description = description
 			await db.commit()
 			await db.refresh(resource)
-			return SilverResourceMetadataRead.model_validate(resource)
+			return resource
 
 	async def delete(self, id: int) -> int:
 		"""Delete a silver resource metadata entry.
@@ -767,7 +753,7 @@ class SilverVersionLineageInteractor:
 
 	async def create(
 		self, resource_id: int, delta_version: int, from_resource_id: int
-	) -> SilverVersionLineageRead:
+	) -> SilverVersionLineage:
 		"""Create a new silver version lineage entry.
 
 		Args:
@@ -776,7 +762,7 @@ class SilverVersionLineageInteractor:
 			from_resource_id (int): Bronze resource version ID this derives from.
 
 		Returns:
-			SilverVersionLineageRead: The created lineage entry.
+			SilverVersionLineage: The created lineage entry.
 		"""
 		async with self.session_maker() as db:
 			entry = SilverVersionLineage(
@@ -787,31 +773,28 @@ class SilverVersionLineageInteractor:
 			db.add(entry)
 			await db.commit()
 			await db.refresh(entry)
-			return SilverVersionLineageRead.model_validate(entry)
+			return entry
 
-	async def get(self, id: int) -> SilverVersionLineageRead | None:
+	async def get(self, id: int) -> SilverVersionLineage | None:
 		"""Get a silver version lineage entry by ID.
 
 		Args:
 			id (int): ID of the lineage entry.
 
 		Returns:
-			SilverVersionLineageRead | None: The lineage entry if found, else None.
+			SilverVersionLineage | None: The lineage entry if found, else None.
 		"""
 		async with self.session_maker() as db:
-			entry = await db.get(SilverVersionLineage, id)
-			if entry is None:
-				return None
-			return SilverVersionLineageRead.model_validate(entry)
+			return await db.get(SilverVersionLineage, id)
 
-	async def get_by_resource(self, resource_id: int) -> list[SilverVersionLineageRead]:
+	async def get_by_resource(self, resource_id: int) -> list[SilverVersionLineage]:
 		"""Get all lineage entries for a silver resource.
 
 		Args:
 			resource_id (int): Silver resource metadata ID.
 
 		Returns:
-			list[SilverVersionLineageRead]: List of lineage entries ordered by delta
+			list[SilverVersionLineage]: List of lineage entries ordered by delta
 				version.
 		"""
 		async with self.session_maker() as db:
@@ -820,14 +803,11 @@ class SilverVersionLineageInteractor:
 				.where(SilverVersionLineage.resource_id == resource_id)
 				.order_by(SilverVersionLineage.delta_version)
 			)
-			return [
-				SilverVersionLineageRead.model_validate(v)
-				for v in result.scalars().all()
-			]
+			return list(result.scalars().all())
 
 	async def get_by_delta_version(
 		self, resource_id: int, delta_version: int
-	) -> SilverVersionLineageRead | None:
+	) -> SilverVersionLineage | None:
 		"""Get the lineage entry for a specific silver delta version.
 
 		Args:
@@ -835,7 +815,7 @@ class SilverVersionLineageInteractor:
 			delta_version (int): Delta Lake version number.
 
 		Returns:
-			SilverVersionLineageRead | None: The lineage entry if found, else None.
+			SilverVersionLineage | None: The lineage entry if found, else None.
 		"""
 		async with self.session_maker() as db:
 			result = await db.execute(
@@ -844,10 +824,7 @@ class SilverVersionLineageInteractor:
 					SilverVersionLineage.delta_version == delta_version,
 				)
 			)
-			entry = result.scalars().first()
-			if entry is None:
-				return None
-			return SilverVersionLineageRead.model_validate(entry)
+			return result.scalars().first()
 
 	async def delete(self, id: int) -> int:
 		"""Delete a silver version lineage entry.
@@ -866,99 +843,27 @@ class SilverVersionLineageInteractor:
 			return result.rowcount
 
 
-class GoldResourceMetadata(Base):
-	"""Gold resource metadata database table model."""
-
-	__tablename__ = "resource_metadata"
-	__table_args__ = {"schema": "gold"}
-
-	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	name: Mapped[str] = mapped_column(String(256), nullable=False)
-	description: Mapped[str | None] = mapped_column(String(512), nullable=True)
-	project_id: Mapped[int] = mapped_column(
-		ForeignKey("projects.project_metadata.id", ondelete="CASCADE"),
-		index=True,
-	)
-	created_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-	)
-	updated_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-		onupdate=datetime.now(timezone.utc),
-	)
-
-
-class GoldResourceMetadataRead(BaseModel):
-	id: int
-	name: str
-	description: str | None
-	project_id: int
-	created_at: datetime
-	updated_at: datetime
-
-	model_config = {"from_attributes": True}
-
-
-class GoldVersionLineage(Base):
-	"""Gold version lineage database table model."""
-
-	__tablename__ = "version_lineage"
-	__table_args__ = {"schema": "gold"}
-
-	id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-	resource_id: Mapped[int] = mapped_column(
-		ForeignKey("gold.resource_metadata.id", ondelete="CASCADE"),
-		index=True,
-		nullable=False,
-	)
-	delta_version: Mapped[int] = mapped_column(BigInteger, nullable=False)
-	from_resource_id: Mapped[int] = mapped_column(
-		ForeignKey("silver.version_lineage.id", ondelete="RESTRICT"),
-		index=True,
-		nullable=False,
-	)
-	created_at: Mapped[datetime] = mapped_column(
-		DateTime(timezone=True),
-		insert_default=lambda: datetime.now(timezone.utc),
-	)
-
-
-class GoldVersionLineageRead(BaseModel):
-	id: int
-	resource_id: int
-	delta_version: int
-	from_resource_id: int
-	created_at: datetime
-
-	model_config = {"from_attributes": True}
-
-
 class GoldResourceMetadataInteractor:
 	"""Async interactor for gold resource metadata operations."""
 
 	def __init__(self, session_maker: async_sessionmaker[AsyncSession]):
 		self.session_maker = session_maker
 
-	async def get_all(self) -> list[GoldResourceMetadataRead]:
+	async def get_all(self) -> list[GoldResourceMetadata]:
 		"""Get all gold resource metadata entries.
 
 		Returns:
-			list[GoldResourceMetadataRead]: All resource metadata entries.
+			list[GoldResourceMetadata]: All resource metadata entries.
 		"""
 		async with self.session_maker() as db:
 			result = await db.execute(
 				select(GoldResourceMetadata).order_by(GoldResourceMetadata.name)
 			)
-			return [
-				GoldResourceMetadataRead.model_validate(s)
-				for s in result.scalars().all()
-			]
+			return list(result.scalars().all())
 
 	async def create(
 		self, name: str, project_id: int, description: str | None = None
-	) -> GoldResourceMetadataRead:
+	) -> GoldResourceMetadata:
 		"""Create a new gold resource metadata entry.
 
 		Args:
@@ -967,7 +872,7 @@ class GoldResourceMetadataInteractor:
 			description (str | None): Description of the resource.
 
 		Returns:
-			GoldResourceMetadataRead: The created resource metadata.
+			GoldResourceMetadata: The created resource metadata.
 		"""
 		async with self.session_maker() as db:
 			resource = GoldResourceMetadata(
@@ -976,29 +881,26 @@ class GoldResourceMetadataInteractor:
 			db.add(resource)
 			await db.commit()
 			await db.refresh(resource)
-			return GoldResourceMetadataRead.model_validate(resource)
+			return resource
 
-	async def get(self, id: int) -> GoldResourceMetadataRead | None:
+	async def get(self, id: int) -> GoldResourceMetadata | None:
 		"""Get a gold resource metadata entry by ID.
 
 		Args:
 			id (int): ID of the resource.
 
 		Returns:
-			GoldResourceMetadataRead | None: The resource metadata if found, else None.
+			GoldResourceMetadata | None: The resource metadata if found, else None.
 		"""
 		async with self.session_maker() as db:
-			resource = await db.get(GoldResourceMetadata, id)
-			if resource is None:
-				return None
-			return GoldResourceMetadataRead.model_validate(resource)
+			return await db.get(GoldResourceMetadata, id)
 
 	async def update(
 		self,
 		id: int,
 		name: str | None = None,
 		description: str | None = None,
-	) -> GoldResourceMetadataRead | None:
+	) -> GoldResourceMetadata | None:
 		"""Update a gold resource metadata entry.
 
 		Args:
@@ -1007,7 +909,7 @@ class GoldResourceMetadataInteractor:
 			description (str | None): New description for the resource.
 
 		Returns:
-			GoldResourceMetadataRead | None: The updated resource metadata if found,
+			GoldResourceMetadata | None: The updated resource metadata if found,
 				else None.
 		"""
 		async with self.session_maker() as db:
@@ -1020,7 +922,7 @@ class GoldResourceMetadataInteractor:
 				resource.description = description
 			await db.commit()
 			await db.refresh(resource)
-			return GoldResourceMetadataRead.model_validate(resource)
+			return resource
 
 	async def delete(self, id: int) -> int:
 		"""Delete a gold resource metadata entry.
@@ -1050,7 +952,7 @@ class GoldVersionLineageInteractor:
 		resource_id: int,
 		delta_version: int,
 		from_resource_id: int,
-	) -> GoldVersionLineageRead:
+	) -> GoldVersionLineage:
 		"""Create a new gold version lineage entry.
 
 		Args:
@@ -1059,7 +961,7 @@ class GoldVersionLineageInteractor:
 			from_resource_id (int): Silver version lineage row ID this derives from.
 
 		Returns:
-			GoldVersionLineageRead: The created lineage entry.
+			GoldVersionLineage: The created lineage entry.
 		"""
 		async with self.session_maker() as db:
 			entry = GoldVersionLineage(
@@ -1070,14 +972,14 @@ class GoldVersionLineageInteractor:
 			db.add(entry)
 			await db.commit()
 			await db.refresh(entry)
-			return GoldVersionLineageRead.model_validate(entry)
+			return entry
 
 	async def create_many(
 		self,
 		resource_id: int,
 		delta_version: int,
 		resources: list[int],
-	) -> list[GoldVersionLineageRead]:
+	) -> list[GoldVersionLineage]:
 		"""Create multiple lineage entries for a single gold delta version.
 
 		Args:
@@ -1086,7 +988,7 @@ class GoldVersionLineageInteractor:
 			resources (list[int]): List of silver version lineage row IDs.
 
 		Returns:
-			list[GoldVersionLineageRead]: The created lineage entries.
+			list[GoldVersionLineage]: The created lineage entries.
 		"""
 		async with self.session_maker() as db:
 			entries = [
@@ -1101,31 +1003,28 @@ class GoldVersionLineageInteractor:
 			await db.commit()
 			for entry in entries:
 				await db.refresh(entry)
-			return [GoldVersionLineageRead.model_validate(e) for e in entries]
+			return entries
 
-	async def get(self, id: int) -> GoldVersionLineageRead | None:
+	async def get(self, id: int) -> GoldVersionLineage | None:
 		"""Get a gold version lineage entry by ID.
 
 		Args:
 			id (int): ID of the lineage entry.
 
 		Returns:
-			GoldVersionLineageRead | None: The lineage entry if found, else None.
+			GoldVersionLineage | None: The lineage entry if found, else None.
 		"""
 		async with self.session_maker() as db:
-			entry = await db.get(GoldVersionLineage, id)
-			if entry is None:
-				return None
-			return GoldVersionLineageRead.model_validate(entry)
+			return await db.get(GoldVersionLineage, id)
 
-	async def get_by_resource(self, resource_id: int) -> list[GoldVersionLineageRead]:
+	async def get_by_resource(self, resource_id: int) -> list[GoldVersionLineage]:
 		"""Get all lineage entries for a gold resource.
 
 		Args:
 			resource_id (int): Gold resource metadata ID.
 
 		Returns:
-			list[GoldVersionLineageRead]: List of lineage entries ordered by delta
+			list[GoldVersionLineage]: List of lineage entries ordered by delta
 				version.
 		"""
 		async with self.session_maker() as db:
@@ -1134,13 +1033,11 @@ class GoldVersionLineageInteractor:
 				.where(GoldVersionLineage.resource_id == resource_id)
 				.order_by(GoldVersionLineage.delta_version)
 			)
-			return [
-				GoldVersionLineageRead.model_validate(v) for v in result.scalars().all()
-			]
+			return list(result.scalars().all())
 
 	async def get_by_delta_version(
 		self, resource_id: int, delta_version: int
-	) -> list[GoldVersionLineageRead]:
+	) -> list[GoldVersionLineage]:
 		"""Get all lineage entries for a specific gold delta version.
 
 		Args:
@@ -1148,7 +1045,7 @@ class GoldVersionLineageInteractor:
 			delta_version (int): Delta Lake version number.
 
 		Returns:
-			list[GoldVersionLineageRead]: List of lineage entries. Multiple entries
+			list[GoldVersionLineage]: List of lineage entries. Multiple entries
 				possible since a gold version can derive from multiple silver resources.
 		"""
 		async with self.session_maker() as db:
@@ -1158,9 +1055,7 @@ class GoldVersionLineageInteractor:
 					GoldVersionLineage.delta_version == delta_version,
 				)
 			)
-			return [
-				GoldVersionLineageRead.model_validate(v) for v in result.scalars().all()
-			]
+			return list(result.scalars().all())
 
 	async def delete(self, id: int) -> int:
 		"""Delete a gold version lineage entry.
