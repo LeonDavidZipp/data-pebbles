@@ -237,6 +237,21 @@ function getFileExtension(v: VersionResponse): string {
   return dot >= 0 ? key.slice(dot + 1).toLowerCase() : ''
 }
 
+function getFileName(v: VersionResponse): string {
+  const key = v.s3_key || ''
+  const slash = key.lastIndexOf('/')
+  return slash >= 0 ? key.slice(slash + 1) : key
+}
+
+const sourceLayer = computed(() => {
+  switch (layer.value) {
+    case 'bronze': return 'raw'
+    case 'silver': return 'bronze'
+    case 'gold': return 'silver'
+    default: return null
+  }
+})
+
 function parseCSV(text: string, delimiter = ','): { columns: string[], rows: Record<string, unknown>[] } {
   const lines = text.split(/\r?\n/).filter(l => l.trim())
   if (lines.length === 0) return { columns: [], rows: [] }
@@ -605,6 +620,12 @@ fetchAll()
                   v-if="isRaw"
                   class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider"
                 >
+                  Filename
+                </th>
+                <th
+                  v-if="isRaw"
+                  class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider"
+                >
                   Status
                 </th>
                 <th
@@ -657,6 +678,13 @@ fetchAll()
                   </td>
                   <td
                     v-if="isRaw"
+                    class="py-2.5 px-4 text-gray-500 dark:text-gray-400 text-xs truncate max-w-48"
+                    :title="getFileName(v as VersionResponse)"
+                  >
+                    {{ getFileName(v as VersionResponse) }}
+                  </td>
+                  <td
+                    v-if="isRaw"
                     class="py-2.5 px-4"
                   >
                     <UBadge
@@ -670,9 +698,16 @@ fetchAll()
                   </td>
                   <td
                     v-if="!isRaw"
-                    class="py-2.5 px-4 text-gray-500 dark:text-gray-400"
+                    class="py-2.5 px-4"
+                    @click.stop
                   >
-                    #{{ (v as LineageResponse).from_resource_id }}
+                    <NuxtLink
+                      v-if="sourceLayer"
+                      :to="`/projects/${projectId}/${sourceLayer}/${(v as LineageResponse).from_resource_id}`"
+                      class="text-indigo-500 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+                    >
+                      #{{ (v as LineageResponse).from_resource_id }}
+                    </NuxtLink>
                   </td>
                   <td class="py-2.5 px-4 text-gray-500 dark:text-gray-400">
                     {{ new Date(v.created_at).toLocaleDateString() }}
@@ -722,7 +757,7 @@ fetchAll()
                   class="border-b border-gray-100 dark:border-gray-800"
                 >
                   <td
-                    :colspan="isRaw ? 6 : 6"
+                    :colspan="isRaw ? 7 : 6"
                     class="p-4"
                   >
                     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
@@ -778,7 +813,7 @@ fetchAll()
                   class="border-b border-gray-100 dark:border-gray-800"
                 >
                   <td
-                    colspan="6"
+                    colspan="7"
                     class="p-4"
                   >
                     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
