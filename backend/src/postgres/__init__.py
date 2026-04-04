@@ -8,6 +8,7 @@ from .interactors import (
 	RawVersionLineageInteractor,
 	SilverResourceMetadataInteractor,
 	SilverVersionLineageInteractor,
+	VersionStatus,
 )
 from .models import (
 	BronzeResourceMetadata,
@@ -40,4 +41,5 @@ __all__ = [
 	"GoldResourceMetadataInteractor",
 	"GoldVersionLineageInteractor",
 	"ProjectMetadataInteractor",
+	"VersionStatus",
 ]
