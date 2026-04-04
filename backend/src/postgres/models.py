@@ -1,6 +1,7 @@
 from sqlalchemy import (
 	BigInteger,
 	DateTime,
+	Enum,
 	ForeignKeyConstraint,
 	Index,
 	PrimaryKeyConstraint,
@@ -9,7 +10,6 @@ from sqlalchemy import (
 	UniqueConstraint,
 	text,
 )
-from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
 
 Base = declarative_base()
@@ -202,9 +202,9 @@ class RawVersionLineage(Base):
 	resource_id = mapped_column(BigInteger, nullable=False)
 	version = mapped_column(BigInteger, nullable=False)
 	status = mapped_column(
-		ENUM("version_status", "active", "archived", "deleted", name="version_status"),
+		Enum("active", "archived", "deleted", name="version_status"),
 		nullable=False,
-		server_default=text("'archived'::projects.version_status"),
+		server_default=text("'archived'::version_status"),
 	)
 	s3_key = mapped_column(Text, nullable=False)
 	created_at = mapped_column(

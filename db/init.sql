@@ -1,8 +1,10 @@
+-- types
+
+CREATE TYPE version_status AS ENUM ('active', 'archived', 'deleted');
+
 -- projects
 
 CREATE SCHEMA IF NOT EXISTS projects;
-
-CREATE TYPE projects.version_status AS ENUM ('active', 'archived', 'deleted');
 
 -- stores metadata about the project, e.g. project name, description, etc. This allows us to group related resources together under a common project and also to store any additional metadata specific to the project if needed.
 CREATE TABLE IF NOT EXISTS projects.project_metadata (
@@ -34,7 +36,7 @@ CREATE TABLE IF NOT EXISTS raw.version_lineage (
     id BIGSERIAL PRIMARY KEY,
     resource_id BIGINT NOT NULL REFERENCES raw.resource_metadata (id) ON DELETE CASCADE,
     version BIGINT NOT NULL,
-    status projects.version_status NOT NULL DEFAULT 'archived',
+    status version_status NOT NULL DEFAULT 'archived',
     s3_key TEXT UNIQUE NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
