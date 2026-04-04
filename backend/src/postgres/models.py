@@ -33,18 +33,21 @@ class ProjectMetadata(Base):
 	)
 	description = mapped_column(String(512))
 
-	resource_metadata: Mapped[list["ResourceMetadata"]] = relationship(
-		"ResourceMetadata", uselist=True, back_populates="project"
+	resource_metadata: Mapped[list["BronzeResourceMetadata"]] = relationship(
+		"BronzeResourceMetadata", uselist=True, back_populates="project"
 	)
-	resource_metadata_: Mapped[list["ResourceMetadata_"]] = relationship(
-		"ResourceMetadata_", uselist=True, back_populates="project"
+	resource_metadata_: Mapped[list["GoldResourceMetadata"]] = relationship(
+		"GoldResourceMetadata", uselist=True, back_populates="project"
 	)
-	resource_metadata1: Mapped[list["ResourceMetadata1"]] = relationship(
-		"ResourceMetadata1", uselist=True, back_populates="project"
+	resource_metadata1: Mapped[list["RawResourceMetadata"]] = relationship(
+		"RawResourceMetadata", uselist=True, back_populates="project"
+	)
+	resource_metadata2: Mapped[list["SilverResourceMetadata"]] = relationship(
+		"SilverResourceMetadata", uselist=True, back_populates="project"
 	)
 
 
-class ResourceMetadata(Base):
+class BronzeResourceMetadata(Base):
 	__tablename__ = "resource_metadata"
 	__table_args__ = (
 		ForeignKeyConstraint(
@@ -54,7 +57,7 @@ class ResourceMetadata(Base):
 			name="resource_metadata_project_id_fkey",
 		),
 		PrimaryKeyConstraint("id", name="resource_metadata_pkey"),
-		Index("idx_resource_metadata_name", "name"),
+		Index("idx_bronze_resource_metadata_name", "name"),
 		{"schema": "bronze"},
 	)
 
@@ -72,12 +75,12 @@ class ResourceMetadata(Base):
 	project: Mapped["ProjectMetadata"] = relationship(
 		"ProjectMetadata", back_populates="resource_metadata"
 	)
-	resource_versions: Mapped[list["ResourceVersions"]] = relationship(
-		"ResourceVersions", uselist=True, back_populates="resource"
+	version_lineage: Mapped[list["BronzeVersionLineage"]] = relationship(
+		"BronzeVersionLineage", uselist=True, back_populates="resource"
 	)
 
 
-class ResourceMetadata_(Base):
+class GoldResourceMetadata(Base):
 	__tablename__ = "resource_metadata"
 	__table_args__ = (
 		ForeignKeyConstraint(
@@ -105,12 +108,45 @@ class ResourceMetadata_(Base):
 	project: Mapped["ProjectMetadata"] = relationship(
 		"ProjectMetadata", back_populates="resource_metadata_"
 	)
-	version_lineage: Mapped[list["VersionLineage_"]] = relationship(
-		"VersionLineage_", uselist=True, back_populates="resource"
+	version_lineage: Mapped[list["GoldVersionLineage"]] = relationship(
+		"GoldVersionLineage", uselist=True, back_populates="resource"
 	)
 
 
-class ResourceMetadata1(Base):
+class RawResourceMetadata(Base):
+	__tablename__ = "resource_metadata"
+	__table_args__ = (
+		ForeignKeyConstraint(
+			["project_id"],
+			["projects.project_metadata.id"],
+			ondelete="CASCADE",
+			name="resource_metadata_project_id_fkey",
+		),
+		PrimaryKeyConstraint("id", name="resource_metadata_pkey"),
+		Index("idx_resource_metadata_name", "name"),
+		{"schema": "raw"},
+	)
+
+	id = mapped_column(BigInteger)
+	name = mapped_column(String(256), nullable=False)
+	project_id = mapped_column(BigInteger, nullable=False)
+	created_at = mapped_column(
+		DateTime(True), nullable=False, server_default=text("now()")
+	)
+	updated_at = mapped_column(
+		DateTime(True), nullable=False, server_default=text("now()")
+	)
+	description = mapped_column(String(512))
+
+	project: Mapped["ProjectMetadata"] = relationship(
+		"ProjectMetadata", back_populates="resource_metadata1"
+	)
+	version_lineage: Mapped[list["RawVersionLineage"]] = relationship(
+		"RawVersionLineage", uselist=True, back_populates="resource"
+	)
+
+
+class SilverResourceMetadata(Base):
 	__tablename__ = "resource_metadata"
 	__table_args__ = (
 		ForeignKeyConstraint(
@@ -136,39 +172,39 @@ class ResourceMetadata1(Base):
 	description = mapped_column(String(512))
 
 	project: Mapped["ProjectMetadata"] = relationship(
-		"ProjectMetadata", back_populates="resource_metadata1"
+		"ProjectMetadata", back_populates="resource_metadata2"
 	)
-	version_lineage: Mapped[list["VersionLineage"]] = relationship(
-		"VersionLineage", uselist=True, back_populates="resource"
+	version_lineage: Mapped[list["SilverVersionLineage"]] = relationship(
+		"SilverVersionLineage", uselist=True, back_populates="resource"
 	)
 
 
-class ResourceVersions(Base):
-	__tablename__ = "resource_versions"
+class RawVersionLineage(Base):
+	__tablename__ = "version_lineage"
 	__table_args__ = (
 		ForeignKeyConstraint(
 			["resource_id"],
-			["bronze.resource_metadata.id"],
+			["raw.resource_metadata.id"],
 			ondelete="CASCADE",
-			name="resource_versions_resource_id_fkey",
+			name="version_lineage_resource_id_fkey",
 		),
-		PrimaryKeyConstraint("id", name="resource_versions_pkey"),
+		PrimaryKeyConstraint("id", name="version_lineage_pkey"),
 		UniqueConstraint(
-			"resource_id", "version", name="resource_versions_resource_id_version_key"
+			"resource_id", "version", name="version_lineage_resource_id_version_key"
 		),
-		UniqueConstraint("s3_key", name="resource_versions_s3_key_key"),
-		Index("idx_resource_versions_resource_id", "resource_id"),
-		Index("idx_resource_versions_status", "status"),
-		{"schema": "bronze"},
+		UniqueConstraint("s3_key", name="version_lineage_s3_key_key"),
+		Index("idx_version_lineage_resource_id", "resource_id"),
+		Index("idx_version_lineage_status", "status"),
+		{"schema": "raw"},
 	)
 
 	id = mapped_column(BigInteger)
 	resource_id = mapped_column(BigInteger, nullable=False)
 	version = mapped_column(BigInteger, nullable=False)
 	status = mapped_column(
-		ENUM("file_status", "active", "archived", "deleted", name="file_status"),
+		ENUM("version_status", "active", "archived", "deleted", name="version_status"),
 		nullable=False,
-		server_default=text("'active'::bronze.file_status"),
+		server_default=text("'archived'::projects.version_status"),
 	)
 	s3_key = mapped_column(Text, nullable=False)
 	created_at = mapped_column(
@@ -178,20 +214,60 @@ class ResourceVersions(Base):
 		DateTime(True), nullable=False, server_default=text("now()")
 	)
 
-	resource: Mapped["ResourceMetadata"] = relationship(
-		"ResourceMetadata", back_populates="resource_versions"
+	resource: Mapped["RawResourceMetadata"] = relationship(
+		"RawResourceMetadata", back_populates="version_lineage"
 	)
-	version_lineage: Mapped[list["VersionLineage"]] = relationship(
-		"VersionLineage", uselist=True, back_populates="from_resource"
+	version_lineage: Mapped[list["BronzeVersionLineage"]] = relationship(
+		"BronzeVersionLineage", uselist=True, back_populates="from_resource"
 	)
 
 
-class VersionLineage(Base):
+class BronzeVersionLineage(Base):
 	__tablename__ = "version_lineage"
 	__table_args__ = (
 		ForeignKeyConstraint(
 			["from_resource_id"],
-			["bronze.resource_versions.id"],
+			["raw.version_lineage.id"],
+			ondelete="RESTRICT",
+			name="version_lineage_from_resource_id_fkey",
+		),
+		ForeignKeyConstraint(
+			["resource_id"],
+			["bronze.resource_metadata.id"],
+			ondelete="CASCADE",
+			name="version_lineage_resource_id_fkey",
+		),
+		PrimaryKeyConstraint("id", name="version_lineage_pkey"),
+		Index("idx_bronze_version_lineage_from_resource_id", "from_resource_id"),
+		Index("idx_bronze_version_lineage_resource_id", "resource_id"),
+		{"schema": "bronze"},
+	)
+
+	id = mapped_column(BigInteger)
+	resource_id = mapped_column(BigInteger, nullable=False)
+	delta_version = mapped_column(BigInteger, nullable=False)
+	from_resource_id = mapped_column(BigInteger, nullable=False)
+	created_at = mapped_column(
+		DateTime(True), nullable=False, server_default=text("now()")
+	)
+
+	from_resource: Mapped["RawVersionLineage"] = relationship(
+		"RawVersionLineage", back_populates="version_lineage"
+	)
+	resource: Mapped["BronzeResourceMetadata"] = relationship(
+		"BronzeResourceMetadata", back_populates="version_lineage"
+	)
+	version_lineage: Mapped[list["SilverVersionLineage"]] = relationship(
+		"SilverVersionLineage", uselist=True, back_populates="from_resource"
+	)
+
+
+class SilverVersionLineage(Base):
+	__tablename__ = "version_lineage"
+	__table_args__ = (
+		ForeignKeyConstraint(
+			["from_resource_id"],
+			["bronze.version_lineage.id"],
 			ondelete="RESTRICT",
 			name="version_lineage_from_resource_id_fkey",
 		),
@@ -215,18 +291,18 @@ class VersionLineage(Base):
 		DateTime(True), nullable=False, server_default=text("now()")
 	)
 
-	from_resource: Mapped["ResourceVersions"] = relationship(
-		"ResourceVersions", back_populates="version_lineage"
+	from_resource: Mapped["BronzeVersionLineage"] = relationship(
+		"BronzeVersionLineage", back_populates="version_lineage"
 	)
-	resource: Mapped["ResourceMetadata1"] = relationship(
-		"ResourceMetadata1", back_populates="version_lineage"
+	resource: Mapped["SilverResourceMetadata"] = relationship(
+		"SilverResourceMetadata", back_populates="version_lineage"
 	)
-	version_lineage: Mapped[list["VersionLineage_"]] = relationship(
-		"VersionLineage_", uselist=True, back_populates="from_resource"
+	version_lineage: Mapped[list["GoldVersionLineage"]] = relationship(
+		"GoldVersionLineage", uselist=True, back_populates="from_resource"
 	)
 
 
-class VersionLineage_(Base):
+class GoldVersionLineage(Base):
 	__tablename__ = "version_lineage"
 	__table_args__ = (
 		ForeignKeyConstraint(
@@ -255,9 +331,9 @@ class VersionLineage_(Base):
 		DateTime(True), nullable=False, server_default=text("now()")
 	)
 
-	from_resource: Mapped["VersionLineage"] = relationship(
-		"VersionLineage", back_populates="version_lineage"
+	from_resource: Mapped["SilverVersionLineage"] = relationship(
+		"SilverVersionLineage", back_populates="version_lineage"
 	)
-	resource: Mapped["ResourceMetadata_"] = relationship(
-		"ResourceMetadata_", back_populates="version_lineage"
+	resource: Mapped["GoldResourceMetadata"] = relationship(
+		"GoldResourceMetadata", back_populates="version_lineage"
 	)
