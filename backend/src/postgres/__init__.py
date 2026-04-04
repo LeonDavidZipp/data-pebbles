@@ -3,6 +3,7 @@ from .interactors import (
 	BronzeVersionLineageInteractor,
 	GoldResourceMetadataInteractor,
 	GoldVersionLineageInteractor,
+	ProjectMetadataInteractor,
 	RawResourceMetadataInteractor,
 	RawVersionLineageInteractor,
 	SilverResourceMetadataInteractor,
@@ -38,4 +39,5 @@ __all__ = [
 	"SilverVersionLineageInteractor",
 	"GoldResourceMetadataInteractor",
 	"GoldVersionLineageInteractor",
+	"ProjectMetadataInteractor",
 ]
