@@ -1,11 +1,17 @@
 import { describe, it, expect } from 'vitest'
 import { Configuration } from '~/utils/api/runtime'
+import { APIEndpointsForInteractingWithTheRawLayerApi } from '~/utils/api/apis/APIEndpointsForInteractingWithTheRawLayerApi'
 import { APIEndpointsForInteractingWithTheBronzeLayerApi } from '~/utils/api/apis/APIEndpointsForInteractingWithTheBronzeLayerApi'
 import { APIEndpointsForInteractingWithTheSilverLayerApi } from '~/utils/api/apis/APIEndpointsForInteractingWithTheSilverLayerApi'
 import { APIEndpointsForInteractingWithTheGoldLayerApi } from '~/utils/api/apis/APIEndpointsForInteractingWithTheGoldLayerApi'
 
 describe('API client instantiation', () => {
   const config = new Configuration({ basePath: '/api' })
+
+  it('creates raw API client', () => {
+    const api = new APIEndpointsForInteractingWithTheRawLayerApi(config)
+    expect(api).toBeInstanceOf(APIEndpointsForInteractingWithTheRawLayerApi)
+  })
 
   it('creates bronze API client', () => {
     const api = new APIEndpointsForInteractingWithTheBronzeLayerApi(config)
@@ -22,6 +28,20 @@ describe('API client instantiation', () => {
     expect(api).toBeInstanceOf(APIEndpointsForInteractingWithTheGoldLayerApi)
   })
 
+  it('raw client has expected methods', () => {
+    const api = new APIEndpointsForInteractingWithTheRawLayerApi(config)
+    expect(typeof api.listResourcesRawGet).toBe('function')
+    expect(typeof api.createResourceRawPost).toBe('function')
+    expect(typeof api.getResourceRawResourceIdGet).toBe('function')
+    expect(typeof api.deleteResourceRawResourceIdDelete).toBe('function')
+    expect(typeof api.updateResourceRawResourceIdPatch).toBe('function')
+    expect(typeof api.listVersionsRawResourceIdVersionsGet).toBe('function')
+    expect(typeof api.uploadVersionRawResourceIdVersionsPost).toBe('function')
+    expect(typeof api.downloadVersionRawResourceIdVersionsVersionGet).toBe('function')
+    expect(typeof api.activateVersionRawResourceIdVersionsVersionPatch).toBe('function')
+    expect(typeof api.deleteVersionRawResourceIdVersionsVersionDelete).toBe('function')
+  })
+
   it('bronze client has expected methods', () => {
     const api = new APIEndpointsForInteractingWithTheBronzeLayerApi(config)
     expect(typeof api.listResourcesBronzeGet).toBe('function')
@@ -30,10 +50,9 @@ describe('API client instantiation', () => {
     expect(typeof api.deleteResourceBronzeResourceIdDelete).toBe('function')
     expect(typeof api.updateResourceBronzeResourceIdPatch).toBe('function')
     expect(typeof api.listVersionsBronzeResourceIdVersionsGet).toBe('function')
-    expect(typeof api.uploadVersionBronzeResourceIdVersionsPost).toBe('function')
+    expect(typeof api.uploadVersionSingleBronzeResourceIdVersionsPost).toBe('function')
     expect(typeof api.downloadVersionBronzeResourceIdVersionsVersionGet).toBe('function')
-    expect(typeof api.activateVersionBronzeResourceIdVersionsVersionPatch).toBe('function')
-    expect(typeof api.deleteVersionBronzeResourceIdVersionsVersionDelete).toBe('function')
+    expect(typeof api.getSchemaBronzeResourceIdVersionsVersionSchemaGet).toBe('function')
   })
 
   it('silver client has expected methods', () => {
