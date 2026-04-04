@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_mcp import FastApiMCP  # type: ignore[stub-not-found]
 
-from .api import bronze_router, gold_router, projects_router, silver_router
+from .api import bronze_router, gold_router, projects_router, raw_router, silver_router
 from .api.exceptions import register_exception_handlers
 
 app = FastAPI()
@@ -19,6 +19,11 @@ app.include_router(
 	projects_router,
 	prefix="/projects",
 	tags=["API Endpoints for managing projects"],
+)
+app.include_router(
+	raw_router,
+	prefix="/raw",
+	tags=["API Endpoints for interacting with the Raw layer"],
 )
 app.include_router(
 	bronze_router,
