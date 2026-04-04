@@ -2,6 +2,8 @@
 
 CREATE SCHEMA IF NOT EXISTS projects;
 
+CREATE TYPE projects.version_status AS ENUM ('active', 'archived', 'deleted');
+
 -- stores metadata about the project, e.g. project name, description, etc. This allows us to group related resources together under a common project and also to store any additional metadata specific to the project if needed.
 CREATE TABLE IF NOT EXISTS projects.project_metadata (
     id BIGSERIAL PRIMARY KEY,
@@ -14,8 +16,6 @@ CREATE TABLE IF NOT EXISTS projects.project_metadata (
 -- raw layer
 
 CREATE SCHEMA IF NOT EXISTS raw;
-
-CREATE TYPE raw.file_status AS ENUM ('active', 'archived', 'deleted');
 
 -- stores metadata about the resource, e.g. "customer_data", "sales_data", etc.
 CREATE TABLE IF NOT EXISTS raw.resource_metadata (
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS raw.version_lineage (
     id BIGSERIAL PRIMARY KEY,
     resource_id BIGINT NOT NULL REFERENCES raw.resource_metadata (id) ON DELETE CASCADE,
     version BIGINT NOT NULL,
-    status raw.file_status NOT NULL DEFAULT 'active',
+    status projects.version_status NOT NULL DEFAULT 'archived',
     s3_key TEXT UNIQUE NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
