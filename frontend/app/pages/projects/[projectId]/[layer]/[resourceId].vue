@@ -1,32 +1,30 @@
 <script setup lang="ts">
 import type {
   MetadataResponse,
-  SilverMetadataResponse,
-  GoldMetadataResponse,
   VersionResponse,
-  SilverLineageResponse,
-  GoldLineageResponse,
+  LineageResponse,
   SchemaResponse
 } from '~/utils/api'
 
 const route = useRoute()
-const { bronze, silver, gold } = useApi()
+const { raw, bronze, silver, gold } = useApi()
 const { copiedId, copyId } = useCopyId()
 
 const projectId = computed(() => Number(route.params.projectId))
 const layer = computed(() => route.params.layer as string)
 const resourceId = computed(() => Number(route.params.resourceId))
 
-const validLayers = ['bronze', 'silver', 'gold']
+const validLayers = ['raw', 'bronze', 'silver', 'gold']
 if (!validLayers.includes(layer.value)) {
   throw createError({ statusCode: 404, message: 'Layer not found' })
 }
 
-const resource = ref<
-  MetadataResponse | SilverMetadataResponse | GoldMetadataResponse | null
->(null)
+const isRaw = computed(() => layer.value === 'raw')
+const hasSchema = computed(() => ['bronze', 'silver', 'gold'].includes(layer.value))
+
+const resource = ref<MetadataResponse | null>(null)
 const versions = ref<
-  (VersionResponse | SilverLineageResponse | GoldLineageResponse)[]
+  (VersionResponse | LineageResponse)[]
 >([])
 const loading = ref(true)
 const showUploadModal = ref(false)
@@ -39,7 +37,17 @@ const renaming = ref(false)
 const schemaMap = ref<Map<number, SchemaResponse>>(new Map())
 const schemaLoadingSet = ref<Set<number>>(new Set())
 
-// Bronze upload
+// Raw file preview
+interface RawPreview {
+  type: 'table' | 'text'
+  columns?: string[]
+  rows?: Record<string, unknown>[]
+  text?: string
+}
+const rawPreviewMap = ref<Map<number, RawPreview>>(new Map())
+const rawPreviewLoadingSet = ref<Set<number>>(new Set())
+
+// Raw upload
 const fileInput = ref<HTMLInputElement | null>(null)
 const droppedFile = ref<File | null>(null)
 const isDragOver = ref(false)
@@ -63,7 +71,11 @@ function onFileChange(e: Event) {
 }
 
 async function fetchResource() {
-  if (layer.value === 'bronze') {
+  if (layer.value === 'raw') {
+    resource.value = await raw.getResourceRawResourceIdGet({
+      resourceId: resourceId.value
+    })
+  } else if (layer.value === 'bronze') {
     resource.value = await bronze.getResourceBronzeResourceIdGet({
       resourceId: resourceId.value
     })
@@ -79,7 +91,11 @@ async function fetchResource() {
 }
 
 async function fetchVersions() {
-  if (layer.value === 'bronze') {
+  if (layer.value === 'raw') {
+    versions.value = await raw.listVersionsRawResourceIdVersionsGet({
+      resourceId: resourceId.value
+    })
+  } else if (layer.value === 'bronze') {
     versions.value = await bronze.listVersionsBronzeResourceIdVersionsGet({
       resourceId: resourceId.value
     })
@@ -105,13 +121,13 @@ async function fetchAll() {
 
 async function uploadVersion() {
   const selectedFile = droppedFile.value
-  if (!selectedFile || layer.value !== 'bronze') return
+  if (!selectedFile || !isRaw.value) return
 
   uploading.value = true
   try {
     const file = selectedFile as unknown as string
 
-    await bronze.uploadVersionBronzeResourceIdVersionsPost({
+    await raw.uploadVersionRawResourceIdVersionsPost({
       resourceId: resourceId.value,
       file
     })
@@ -124,7 +140,7 @@ async function uploadVersion() {
 }
 
 async function activateVersion(version: number) {
-  await bronze.activateVersionBronzeResourceIdVersionsVersionPatch({
+  await raw.activateVersionRawResourceIdVersionsVersionPatch({
     resourceId: resourceId.value,
     version
   })
@@ -132,7 +148,7 @@ async function activateVersion(version: number) {
 }
 
 async function deleteVersion(version: number) {
-  await bronze.deleteVersionBronzeResourceIdVersionsVersionDelete({
+  await raw.deleteVersionRawResourceIdVersionsVersionDelete({
     resourceId: resourceId.value,
     version
   })
@@ -151,7 +167,12 @@ async function renameResource() {
   renaming.value = true
   try {
     const desc = renameDescription.value || null
-    if (layer.value === 'bronze') {
+    if (layer.value === 'raw') {
+      resource.value = await raw.updateResourceRawResourceIdPatch({
+        resourceId: resourceId.value,
+        updateResourceRequest: { name: renameName.value, description: desc }
+      })
+    } else if (layer.value === 'bronze') {
       resource.value = await bronze.updateResourceBronzeResourceIdPatch({
         resourceId: resourceId.value,
         updateResourceRequest: { name: renameName.value, description: desc }
@@ -159,12 +180,12 @@ async function renameResource() {
     } else if (layer.value === 'silver') {
       resource.value = await silver.updateResourceSilverResourceIdPatch({
         resourceId: resourceId.value,
-        updateSilverResourceRequest: { name: renameName.value, description: desc }
+        updateResourceRequest: { name: renameName.value, description: desc }
       })
     } else {
       resource.value = await gold.updateResourceGoldResourceIdPatch({
         resourceId: resourceId.value,
-        updateGoldResourceRequest: { name: renameName.value, description: desc }
+        updateResourceRequest: { name: renameName.value, description: desc }
       })
     }
     showRenameModal.value = false
@@ -180,7 +201,7 @@ function openRename() {
 }
 
 async function toggleSchema(version: number) {
-  if (layer.value === 'bronze') return
+  if (!hasSchema.value) return
   if (schemaMap.value.has(version)) {
     schemaMap.value.delete(version)
     return
@@ -188,7 +209,12 @@ async function toggleSchema(version: number) {
   schemaLoadingSet.value.add(version)
   try {
     let result: SchemaResponse | undefined
-    if (layer.value === 'silver') {
+    if (layer.value === 'bronze') {
+      result = await bronze.getSchemaBronzeResourceIdVersionsVersionSchemaGet({
+        resourceId: resourceId.value,
+        version
+      })
+    } else if (layer.value === 'silver') {
       result = await silver.getSchemaSilverResourceIdVersionsVersionSchemaGet({
         resourceId: resourceId.value,
         version
@@ -202,6 +228,126 @@ async function toggleSchema(version: number) {
     if (result) schemaMap.value.set(version, result)
   } finally {
     schemaLoadingSet.value.delete(version)
+  }
+}
+
+function getFileExtension(v: VersionResponse): string {
+  const key = v.s3_key || ''
+  const dot = key.lastIndexOf('.')
+  return dot >= 0 ? key.slice(dot + 1).toLowerCase() : ''
+}
+
+function parseCSV(text: string, delimiter = ','): { columns: string[], rows: Record<string, unknown>[] } {
+  const lines = text.split(/\r?\n/).filter(l => l.trim())
+  if (lines.length === 0) return { columns: [], rows: [] }
+  const columns = lines[0]!.split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''))
+  const rows = lines.slice(1, 6).map((line) => {
+    const values = line.split(delimiter).map(v => v.trim().replace(/^"|"$/g, ''))
+    return Object.fromEntries(columns.map((col, i) => [col, values[i] ?? '']))
+  })
+  return { columns, rows }
+}
+
+async function toggleRawPreview(version: number) {
+  if (!isRaw.value) return
+  if (rawPreviewMap.value.has(version)) {
+    rawPreviewMap.value.delete(version)
+    return
+  }
+
+  const v = versions.value.find(ver => getVersionNumber(ver) === version) as VersionResponse | undefined
+  if (!v) return
+
+  rawPreviewLoadingSet.value.add(version)
+  try {
+    const ext = getFileExtension(v)
+    const response = await fetch(`/api/raw/${resourceId.value}/versions/${version}`)
+
+    if (ext === 'json') {
+      const text = await response.text()
+      try {
+        const parsed = JSON.parse(text)
+        if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'object' && parsed[0] !== null) {
+          const items = parsed.slice(0, 5)
+          const columns = [...new Set(items.flatMap((item: Record<string, unknown>) => Object.keys(item)))]
+          const rows = items.map((item: Record<string, unknown>) =>
+            Object.fromEntries(columns.map(col => [col, item[col]]))
+          )
+          rawPreviewMap.value.set(version, { type: 'table', columns, rows })
+        } else {
+          rawPreviewMap.value.set(version, { type: 'text', text: JSON.stringify(parsed, null, 2).slice(0, 5000) })
+        }
+      } catch {
+        rawPreviewMap.value.set(version, { type: 'text', text: text.slice(0, 5000) })
+      }
+    } else if (ext === 'xlsx' || ext === 'xls') {
+      const buffer = await response.arrayBuffer()
+      try {
+        const XLSX = await import('xlsx')
+        const wb = XLSX.read(buffer, { type: 'array' })
+        const sheetName = wb.SheetNames[0]
+        const sheet = sheetName ? wb.Sheets[sheetName] : undefined
+        if (sheet) {
+          const jsonData = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet)
+          const items = jsonData.slice(0, 5)
+          const columns = items.length > 0 ? [...new Set(items.flatMap(item => Object.keys(item)))] : []
+          const rows = items.map(item =>
+            Object.fromEntries(columns.map(col => [col, item[col]]))
+          )
+          rawPreviewMap.value.set(version, { type: 'table', columns, rows })
+        } else {
+          rawPreviewMap.value.set(version, { type: 'text', text: '(empty workbook)' })
+        }
+      } catch {
+        rawPreviewMap.value.set(version, { type: 'text', text: '(unable to parse spreadsheet)' })
+      }
+    } else if (ext === 'csv') {
+      const text = await response.text()
+      try {
+        const { columns, rows } = parseCSV(text, ',')
+        if (columns.length > 0) {
+          rawPreviewMap.value.set(version, { type: 'table', columns, rows })
+        } else {
+          rawPreviewMap.value.set(version, { type: 'text', text: text.slice(0, 5000) })
+        }
+      } catch {
+        rawPreviewMap.value.set(version, { type: 'text', text: text.slice(0, 5000) })
+      }
+    } else if (ext === 'tsv') {
+      const text = await response.text()
+      try {
+        const { columns, rows } = parseCSV(text, '\t')
+        if (columns.length > 0) {
+          rawPreviewMap.value.set(version, { type: 'table', columns, rows })
+        } else {
+          rawPreviewMap.value.set(version, { type: 'text', text: text.slice(0, 5000) })
+        }
+      } catch {
+        rawPreviewMap.value.set(version, { type: 'text', text: text.slice(0, 5000) })
+      }
+    } else {
+      // Try reading as text for any other extension
+      try {
+        const text = await response.text()
+        // If text looks like binary (lots of null bytes or control chars), show a message
+        const controlCount = [...text.slice(0, 500)].filter((c) => {
+          const code = c.charCodeAt(0)
+          return code < 32 && code !== 9 && code !== 10 && code !== 13
+        }).length
+        if (controlCount > 50) {
+          rawPreviewMap.value.set(version, { type: 'text', text: '(binary file \u2014 cannot preview)' })
+        } else {
+          const lines = text.split(/\r?\n/).slice(0, 20).join('\n')
+          rawPreviewMap.value.set(version, { type: 'text', text: lines.slice(0, 5000) })
+        }
+      } catch {
+        rawPreviewMap.value.set(version, { type: 'text', text: '(unable to read file)' })
+      }
+    }
+  } catch {
+    rawPreviewMap.value.set(version, { type: 'text', text: '(failed to load preview)' })
+  } finally {
+    rawPreviewLoadingSet.value.delete(version)
   }
 }
 
@@ -228,25 +374,41 @@ function formatCell(value: unknown): string {
 }
 
 function getVersionNumber(
-  v: VersionResponse | SilverLineageResponse | GoldLineageResponse
+  v: VersionResponse | LineageResponse
 ): number {
   return 'version' in v ? v.version : v.delta_version
 }
 
 function getDisplayVersion(
-  v: VersionResponse | SilverLineageResponse | GoldLineageResponse
+  v: VersionResponse | LineageResponse
 ): number {
   return 'version' in v ? v.version : v.delta_version + 1
 }
 
 function getStatus(
-  v: VersionResponse | SilverLineageResponse | GoldLineageResponse
+  v: VersionResponse | LineageResponse
 ): string | null {
   return 'status' in v ? v.status : null
 }
 
+function hasPreview(version: number): boolean {
+  if (isRaw.value) return rawPreviewMap.value.has(version)
+  return schemaMap.value.has(version)
+}
+
+function isPreviewLoading(version: number): boolean {
+  if (isRaw.value) return rawPreviewLoadingSet.value.has(version)
+  return schemaLoadingSet.value.has(version)
+}
+
+function togglePreview(version: number) {
+  if (isRaw.value) return toggleRawPreview(version)
+  return toggleSchema(version)
+}
+
 const layerButtonClass = computed(() => {
   switch (layer.value) {
+    case 'raw': return 'bg-blue-600 hover:bg-blue-700 text-white'
     case 'silver': return 'bg-gray-400 hover:bg-gray-500 text-white'
     case 'gold': return 'bg-yellow-500 hover:bg-yellow-600 text-white'
     default: return 'bg-amber-700 hover:bg-amber-800 text-white'
@@ -255,6 +417,7 @@ const layerButtonClass = computed(() => {
 
 const layerDragActiveClass = computed(() => {
   switch (layer.value) {
+    case 'raw': return 'border-blue-600 bg-blue-600/5'
     case 'silver': return 'border-gray-400 bg-gray-400/5'
     case 'gold': return 'border-yellow-500 bg-yellow-500/5'
     default: return 'border-amber-700 bg-amber-700/5'
@@ -263,6 +426,7 @@ const layerDragActiveClass = computed(() => {
 
 const layerTextClass = computed(() => {
   switch (layer.value) {
+    case 'raw': return 'text-blue-600'
     case 'silver': return 'text-gray-400'
     case 'gold': return 'text-yellow-500'
     default: return 'text-amber-700'
@@ -327,7 +491,7 @@ fetchAll()
             @click="openRename"
           />
           <UButton
-            v-if="layer === 'bronze'"
+            v-if="isRaw"
             icon="i-lucide-upload"
             label="Upload Version"
             size="sm"
@@ -416,7 +580,7 @@ fetchAll()
               class="size-10 mx-auto mb-3 text-gray-300 dark:text-gray-600"
             />
             <p class="text-sm">
-              <template v-if="layer === 'bronze'">
+              <template v-if="isRaw">
                 No versions yet. Upload a file to create the first version.
               </template>
               <template v-else>
@@ -438,13 +602,13 @@ fetchAll()
                   ID
                 </th>
                 <th
-                  v-if="layer === 'bronze'"
+                  v-if="isRaw"
                   class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider"
                 >
                   Status
                 </th>
                 <th
-                  v-if="layer !== 'bronze'"
+                  v-if="!isRaw"
                   class="text-left py-2.5 px-4 font-medium text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider"
                 >
                   From Resource
@@ -463,15 +627,13 @@ fetchAll()
                 :key="getVersionNumber(v)"
               >
                 <tr
-                  class="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                  :class="{ 'cursor-pointer': layer !== 'bronze' }"
-                  @click="toggleSchema(getVersionNumber(v))"
+                  class="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
+                  @click="togglePreview(getVersionNumber(v))"
                 >
                   <td class="py-2.5 px-4 font-mono text-gray-900 dark:text-white">
                     <div class="flex items-center gap-1.5">
                       <UIcon
-                        v-if="layer !== 'bronze'"
-                        :name="schemaMap.has(getVersionNumber(v)) ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'"
+                        :name="hasPreview(getVersionNumber(v)) ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'"
                         class="size-3.5 text-gray-400 shrink-0"
                       />
                       v{{ getDisplayVersion(v) }}
@@ -494,7 +656,7 @@ fetchAll()
                     </div>
                   </td>
                   <td
-                    v-if="layer === 'bronze'"
+                    v-if="isRaw"
                     class="py-2.5 px-4"
                   >
                     <UBadge
@@ -507,10 +669,10 @@ fetchAll()
                     </UBadge>
                   </td>
                   <td
-                    v-if="layer !== 'bronze'"
+                    v-if="!isRaw"
                     class="py-2.5 px-4 text-gray-500 dark:text-gray-400"
                   >
-                    #{{ (v as SilverLineageResponse | GoldLineageResponse).from_resource_id }}
+                    #{{ (v as LineageResponse).from_resource_id }}
                   </td>
                   <td class="py-2.5 px-4 text-gray-500 dark:text-gray-400">
                     {{ new Date(v.created_at).toLocaleDateString() }}
@@ -521,7 +683,7 @@ fetchAll()
                       @click.stop
                     >
                       <UButton
-                        v-if="layer === 'bronze' && getStatus(v) !== 'active'"
+                        v-if="isRaw && getStatus(v) !== 'active'"
                         icon="i-lucide-check-circle"
                         variant="ghost"
                         color="neutral"
@@ -536,16 +698,15 @@ fetchAll()
                         @click="downloadVersion(getVersionNumber(v))"
                       />
                       <UButton
-                        v-if="layer !== 'bronze'"
                         icon="i-lucide-table-2"
                         variant="ghost"
                         color="neutral"
                         size="xs"
-                        :loading="schemaLoadingSet.has(getVersionNumber(v))"
-                        @click="toggleSchema(getVersionNumber(v))"
+                        :loading="isPreviewLoading(getVersionNumber(v))"
+                        @click="togglePreview(getVersionNumber(v))"
                       />
                       <UButton
-                        v-if="layer === 'bronze'"
+                        v-if="isRaw"
                         icon="i-lucide-trash-2"
                         variant="ghost"
                         color="error"
@@ -555,13 +716,13 @@ fetchAll()
                     </div>
                   </td>
                 </tr>
-                <!-- Inline schema preview -->
+                <!-- Inline schema preview (bronze/silver/gold) -->
                 <tr
-                  v-if="schemaMap.has(getVersionNumber(v))"
+                  v-if="hasSchema && schemaMap.has(getVersionNumber(v))"
                   class="border-b border-gray-100 dark:border-gray-800"
                 >
                   <td
-                    :colspan="layer === 'bronze' ? 5 : 5"
+                    :colspan="isRaw ? 6 : 6"
                     class="p-4"
                   >
                     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
@@ -608,6 +769,64 @@ fetchAll()
                           </tbody>
                         </table>
                       </div>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Inline raw file preview -->
+                <tr
+                  v-if="isRaw && rawPreviewMap.has(getVersionNumber(v))"
+                  class="border-b border-gray-100 dark:border-gray-800"
+                >
+                  <td
+                    colspan="6"
+                    class="p-4"
+                  >
+                    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                      <!-- Table preview for tabular raw data -->
+                      <template v-if="rawPreviewMap.get(getVersionNumber(v))!.type === 'table'">
+                        <div class="overflow-x-auto">
+                          <table class="text-sm min-w-max">
+                            <thead>
+                              <tr class="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+                                <th
+                                  v-for="col in rawPreviewMap.get(getVersionNumber(v))!.columns"
+                                  :key="col"
+                                  class="text-left py-2.5 px-4 font-medium text-xs border-r border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white whitespace-nowrap"
+                                >
+                                  {{ col }}
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr
+                                v-for="(row, i) in rawPreviewMap.get(getVersionNumber(v))!.rows"
+                                :key="i"
+                                class="border-b border-gray-200 dark:border-gray-700 last:border-0"
+                              >
+                                <td
+                                  v-for="col in rawPreviewMap.get(getVersionNumber(v))!.columns"
+                                  :key="col"
+                                  class="py-2 px-4 text-gray-700 dark:text-gray-300 font-mono text-xs whitespace-nowrap border-r border-gray-200 dark:border-gray-700"
+                                >
+                                  {{ formatCell(row[col]) }}
+                                </td>
+                              </tr>
+                              <tr v-if="rawPreviewMap.get(getVersionNumber(v))!.rows?.length === 0">
+                                <td
+                                  :colspan="rawPreviewMap.get(getVersionNumber(v))!.columns?.length"
+                                  class="py-3 px-4 text-center text-gray-400 text-xs"
+                                >
+                                  No data rows available.
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </template>
+                      <!-- Text preview for non-tabular / malformed raw data -->
+                      <template v-else>
+                        <pre class="p-4 text-xs text-gray-700 dark:text-gray-300 font-mono whitespace-pre-wrap break-all overflow-x-auto max-h-80">{{ rawPreviewMap.get(getVersionNumber(v))!.text }}</pre>
+                      </template>
                     </div>
                   </td>
                 </tr>

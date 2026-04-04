@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import type {
   ProjectResponse,
-  MetadataResponse,
-  SilverMetadataResponse,
-  GoldMetadataResponse
+  MetadataResponse
 } from '~/utils/api'
 
 const route = useRoute()
-const { projects, bronze, silver, gold } = useApi()
+const { projects, raw, bronze, silver, gold } = useApi()
 const { copiedId, copyId } = useCopyId()
 
 const projectId = computed(() => Number(route.params.projectId))
 
 const project = ref<ProjectResponse | null>(null)
-const resources = ref<(MetadataResponse | SilverMetadataResponse | GoldMetadataResponse)[]>([])
-const activeTab = ref('bronze')
+const resources = ref<MetadataResponse[]>([])
+const activeTab = ref('raw')
 const loading = ref(true)
 const resourcesLoading = ref(false)
 
@@ -29,6 +27,7 @@ const renameDescription = ref('')
 const renaming = ref(false)
 
 const tabs = [
+  { label: 'Raw', value: 'raw', icon: 'i-lucide-file-text' },
   { label: 'Bronze', value: 'bronze', icon: 'i-lucide-hard-drive' },
   { label: 'Silver', value: 'silver', icon: 'i-lucide-database' },
   { label: 'Gold', value: 'gold', icon: 'i-lucide-crown' }
@@ -41,8 +40,10 @@ async function fetchProject() {
 async function fetchResources() {
   resourcesLoading.value = true
   try {
-    let all: (MetadataResponse | SilverMetadataResponse | GoldMetadataResponse)[]
-    if (activeTab.value === 'bronze') {
+    let all: MetadataResponse[]
+    if (activeTab.value === 'raw') {
+      all = await raw.listResourcesRawGet()
+    } else if (activeTab.value === 'bronze') {
       all = await bronze.listResourcesBronzeGet()
     } else if (activeTab.value === 'silver') {
       all = await silver.listResourcesSilverGet()
@@ -60,7 +61,15 @@ async function createResource() {
   if (!newResourceName.value.trim()) return
   creating.value = true
   try {
-    if (activeTab.value === 'bronze') {
+    if (activeTab.value === 'raw') {
+      await raw.createResourceRawPost({
+        createResourceRequest: {
+          name: newResourceName.value,
+          project_id: projectId.value,
+          description: newResourceDescription.value || undefined
+        }
+      })
+    } else if (activeTab.value === 'bronze') {
       await bronze.createResourceBronzePost({
         createResourceRequest: {
           name: newResourceName.value,
@@ -70,7 +79,7 @@ async function createResource() {
       })
     } else if (activeTab.value === 'silver') {
       await silver.createResourceSilverPost({
-        createSilverResourceRequest: {
+        createResourceRequest: {
           name: newResourceName.value,
           project_id: projectId.value,
           description: newResourceDescription.value || undefined
@@ -78,7 +87,7 @@ async function createResource() {
       })
     } else {
       await gold.createResourceGoldPost({
-        createGoldResourceRequest: {
+        createResourceRequest: {
           name: newResourceName.value,
           project_id: projectId.value,
           description: newResourceDescription.value || undefined
@@ -95,7 +104,9 @@ async function createResource() {
 }
 
 async function deleteResource(id: number) {
-  if (activeTab.value === 'bronze') {
+  if (activeTab.value === 'raw') {
+    await raw.deleteResourceRawResourceIdDelete({ resourceId: id })
+  } else if (activeTab.value === 'bronze') {
     await bronze.deleteResourceBronzeResourceIdDelete({ resourceId: id })
   } else if (activeTab.value === 'silver') {
     await silver.deleteResourceSilverResourceIdDelete({ resourceId: id })
@@ -107,6 +118,7 @@ async function deleteResource(id: number) {
 
 const layerButtonClass = computed(() => {
   switch (activeTab.value) {
+    case 'raw': return 'bg-blue-600 hover:bg-blue-700 text-white'
     case 'silver': return 'bg-gray-400 hover:bg-gray-500 text-white'
     case 'gold': return 'bg-yellow-500 hover:bg-yellow-600 text-white'
     default: return 'bg-amber-700 hover:bg-amber-800 text-white'
@@ -115,6 +127,7 @@ const layerButtonClass = computed(() => {
 
 const layerIconClass = computed(() => {
   switch (activeTab.value) {
+    case 'raw': return 'bg-blue-600/10 text-blue-600'
     case 'silver': return 'bg-gray-400/10 text-gray-400'
     case 'gold': return 'bg-yellow-500/10 text-yellow-500'
     default: return 'bg-amber-700/10 text-amber-700'
