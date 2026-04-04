@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 
 from src.api.dependencies import projects_dep
 from src.main import app
-from src.postgres import ProjectMetadataRead
+from src.postgres import ProjectMetadata
 
 NOW = datetime.now(timezone.utc)
 
@@ -36,7 +36,7 @@ class TestListProjects:
 	def test_list_returns_items(
 		self, client: TestClient, mock_interactor: AsyncMock
 	) -> None:
-		project = ProjectMetadataRead(
+		project = ProjectMetadata(
 			id=1,
 			name="My Project",
 			description="A test project",
@@ -55,7 +55,7 @@ class TestListProjects:
 		self, client: TestClient, mock_interactor: AsyncMock
 	) -> None:
 		projects = [
-			ProjectMetadataRead(
+			ProjectMetadata(
 				id=i,
 				name=f"Project {i}",
 				description=None,
@@ -74,7 +74,7 @@ class TestCreateProject:
 	def test_create_success(
 		self, client: TestClient, mock_interactor: AsyncMock
 	) -> None:
-		project = ProjectMetadataRead(
+		project = ProjectMetadata(
 			id=5,
 			name="New Project",
 			description=None,
@@ -90,7 +90,7 @@ class TestCreateProject:
 	def test_create_with_description(
 		self, client: TestClient, mock_interactor: AsyncMock
 	) -> None:
-		project = ProjectMetadataRead(
+		project = ProjectMetadata(
 			id=6,
 			name="Described",
 			description="With desc",
@@ -108,7 +108,7 @@ class TestCreateProject:
 
 class TestGetProject:
 	def test_get_found(self, client: TestClient, mock_interactor: AsyncMock) -> None:
-		project = ProjectMetadataRead(
+		project = ProjectMetadata(
 			id=1,
 			name="proj",
 			description=None,
@@ -131,7 +131,7 @@ class TestGetProject:
 
 class TestUpdateProject:
 	def test_update_found(self, client: TestClient, mock_interactor: AsyncMock) -> None:
-		project = ProjectMetadataRead(
+		project = ProjectMetadata(
 			id=1,
 			name="updated",
 			description="new desc",

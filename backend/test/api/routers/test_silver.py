@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from src.api.dependencies import silver_dep
 from src.loaders import SilverLoader
 from src.main import app
-from src.postgres import SilverResourceMetadataRead, SilverVersionLineageRead
+from src.postgres import SilverResourceMetadata, SilverVersionLineage
 from test.conftest import NOW
 
 
@@ -40,7 +40,7 @@ class TestListResources:
 	def test_list_returns_items(
 		self, client: TestClient, mock_silver: MagicMock
 	) -> None:
-		meta = SilverResourceMetadataRead(
+		meta = SilverResourceMetadata(
 			id=1,
 			name="silver_res",
 			description=None,
@@ -58,7 +58,7 @@ class TestListResources:
 
 class TestCreateResource:
 	def test_create_success(self, client: TestClient, mock_silver: MagicMock) -> None:
-		meta = SilverResourceMetadataRead(
+		meta = SilverResourceMetadata(
 			id=3,
 			name="new_silver",
 			description=None,
@@ -74,7 +74,7 @@ class TestCreateResource:
 
 class TestGetResource:
 	def test_get_found(self, client: TestClient, mock_silver: MagicMock) -> None:
-		meta = SilverResourceMetadataRead(
+		meta = SilverResourceMetadata(
 			id=1,
 			name="s",
 			description=None,
@@ -102,7 +102,7 @@ class TestDeleteResource:
 
 class TestUpdateResource:
 	def test_update_found(self, client: TestClient, mock_silver: MagicMock) -> None:
-		meta = SilverResourceMetadataRead(
+		meta = SilverResourceMetadata(
 			id=1,
 			name="updated",
 			description=None,
@@ -123,7 +123,7 @@ class TestUpdateResource:
 
 class TestListVersions:
 	def test_list_versions(self, client: TestClient, mock_silver: MagicMock) -> None:
-		lineage = SilverVersionLineageRead(
+		lineage = SilverVersionLineage(
 			id=1, resource_id=1, delta_version=0, from_resource_id=5, created_at=NOW
 		)
 		mock_silver.get_lineage.return_value = [lineage]

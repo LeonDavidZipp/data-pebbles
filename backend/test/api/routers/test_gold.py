@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from src.api.dependencies import gold_dep
 from src.loaders import GoldLoader
 from src.main import app
-from src.postgres import GoldResourceMetadataRead, GoldVersionLineageRead
+from src.postgres import GoldResourceMetadata, GoldVersionLineage
 from test.conftest import NOW
 
 
@@ -38,7 +38,7 @@ class TestListResources:
 		assert resp.json() == []
 
 	def test_list_returns_items(self, client: TestClient, mock_gold: MagicMock) -> None:
-		meta = GoldResourceMetadataRead(
+		meta = GoldResourceMetadata(
 			id=1,
 			name="gold_res",
 			description=None,
@@ -56,7 +56,7 @@ class TestListResources:
 
 class TestCreateResource:
 	def test_create_success(self, client: TestClient, mock_gold: MagicMock) -> None:
-		meta = GoldResourceMetadataRead(
+		meta = GoldResourceMetadata(
 			id=5,
 			name="new_gold",
 			description=None,
@@ -72,7 +72,7 @@ class TestCreateResource:
 
 class TestGetResource:
 	def test_get_found(self, client: TestClient, mock_gold: MagicMock) -> None:
-		meta = GoldResourceMetadataRead(
+		meta = GoldResourceMetadata(
 			id=1,
 			name="g",
 			description=None,
@@ -100,7 +100,7 @@ class TestDeleteResource:
 
 class TestUpdateResource:
 	def test_update_found(self, client: TestClient, mock_gold: MagicMock) -> None:
-		meta = GoldResourceMetadataRead(
+		meta = GoldResourceMetadata(
 			id=1,
 			name="updated",
 			description=None,
@@ -121,7 +121,7 @@ class TestUpdateResource:
 
 class TestListVersions:
 	def test_list_versions(self, client: TestClient, mock_gold: MagicMock) -> None:
-		lineage = GoldVersionLineageRead(
+		lineage = GoldVersionLineage(
 			id=1, resource_id=1, delta_version=0, from_resource_id=5, created_at=NOW
 		)
 		mock_gold.get_lineage.return_value = [lineage]
