@@ -65,6 +65,15 @@ def create_layer_router(
 	async def list_resources(  # type: ignore
 		loader: Annotated[Loader, Depends(dep)],
 	) -> list[MetadataResponse]:
+		"""
+		Lists all resources in the layer.
+
+		Args:
+			loader: The loader instance to use for fetching the metadata.
+
+		Returns:
+			A list of MetadataResponse objects containing the metadata of all resources.
+		"""
 		resources = await loader.metadata_interactor.get_all()
 		return [
 			MetadataResponse(
@@ -86,6 +95,18 @@ def create_layer_router(
 		body: CreateResourceRequest,
 		loader: Annotated[Loader, Depends(dep)],
 	) -> CreateResourceResponse:
+		"""
+		Creates a new resource in the layer.
+
+		Args:
+			body: A CreateResourceRequest object containing the name, project ID, and
+				optional description for the new resource.
+			loader: The loader instance to use for creating the resource.
+
+		Returns:
+			A CreateResourceResponse containing a success message and the ID of the
+			newly created resource.
+		"""
 		res = await loader.metadata_interactor.create(
 			body.name, body.project_id, body.description
 		)
@@ -103,6 +124,16 @@ def create_layer_router(
 		resource_id: Annotated[int, Path()],
 		loader: Annotated[Loader, Depends(dep)],
 	) -> MetadataResponse:
+		"""
+		Retrieves the metadata of the specified resource.
+
+		Args:
+			resource_id: The ID of the resource to retrieve.
+			loader: The loader instance to use for fetching the metadata.
+
+		Returns:
+			A MetadataResponse object containing the metadata of the resource.
+		"""
 		res = await loader.get_metadata(resource_id)
 		if res is None:
 			raise ResourceNotFoundError(resource_id)
@@ -123,6 +154,16 @@ def create_layer_router(
 		resource_id: Annotated[int, Path()],
 		loader: Annotated[Loader, Depends(dep)],
 	) -> MessageResponse:
+		"""
+		Deletes the specified resource.
+
+		Args:
+			resource_id: The ID of the resource to delete.
+			loader: The loader instance to use for deleting the resource.
+
+		Returns:
+			A MessageResponse indicating the result of the delete operation.
+		"""
 		await loader.metadata_interactor.delete(resource_id)
 		return MessageResponse(message="Resource deleted successfully.")
 
@@ -136,6 +177,18 @@ def create_layer_router(
 		body: UpdateResourceRequest,
 		loader: Annotated[Loader, Depends(dep)],
 	) -> MetadataResponse:
+		"""
+		Updates the metadata of the specified resource.
+
+		Args:
+			resource_id: The ID of the resource to update.
+			body: An UpdateResourceRequest object containing the new name and
+				description for the resource.
+			loader: The loader instance to use for updating the metadata.
+
+		Returns:
+			A MetadataResponse object containing the updated metadata of the resource.
+		"""
 		res = await loader.metadata_interactor.update(
 			resource_id, name=body.name, description=body.description
 		)
@@ -158,6 +211,17 @@ def create_layer_router(
 		resource_id: Annotated[int, Path()],
 		loader: Annotated[Loader, Depends(dep)],
 	) -> list[LineageResponse]:
+		"""
+		Lists all versions of the specified resource along with their lineage
+		information.
+
+		Args:
+			resource_id: The ID of the resource to list versions for.
+			loader: The loader instance to use for fetching the lineage information.
+
+		Returns:
+			A list of LineageResponse objects representing the versions of the resource.
+		"""
 		entries = await loader.get_lineage(resource_id)
 		return [
 			LineageResponse(
@@ -183,6 +247,20 @@ def create_layer_router(
 			loader: Annotated[Loader, Depends(dep)],
 			resources: Annotated[list[int], Query()],
 		) -> MessageResponse:
+			"""
+			Uploads a new version of the resource from a Parquet file, derived from
+			multiple existing resources.
+
+			Args:
+				resource_id: The ID of the resource to upload a new version for.
+				file: The uploaded Parquet file containing the new version of the data.
+				loader: The loader instance to use for uploading the data.
+				resources: The IDs of the existing resources that this new version is
+					derived from.
+
+			Returns:
+				A MessageResponse indicating the result of the upload operation.
+			"""
 			content = await file.read()
 			lf = pl.scan_parquet(content)
 			await cast(GoldLoader, loader).upload(
@@ -206,6 +284,19 @@ def create_layer_router(
 			loader: Annotated[Loader, Depends(dep)],
 			from_resource_id: Annotated[int, Query()],
 		) -> MessageResponse:
+			"""
+			Uploads a new version of the resource from a Parquet file.
+
+			Args:
+				resource_id: The ID of the resource to upload a new version for.
+				file: The uploaded Parquet file containing the new version of the data.
+				loader: The loader instance to use for uploading the data.
+				from_resource_id: The ID of the existing resource version that this new
+					version is derived from.
+
+			Returns:
+				A MessageResponse indicating the result of the upload operation.
+			"""
 			content = await file.read()
 			lf = pl.scan_parquet(content)
 			await cast(BronzeLoader, loader).upload(
@@ -226,6 +317,18 @@ def create_layer_router(
 		version: Annotated[int, Path()],
 		loader: Annotated[Loader, Depends(dep)],
 	) -> StreamingResponse:
+		"""
+		Downloads the specified version of the resource as a Parquet file.
+
+		Args:
+			resource_id: The ID of the resource.
+			version: The version number of the resource.
+			loader: The loader instance to use for fetching the data.
+
+		Returns:
+			A StreamingResponse containing the Parquet file.
+		"""
+
 		df = loader.get(resource_id=resource_id, version=version).collect()
 		buf = df.write_ipc_stream(None)
 		buf.seek(0)
@@ -247,6 +350,17 @@ def create_layer_router(
 		version: Annotated[int, Path()],
 		loader: Annotated[Loader, Depends(dep)],
 	) -> SchemaResponse:
+		"""
+		Returns the schema of the specified version of the resource.
+
+		Args:
+			resource_id: The ID of the resource.
+			version: The version number of the resource.
+			loader: The loader instance to use for fetching the data.
+
+		Returns:
+			A SchemaResponse containing the data schema and a sample of the data.
+		"""
 		df = loader.get(resource_id=resource_id, version=version).head(5).collect()
 		schema = {col: type(dtype).__name__.lower() for col, dtype in df.schema.items()}
 		return SchemaResponse(data_schema=schema, data=df.to_dict(as_series=False))
