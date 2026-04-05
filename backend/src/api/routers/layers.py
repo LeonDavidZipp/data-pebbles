@@ -55,11 +55,13 @@ class SchemaResponse(BaseModel):
 
 
 def create_layer_router(
-	dep: Callable[[], Loader], *, multi_source: bool = False
+	dep: Callable[[], Loader], *, layer: str, multi_source: bool = False
 ) -> APIRouter:
 	router = APIRouter()
 
-	@router.get("/", status_code=status.HTTP_200_OK)
+	@router.get(
+		"/", status_code=status.HTTP_200_OK, operation_id=f"{layer}_list_resources"
+	)
 	async def list_resources(  # type: ignore
 		loader: Annotated[Loader, Depends(dep)],
 	) -> list[MetadataResponse]:
@@ -75,7 +77,11 @@ def create_layer_router(
 			for s in resources
 		]
 
-	@router.post("/", status_code=status.HTTP_201_CREATED)
+	@router.post(
+		"/",
+		status_code=status.HTTP_201_CREATED,
+		operation_id=f"{layer}_create_resource",
+	)
 	async def create_resource(  # type: ignore
 		body: CreateResourceRequest,
 		loader: Annotated[Loader, Depends(dep)],
@@ -88,7 +94,11 @@ def create_layer_router(
 			resource_id=res.id,
 		)
 
-	@router.get("/{resource_id}", status_code=status.HTTP_200_OK)
+	@router.get(
+		"/{resource_id}",
+		status_code=status.HTTP_200_OK,
+		operation_id=f"{layer}_get_resource",
+	)
 	async def get_resource(  # type: ignore
 		resource_id: Annotated[int, Path()],
 		loader: Annotated[Loader, Depends(dep)],
@@ -104,7 +114,11 @@ def create_layer_router(
 			created_at=res.created_at.isoformat(),
 		)
 
-	@router.delete("/{resource_id}", status_code=status.HTTP_200_OK)
+	@router.delete(
+		"/{resource_id}",
+		status_code=status.HTTP_200_OK,
+		operation_id=f"{layer}_delete_resource",
+	)
 	async def delete_resource(  # type: ignore
 		resource_id: Annotated[int, Path()],
 		loader: Annotated[Loader, Depends(dep)],
@@ -112,7 +126,11 @@ def create_layer_router(
 		await loader.metadata_interactor.delete(resource_id)
 		return MessageResponse(message="Resource deleted successfully.")
 
-	@router.patch("/{resource_id}", status_code=status.HTTP_200_OK)
+	@router.patch(
+		"/{resource_id}",
+		status_code=status.HTTP_200_OK,
+		operation_id=f"{layer}_update_resource",
+	)
 	async def update_resource(  # type: ignore
 		resource_id: Annotated[int, Path()],
 		body: UpdateResourceRequest,
@@ -131,7 +149,11 @@ def create_layer_router(
 			created_at=res.created_at.isoformat(),
 		)
 
-	@router.get("/{resource_id}/versions", status_code=status.HTTP_200_OK)
+	@router.get(
+		"/{resource_id}/versions",
+		status_code=status.HTTP_200_OK,
+		operation_id=f"{layer}_list_versions",
+	)
 	async def list_versions(  # type: ignore
 		resource_id: Annotated[int, Path()],
 		loader: Annotated[Loader, Depends(dep)],
@@ -150,7 +172,11 @@ def create_layer_router(
 
 	if multi_source:
 
-		@router.post("/{resource_id}/versions", status_code=status.HTTP_201_CREATED)
+		@router.post(
+			"/{resource_id}/versions",
+			status_code=status.HTTP_201_CREATED,
+			operation_id=f"{layer}_upload_version",
+		)
 		async def upload_version_multi(  # type: ignore
 			resource_id: Annotated[int, Path()],
 			file: Annotated[UploadFile, Depends(validate_file)],
@@ -169,7 +195,11 @@ def create_layer_router(
 
 	else:
 
-		@router.post("/{resource_id}/versions", status_code=status.HTTP_201_CREATED)
+		@router.post(
+			"/{resource_id}/versions",
+			status_code=status.HTTP_201_CREATED,
+			operation_id=f"{layer}_upload_version",
+		)
 		async def upload_version_single(  # type: ignore
 			resource_id: Annotated[int, Path()],
 			file: Annotated[UploadFile, Depends(validate_file)],
@@ -186,7 +216,11 @@ def create_layer_router(
 			)
 			return MessageResponse(message="File uploaded successfully.")
 
-	@router.get("/{resource_id}/versions/{version}", status_code=status.HTTP_200_OK)
+	@router.get(
+		"/{resource_id}/versions/{version}",
+		status_code=status.HTTP_200_OK,
+		operation_id=f"{layer}_download_version",
+	)
 	def download_version(  # type: ignore
 		resource_id: Annotated[int, Path()],
 		version: Annotated[int, Path()],
@@ -206,6 +240,7 @@ def create_layer_router(
 	@router.get(
 		"/{resource_id}/versions/{version}/schema",
 		status_code=status.HTTP_200_OK,
+		operation_id=f"{layer}_get_schema",
 	)
 	async def get_schema(  # type: ignore
 		resource_id: Annotated[int, Path()],
@@ -219,6 +254,6 @@ def create_layer_router(
 	return router
 
 
-bronze_router = create_layer_router(bronze_dep)
-silver_router = create_layer_router(silver_dep)
-gold_router = create_layer_router(gold_dep, multi_source=True)
+bronze_router = create_layer_router(bronze_dep, layer="bronze")
+silver_router = create_layer_router(silver_dep, layer="silver")
+gold_router = create_layer_router(gold_dep, layer="gold", multi_source=True)
