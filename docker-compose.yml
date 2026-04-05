@@ -122,6 +122,8 @@ services:
       mc alias set myminio http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD;
       mc mb myminio/mlflow --ignore-existing;
       mc anonymous set download myminio/mlflow;
+      mc mb myminio/raw --ignore-existing;
+      mc anonymous set download myminio/raw;
       mc mb myminio/bronze --ignore-existing;
       mc anonymous set download myminio/bronze;
       mc mb myminio/silver --ignore-existing;
