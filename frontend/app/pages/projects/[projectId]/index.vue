@@ -44,11 +44,11 @@ async function fetchResources() {
     if (activeTab.value === 'raw') {
       all = await raw.listResourcesRawGet()
     } else if (activeTab.value === 'bronze') {
-      all = await bronze.listResourcesBronzeGet()
+      all = await bronze.bronzeListResources()
     } else if (activeTab.value === 'silver') {
-      all = await silver.listResourcesSilverGet()
+      all = await silver.silverListResources()
     } else {
-      all = await gold.listResourcesGoldGet()
+      all = await gold.goldListResources()
     }
     resources.value = all.filter(r => r.project_id === projectId.value)
     resources.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
@@ -70,7 +70,7 @@ async function createResource() {
         }
       })
     } else if (activeTab.value === 'bronze') {
-      await bronze.createResourceBronzePost({
+      await bronze.bronzeCreateResource({
         createResourceRequest: {
           name: newResourceName.value,
           project_id: projectId.value,
@@ -78,7 +78,7 @@ async function createResource() {
         }
       })
     } else if (activeTab.value === 'silver') {
-      await silver.createResourceSilverPost({
+      await silver.silverCreateResource({
         createResourceRequest: {
           name: newResourceName.value,
           project_id: projectId.value,
@@ -86,7 +86,7 @@ async function createResource() {
         }
       })
     } else {
-      await gold.createResourceGoldPost({
+      await gold.goldCreateResource({
         createResourceRequest: {
           name: newResourceName.value,
           project_id: projectId.value,
@@ -107,11 +107,11 @@ async function deleteResource(id: number) {
   if (activeTab.value === 'raw') {
     await raw.deleteResourceRawResourceIdDelete({ resourceId: id })
   } else if (activeTab.value === 'bronze') {
-    await bronze.deleteResourceBronzeResourceIdDelete({ resourceId: id })
+    await bronze.bronzeDeleteResource({ resourceId: id })
   } else if (activeTab.value === 'silver') {
-    await silver.deleteResourceSilverResourceIdDelete({ resourceId: id })
+    await silver.silverDeleteResource({ resourceId: id })
   } else {
-    await gold.deleteResourceGoldResourceIdDelete({ resourceId: id })
+    await gold.goldDeleteResource({ resourceId: id })
   }
   await fetchResources()
 }

@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
-export * from './APIEndpointsForInteractingWithTheBronzeLayerApi';
-export * from './APIEndpointsForInteractingWithTheGoldLayerApi';
-export * from './APIEndpointsForInteractingWithTheRawLayerApi';
-export * from './APIEndpointsForInteractingWithTheSilverLayerApi';
-export * from './APIEndpointsForManagingProjectsApi';
+export * from './BronzeApi';
+export * from './GoldApi';
+export * from './ProjectsApi';
+export * from './RawApi';
+export * from './SilverApi';

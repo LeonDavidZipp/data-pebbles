@@ -76,15 +76,15 @@ async function fetchResource() {
       resourceId: resourceId.value
     })
   } else if (layer.value === 'bronze') {
-    resource.value = await bronze.getResourceBronzeResourceIdGet({
+    resource.value = await bronze.bronzeGetResource({
       resourceId: resourceId.value
     })
   } else if (layer.value === 'silver') {
-    resource.value = await silver.getResourceSilverResourceIdGet({
+    resource.value = await silver.silverGetResource({
       resourceId: resourceId.value
     })
   } else {
-    resource.value = await gold.getResourceGoldResourceIdGet({
+    resource.value = await gold.goldGetResource({
       resourceId: resourceId.value
     })
   }
@@ -96,15 +96,15 @@ async function fetchVersions() {
       resourceId: resourceId.value
     })
   } else if (layer.value === 'bronze') {
-    versions.value = await bronze.listVersionsBronzeResourceIdVersionsGet({
+    versions.value = await bronze.bronzeListVersions({
       resourceId: resourceId.value
     })
   } else if (layer.value === 'silver') {
-    versions.value = await silver.listVersionsSilverResourceIdVersionsGet({
+    versions.value = await silver.silverListVersions({
       resourceId: resourceId.value
     })
   } else {
-    versions.value = await gold.listVersionsGoldResourceIdVersionsGet({
+    versions.value = await gold.goldListVersions({
       resourceId: resourceId.value
     })
   }
@@ -173,17 +173,17 @@ async function renameResource() {
         updateResourceRequest: { name: renameName.value, description: desc }
       })
     } else if (layer.value === 'bronze') {
-      resource.value = await bronze.updateResourceBronzeResourceIdPatch({
+      resource.value = await bronze.bronzeUpdateResource({
         resourceId: resourceId.value,
         updateResourceRequest: { name: renameName.value, description: desc }
       })
     } else if (layer.value === 'silver') {
-      resource.value = await silver.updateResourceSilverResourceIdPatch({
+      resource.value = await silver.silverUpdateResource({
         resourceId: resourceId.value,
         updateResourceRequest: { name: renameName.value, description: desc }
       })
     } else {
-      resource.value = await gold.updateResourceGoldResourceIdPatch({
+      resource.value = await gold.goldUpdateResource({
         resourceId: resourceId.value,
         updateResourceRequest: { name: renameName.value, description: desc }
       })
@@ -210,17 +210,17 @@ async function toggleSchema(version: number) {
   try {
     let result: SchemaResponse | undefined
     if (layer.value === 'bronze') {
-      result = await bronze.getSchemaBronzeResourceIdVersionsVersionSchemaGet({
+      result = await bronze.bronzeGetSchema({
         resourceId: resourceId.value,
         version
       })
     } else if (layer.value === 'silver') {
-      result = await silver.getSchemaSilverResourceIdVersionsVersionSchemaGet({
+      result = await silver.silverGetSchema({
         resourceId: resourceId.value,
         version
       })
     } else if (layer.value === 'gold') {
-      result = await gold.getSchemaGoldResourceIdVersionsVersionSchemaGet({
+      result = await gold.goldGetSchema({
         resourceId: resourceId.value,
         version
       })
